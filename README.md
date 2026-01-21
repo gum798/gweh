@@ -9,7 +9,7 @@
 
 # 오늘의 괘 (Today's Gweh)
 
-`<sub>`*괘는 징조, Gweh means Omen*`</sub>`
+`<sub>`*괘는 괘, Gweh means Omen*`</sub>`
 
 > *"하늘의 기운과 대지의 맥박, 달의 속삭임이 하나 되어 당신의 오늘을 비춥니다."*
 
@@ -25,7 +25,7 @@
 
 ---
 
-## ☾ 징조의 원천
+## ☾ 괘의 원천
 
 ```
     ◯ 대기의 기운 — 기압이 알려주는 우주의 숨결
@@ -72,7 +72,7 @@ VITE_NASA_API_KEY=your_nasa_api_key
 
 ## ☯ 점괘의 해석
 
-### 복합 징조
+### 복합 괘
 
 우주의 여러 요소가 특정 조합을 이룰 때, 특별한 메시지가 현현합니다:
 
@@ -111,7 +111,7 @@ src/
 ├── components/
 │   ├── LoadingScreen.jsx   # 우주의 기운을 읽는 중...
 │   ├── LocationPrompt.jsx  # 당신의 좌표를 알려주세요
-│   ├── OmenCard.jsx        # 징조가 새겨진 카드
+│   ├── OmenCard.jsx        # 괘가 새겨진 카드
 │   └── DataPanel.jsx       # 원천 데이터의 창
 ├── hooks/
 │   ├── useWeather.js       # 대기와의 교신
@@ -120,7 +120,7 @@ src/
 │   └── useNasaApod.js      # 우주와의 접촉
 └── utils/
     ├── api.js              # 신탁 통신 채널
-    └── omenGenerator.js    # 징조 해석 엔진
+    └── omenGenerator.js    # 괘 해석 엔진
 ```
 
 ---

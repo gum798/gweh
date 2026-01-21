@@ -194,7 +194,7 @@ export function generateOmen(weather, moon, earthquake) {
     });
   }
 
-  // 메인 징조가 없으면 생성
+  // 메인 괘가 없으면 생성
   if (!mainOmen) {
     mainOmen = {
       message: generateSummaryOmen(weather, moon, earthquake),

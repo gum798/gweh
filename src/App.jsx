@@ -70,7 +70,7 @@ function App() {
     [location, weatherLoading, parallelLoading]
   );
 
-  // 징조 생성 (useMemo 유지)
+  // 괘 생성 (useMemo 유지)
   const omen = useMemo(() => {
     if (!weather || !moon || !earthquake) return null;
     return generateOmen(weather, moon, earthquake);
@@ -151,14 +151,14 @@ function App() {
         {/* 헤더 */}
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-mystic mystic-text text-shadow-glow mb-2">
-            오늘의 징조
+            오늘의 괘
           </h1>
           <p className="text-gray-400">
             {weather?.cityName ? `${weather.cityName}에서 관측됨` : ''}
           </p>
         </header>
 
-        {/* 메인 징조 카드 */}
+        {/* 메인 괘 카드 */}
         <div className="mb-8">
           <OmenCard
             omen={omen}

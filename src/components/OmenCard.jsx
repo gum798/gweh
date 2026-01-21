@@ -24,7 +24,7 @@ export default function OmenCard({ omen, weather, moon, earthquake }) {
         </div>
       </div>
 
-      {/* 메인 징조 */}
+      {/* 메인 괘 */}
       <div className="text-center mb-8">
         <div className="text-4xl mb-4">✨</div>
         <p className="text-xl md:text-2xl mystic-text leading-relaxed text-shadow-glow font-mystic">
@@ -32,7 +32,7 @@ export default function OmenCard({ omen, weather, moon, earthquake }) {
         </p>
       </div>
 
-      {/* 세부 징조들 */}
+      {/* 세부 괘 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {omen.details.map((detail, index) => (
           <div

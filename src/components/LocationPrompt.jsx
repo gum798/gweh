@@ -7,7 +7,7 @@ export default function LocationPrompt({ onRequestLocation, error }) {
 
         {/* 제목 */}
         <h1 className="text-3xl font-mystic mystic-text mb-4 text-shadow-glow">
-          오늘의 징조
+          오늘의 괘
         </h1>
 
         {/* 설명 */}
