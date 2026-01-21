@@ -1,29 +1,31 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useWeather } from './hooks/useWeather';
-import { useNasaApod } from './hooks/useNasaApod';
-import { useEarthquake } from './hooks/useEarthquake';
+import { useParallelData } from './hooks/useParallelData';
 import { useMoonPhase } from './hooks/useMoonPhase';
 import { generateOmen } from './utils/omenGenerator';
 import LoadingScreen from './components/LoadingScreen';
 import LocationPrompt from './components/LocationPrompt';
 import OmenCard from './components/OmenCard';
-import DataPanel from './components/DataPanel';
+
+// bundle-dynamic-imports: DataPanel 동적 로딩
+const DataPanel = lazy(() => import('./components/DataPanel'));
 
 function App() {
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [showData, setShowData] = useState(false);
+  const [bgImageLoaded, setBgImageLoaded] = useState(false);
 
   // API 훅들
   const { data: weather, loading: weatherLoading, error: weatherError } = useWeather(
     location?.lat,
     location?.lon
   );
-  const { data: nasa, loading: nasaLoading } = useNasaApod();
-  const { data: earthquake, loading: earthquakeLoading } = useEarthquake();
+  // async-parallel: NASA와 지진 데이터를 병렬로 가져옴
+  const { nasa, earthquake, loading: parallelLoading, errors: parallelErrors } = useParallelData();
   const { data: moon } = useMoonPhase();
 
-  // 위치 요청 핸들러
+  // 위치 요청 핸들러 (useCallback 유지)
   const requestLocation = useCallback(() => {
     setLocationError(null);
 
@@ -62,14 +64,31 @@ function App() {
     );
   }, []);
 
-  // 로딩 상태 확인
-  const isLoading = location && (weatherLoading || nasaLoading || earthquakeLoading);
+  // rerender-memo: 로딩 상태를 useMemo로 최적화
+  const isLoading = useMemo(
+    () => location && (weatherLoading || parallelLoading),
+    [location, weatherLoading, parallelLoading]
+  );
 
-  // 징조 생성
+  // 징조 생성 (useMemo 유지)
   const omen = useMemo(() => {
     if (!weather || !moon || !earthquake) return null;
     return generateOmen(weather, moon, earthquake);
   }, [weather, moon, earthquake]);
+
+  // NASA 배경 이미지 프리로딩
+  useEffect(() => {
+    if (nasa?.mediaType === 'image' && nasa?.url) {
+      const img = new Image();
+      img.onload = () => setBgImageLoaded(true);
+      img.src = nasa.url;
+    }
+  }, [nasa?.mediaType, nasa?.url]);
+
+  // 데이터 토글 핸들러 (useCallback으로 안정화)
+  const toggleShowData = useCallback(() => {
+    setShowData(prev => !prev);
+  }, []);
 
   // 위치 미설정 시 프롬프트 표시
   if (!location) {
@@ -81,14 +100,25 @@ function App() {
     return <LoadingScreen message="우주의 기운을 읽고 있습니다..." />;
   }
 
-  // 에러 처리
-  if (weatherError) {
+  // 에러 처리 - 모든 API 에러 통합 처리
+  const hasError = weatherError || parallelErrors.nasa || parallelErrors.earthquake;
+  if (hasError) {
+    const errorMessages = [
+      weatherError,
+      parallelErrors.nasa,
+      parallelErrors.earthquake,
+    ].filter(Boolean);
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="glass-panel p-8 text-center max-w-md">
           <div className="text-4xl mb-4">⚠️</div>
           <h2 className="text-xl mystic-text mb-2">데이터를 불러올 수 없습니다</h2>
-          <p className="text-gray-400 mb-4">{weatherError}</p>
+          <div className="text-gray-400 mb-4 space-y-1">
+            {errorMessages.map((msg, i) => (
+              <p key={i}>{msg}</p>
+            ))}
+          </div>
           <button
             onClick={() => window.location.reload()}
             className="px-6 py-2 bg-cosmic-gold text-mystic-900 rounded-full font-medium"
@@ -103,13 +133,15 @@ function App() {
   // 메인 화면
   return (
     <div className="min-h-screen relative">
-      {/* NASA 배경 이미지 */}
-      {nasa?.mediaType === 'image' && (
+      {/* NASA 배경 이미지 - rendering-conditional-render: 삼항 연산자 사용 */}
+      {nasa?.mediaType === 'image' ? (
         <div
-          className="fixed inset-0 bg-cover bg-center opacity-20"
+          className={`fixed inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+            bgImageLoaded ? 'opacity-20' : 'opacity-0'
+          }`}
           style={{ backgroundImage: `url(${nasa.url})` }}
         />
-      )}
+      ) : null}
 
       {/* 오버레이 그라데이션 */}
       <div className="fixed inset-0 bg-gradient-to-b from-mystic-900/80 via-mystic-900/90 to-mystic-900" />
@@ -122,7 +154,7 @@ function App() {
             오늘의 징조
           </h1>
           <p className="text-gray-400">
-            {weather?.cityName && `${weather.cityName}에서 관측됨`}
+            {weather?.cityName ? `${weather.cityName}에서 관측됨` : ''}
           </p>
         </header>
 
@@ -139,32 +171,34 @@ function App() {
         {/* 데이터 패널 토글 */}
         <div className="text-center mb-4">
           <button
-            onClick={() => setShowData(!showData)}
+            onClick={toggleShowData}
             className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
           >
             {showData ? '데이터 숨기기 ▲' : '원본 데이터 보기 ▼'}
           </button>
         </div>
 
-        {/* 데이터 패널 */}
-        {showData && (
+        {/* 데이터 패널 - bundle-dynamic-imports + Suspense */}
+        {showData ? (
           <div className="animate-fade-in">
-            <DataPanel
-              weather={weather}
-              moon={moon}
-              earthquake={earthquake}
-              nasa={nasa}
-            />
+            <Suspense fallback={<div className="glass-panel p-6 text-center text-gray-400">로딩 중...</div>}>
+              <DataPanel
+                weather={weather}
+                moon={moon}
+                earthquake={earthquake}
+                nasa={nasa}
+              />
+            </Suspense>
           </div>
-        )}
+        ) : null}
 
-        {/* NASA APOD 크레딧 */}
-        {nasa && (
+        {/* NASA APOD 크레딧 - rendering-conditional-render: 삼항 연산자 사용 */}
+        {nasa ? (
           <footer className="mt-8 text-center text-gray-500 text-xs">
             <p>배경: {nasa.title}</p>
             <p className="mt-1">NASA Astronomy Picture of the Day</p>
           </footer>
-        )}
+        ) : null}
       </div>
     </div>
   );

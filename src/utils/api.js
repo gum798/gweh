@@ -1,6 +1,20 @@
 const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 const NASA_API_KEY = import.meta.env.VITE_NASA_API_KEY || 'DEMO_KEY';
 
+// 날짜 포맷 헬퍼 함수 (js-hoist-regexp: 함수 외부로 호이스팅)
+function formatDateForApi(date) {
+  return date.toISOString().split('T')[0];
+}
+
+function getTimeRange24h() {
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  return {
+    startTime: formatDateForApi(yesterday),
+    endTime: formatDateForApi(now),
+  };
+}
+
 export async function fetchWeather(lat, lon) {
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=kr`;
   const response = await fetch(url);
@@ -16,11 +30,7 @@ export async function fetchNasaApod() {
 }
 
 export async function fetchEarthquakes() {
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const startTime = yesterday.toISOString().split('T')[0];
-  const endTime = now.toISOString().split('T')[0];
-
+  const { startTime, endTime } = getTimeRange24h();
   const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&endtime=${endTime}&minmagnitude=4`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('지진 데이터를 가져올 수 없습니다');
