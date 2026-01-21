@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-mystic-900 text-gray-100 min-h-screen;
+    font-family: 'Georgia', serif;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-mystic-800/80 backdrop-blur-md rounded-2xl border border-cosmic-gold/20;
+  }
+
+  .mystic-text {
+    @apply text-cosmic-gold font-mystic;
+  }
+
+  .data-label {
+    @apply text-cosmic-silver/70 text-sm uppercase tracking-wider;
+  }
+
+  .data-value {
+    @apply text-white text-lg font-medium;
+  }
+}
+
+@layer utilities {
+  .text-shadow-glow {
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4af37;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c4a030;
+}
