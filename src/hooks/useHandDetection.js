@@ -65,6 +65,8 @@ export function useHandDetection() {
       let palmLines = null;
       try {
         palmLines = await detectPalmLines(imageSrc, hand.keypoints);
+        console.log('Palm lines detected:', palmLines);
+        console.log('Keypoints:', hand.keypoints);
       } catch (lineError) {
         console.warn('Palm line detection failed:', lineError);
         // 손금 감지 실패해도 계속 진행
@@ -270,7 +272,11 @@ function drawHandSkeleton(img, keypoints, palmLines) {
     const offsetX = minX;
     const offsetY = minY;
 
+    console.log('Drawing palm lines, offset:', offsetX, offsetY);
+    console.log('Canvas size:', cropWidth, cropHeight);
+
     Object.entries(palmLines).forEach(([lineType, lineData]) => {
+      console.log('Line type:', lineType, 'Data:', lineData);
       if (lineData?.points?.length > 0) {
         const lineConfig = lineColors[lineType];
 
@@ -279,6 +285,7 @@ function drawHandSkeleton(img, keypoints, palmLines) {
           x: p.x - offsetX,
           y: p.y - offsetY,
         }));
+        console.log('Cropped points for', lineType, ':', croppedPoints);
 
         // 글로우 효과 (2번 그려서 더 두껍게)
         ctx.lineCap = 'round';
