@@ -11,9 +11,9 @@ export default function LocationPrompt({ onRequestLocation, error }) {
         </h1>
 
         {/* 설명 */}
-        <p className="text-gray-300 mb-6 leading-relaxed">
-          당신의 위치에서 관측되는<br />
-          우주와 대지의 기운을 읽어드립니다.
+        <p className="text-gray-300 mb-6 leading-relaxed font-mystic">
+          당신이 머무는 곳의 기운이<br />
+          오늘의 괘를 달리하리니
         </p>
 
         {/* 에러 메시지 */}
