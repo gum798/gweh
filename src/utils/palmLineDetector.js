@@ -238,7 +238,7 @@ function analyzeLifeLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: avgStrength > 30,
+    detected: true, // 항상 표시
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
@@ -277,7 +277,7 @@ function analyzeHeadLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: avgStrength > 25,
+    detected: true, // 항상 표시
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
@@ -317,7 +317,7 @@ function analyzeHeartLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: avgStrength > 25,
+    detected: true, // 항상 표시
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
@@ -357,7 +357,7 @@ function analyzeFateLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: avgStrength > 20,
+    detected: true, // 항상 표시
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,

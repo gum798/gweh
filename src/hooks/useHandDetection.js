@@ -258,43 +258,55 @@ function drawHandSkeleton(img, keypoints, palmLines) {
 
   // 손금 라인 색상 정의
   const lineColors = {
-    lifeLine: { color: '#FF6B6B', name: '생명선' },    // 빨간색
-    headLine: { color: '#4ECDC4', name: '두뇌선' },    // 청록색
-    heartLine: { color: '#FF69B4', name: '감정선' },   // 핑크색
-    fateLine: { color: '#9B59B6', name: '운명선' },    // 보라색
+    lifeLine: { color: '#FF4444', name: '생명선' },    // 빨간색
+    headLine: { color: '#00CED1', name: '두뇌선' },    // 청록색
+    heartLine: { color: '#FF1493', name: '감정선' },   // 핑크색
+    fateLine: { color: '#8A2BE2', name: '운명선' },    // 보라색
   };
 
-  // 손금 라인 그리기 (감지된 경우)
+  // 손금 라인 그리기
   if (palmLines) {
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    // 크롭 오프셋 저장
+    const offsetX = minX;
+    const offsetY = minY;
 
     Object.entries(palmLines).forEach(([lineType, lineData]) => {
-      if (lineData?.detected && lineData?.points?.length > 0) {
+      if (lineData?.points?.length > 0) {
         const lineConfig = lineColors[lineType];
 
         // 크롭 영역 기준으로 좌표 변환
         const croppedPoints = lineData.points.map(p => ({
-          x: p.x - minX,
-          y: p.y - minY,
+          x: p.x - offsetX,
+          y: p.y - offsetY,
         }));
 
-        // 글로우 효과
-        ctx.shadowColor = lineConfig.color;
-        ctx.shadowBlur = 12;
-        ctx.strokeStyle = lineConfig.color;
+        // 글로우 효과 (2번 그려서 더 두껍게)
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
-        // 부드러운 곡선으로 그리기 (Catmull-Rom 스플라인)
+        // 외곽 글로우
+        ctx.shadowColor = lineConfig.color;
+        ctx.shadowBlur = 15;
+        ctx.strokeStyle = lineConfig.color;
+        ctx.lineWidth = 5;
+        drawSmoothCurve(ctx, croppedPoints);
+
+        // 내부 선 (더 밝게)
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
         drawSmoothCurve(ctx, croppedPoints);
 
         // 포인트 표시 (작은 점)
         ctx.shadowBlur = 0;
-        croppedPoints.forEach((point, idx) => {
+        croppedPoints.forEach((point) => {
           ctx.beginPath();
-          ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+          ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
           ctx.fillStyle = lineConfig.color;
           ctx.fill();
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 1;
+          ctx.stroke();
         });
       }
     });
