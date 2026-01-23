@@ -95,6 +95,7 @@ export default function PalmTab() {
           onCapture={handleCapture}
           captureLabel="손금 분석하기"
           instruction="손바닥을 펴서 카메라에 보여주세요"
+          detectType="hand"
         />
 
         {error && (

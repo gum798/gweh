@@ -132,6 +132,7 @@ export default function FaceTab() {
           onCapture={handleCapture}
           captureLabel="분석하기"
           instruction="정면을 바라보고 얼굴이 잘 보이도록 해주세요"
+          detectType="face"
         />
 
         {error && (
