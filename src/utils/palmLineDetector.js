@@ -205,26 +205,34 @@ function analyzeLines(processed, palmRegion, keypoints) {
 
 // 생명선 분석 (엄지와 검지 사이에서 손목 방향으로 휘어지는 선)
 function analyzeLifeLine(edges, width, height, keypoints, region) {
-  // 생명선: 엄지 기저부에서 손목 방향으로 곡선
-  const startPoint = keypoints[2]; // 엄지 두번째 마디
-  const endPoint = keypoints[0]; // 손목
+  // 생명선: 엄지-검지 사이에서 시작, 엄지 둘레를 감싸며 손목 방향으로
+  // 시작점: 엄지 기저부와 검지 기저부 사이
+  const thumbBase = keypoints[1];
+  const indexBase = keypoints[5];
+  const wrist = keypoints[0];
 
-  // 곡선 형태로 10개 포인트 생성 (생명선은 안쪽으로 휘어짐)
+  // 시작점: 엄지와 검지 사이 (손바닥 안쪽)
+  const startX = thumbBase.x + (indexBase.x - thumbBase.x) * 0.3;
+  const startY = thumbBase.y + (indexBase.y - thumbBase.y) * 0.5;
+
+  // 끝점: 손목 위쪽, 엄지 쪽으로 치우침
+  const endX = wrist.x + (thumbBase.x - wrist.x) * 0.4;
+  const endY = wrist.y - (wrist.y - thumbBase.y) * 0.15;
+
   const points = [];
   const numPoints = 10;
 
   for (let i = 0; i < numPoints; i++) {
     const t = i / (numPoints - 1);
-    // 베지어 곡선처럼 안쪽으로 휘어지게
-    const curve = Math.sin(t * Math.PI) * 0.15; // 곡률
-    const baseX = startPoint.x + (endPoint.x - startPoint.x) * t;
-    const baseY = startPoint.y + (endPoint.y - startPoint.y) * t;
+    // 생명선은 엄지를 감싸는 곡선
+    const curve = Math.sin(t * Math.PI) * 0.25;
+    const baseX = startX + (endX - startX) * t - curve * Math.abs(endY - startY);
+    const baseY = startY + (endY - startY) * t;
 
-    // 엣지를 따라 최적 위치 찾기
     const optimalPoint = findOptimalPoint(
       edges, width, height,
-      baseX - region.x - curve * (endPoint.y - startPoint.y),
-      baseY - region.y + curve * (endPoint.x - startPoint.x),
+      baseX - region.x,
+      baseY - region.y,
       region
     );
 
@@ -238,27 +246,38 @@ function analyzeLifeLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: true, // 항상 표시
+    detected: true,
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
   };
 }
 
-// 두뇌선 분석 (검지 아래에서 손바닥 가로로 뻗는 선)
+// 두뇌선 분석 (손바닥 중간을 가로지르는 선)
 function analyzeHeadLine(edges, width, height, keypoints, region) {
-  const startPoint = keypoints[5]; // 검지 기저부
-  const endPoint = { x: keypoints[17].x, y: (keypoints[5].y + keypoints[0].y) / 2 };
+  // 두뇌선: 생명선 시작점 근처에서 시작, 손바닥을 가로질러 소지 방향으로
+  const thumbBase = keypoints[1];
+  const indexBase = keypoints[5];
+  const pinkyBase = keypoints[17];
+  const wrist = keypoints[0];
 
-  // 두뇌선: 약간 아래로 휘어지는 곡선
+  // 시작점: 검지 아래 손바닥 (생명선 시작점 근처)
+  const startX = thumbBase.x + (indexBase.x - thumbBase.x) * 0.4;
+  const startY = indexBase.y + (wrist.y - indexBase.y) * 0.35;
+
+  // 끝점: 손바닥 반대편 (소지 아래)
+  const endX = pinkyBase.x;
+  const endY = pinkyBase.y + (wrist.y - pinkyBase.y) * 0.4;
+
   const points = [];
   const numPoints = 10;
 
   for (let i = 0; i < numPoints; i++) {
     const t = i / (numPoints - 1);
-    const curve = Math.sin(t * Math.PI) * 0.08; // 약간의 곡률
-    const baseX = startPoint.x + (endPoint.x - startPoint.x) * t;
-    const baseY = startPoint.y + (endPoint.y - startPoint.y) * t + curve * Math.abs(endPoint.x - startPoint.x);
+    // 두뇌선은 약간 아래로 처지는 곡선
+    const curve = Math.sin(t * Math.PI) * 0.08;
+    const baseX = startX + (endX - startX) * t;
+    const baseY = startY + (endY - startY) * t + curve * Math.abs(endX - startX);
 
     const optimalPoint = findOptimalPoint(
       edges, width, height,
@@ -277,28 +296,38 @@ function analyzeHeadLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: true, // 항상 표시
+    detected: true,
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
   };
 }
 
-// 감정선 분석 (손가락 바로 아래 가로선)
+// 감정선 분석 (손가락 바로 아래, 손바닥 상단을 가로지르는 선)
 function analyzeHeartLine(edges, width, height, keypoints, region) {
-  const startPoint = keypoints[5]; // 검지 기저부
-  const endPoint = keypoints[17]; // 소지 기저부
-  const midY = Math.min(startPoint.y, endPoint.y) + 15;
+  // 감정선: 소지 아래에서 시작, 검지 방향으로 가는 손바닥 상단의 선
+  const indexBase = keypoints[5];
+  const middleBase = keypoints[9];
+  const pinkyBase = keypoints[17];
+  const wrist = keypoints[0];
 
-  // 감정선: 위로 살짝 휘어지는 곡선
+  // 시작점: 소지 아래 손바닥 (감정선은 소지쪽에서 시작)
+  const startX = pinkyBase.x;
+  const startY = pinkyBase.y + (wrist.y - pinkyBase.y) * 0.2;
+
+  // 끝점: 검지-중지 사이 아래
+  const endX = indexBase.x + (middleBase.x - indexBase.x) * 0.5;
+  const endY = indexBase.y + (wrist.y - indexBase.y) * 0.15;
+
   const points = [];
   const numPoints = 10;
 
   for (let i = 0; i < numPoints; i++) {
     const t = i / (numPoints - 1);
-    const curve = -Math.sin(t * Math.PI) * 0.06; // 위로 휘어짐
-    const baseX = startPoint.x + (endPoint.x - startPoint.x) * t;
-    const baseY = midY + curve * Math.abs(endPoint.x - startPoint.x);
+    // 감정선은 약간 위로 휘어지는 곡선
+    const curve = -Math.sin(t * Math.PI) * 0.05;
+    const baseX = startX + (endX - startX) * t;
+    const baseY = startY + (endY - startY) * t + curve * Math.abs(endX - startX);
 
     const optimalPoint = findOptimalPoint(
       edges, width, height,
@@ -317,28 +346,41 @@ function analyzeHeartLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: true, // 항상 표시
+    detected: true,
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
   };
 }
 
-// 운명선 분석 (손바닥 중앙 세로선)
+// 운명선 분석 (손바닥 중앙을 세로로 가로지르는 선)
 function analyzeFateLine(edges, width, height, keypoints, region) {
-  const startPoint = keypoints[0]; // 손목
-  const endPoint = keypoints[9]; // 중지 기저부
-  const midX = (startPoint.x + endPoint.x) / 2;
+  // 운명선: 손목 중앙에서 중지 기저부로 올라가는 세로선
+  const middleBase = keypoints[9];
+  const wrist = keypoints[0];
+  const indexBase = keypoints[5];
+  const pinkyBase = keypoints[17];
 
-  // 운명선: 약간 구불거리는 세로선
+  // 손바닥 중앙 X 좌표
+  const palmCenterX = (indexBase.x + pinkyBase.x) / 2;
+
+  // 시작점: 손목 위쪽 (손바닥 하단)
+  const startX = palmCenterX;
+  const startY = wrist.y - (wrist.y - middleBase.y) * 0.1;
+
+  // 끝점: 중지 기저부 아래
+  const endX = middleBase.x;
+  const endY = middleBase.y + (wrist.y - middleBase.y) * 0.25;
+
   const points = [];
   const numPoints = 10;
 
   for (let i = 0; i < numPoints; i++) {
     const t = i / (numPoints - 1);
-    const curve = Math.sin(t * Math.PI * 2) * 0.03; // 미세한 구불거림
-    const baseX = midX + curve * Math.abs(endPoint.y - startPoint.y);
-    const baseY = startPoint.y + (endPoint.y - startPoint.y) * t;
+    // 운명선은 거의 직선이지만 약간 구불거림
+    const curve = Math.sin(t * Math.PI) * 0.02;
+    const baseX = startX + (endX - startX) * t + curve * Math.abs(startY - endY);
+    const baseY = startY + (endY - startY) * t;
 
     const optimalPoint = findOptimalPoint(
       edges, width, height,
@@ -357,7 +399,7 @@ function analyzeFateLine(edges, width, height, keypoints, region) {
   const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: true, // 항상 표시
+    detected: true,
     strength: avgStrength,
     quality: getLineQuality(avgStrength),
     points: points,
