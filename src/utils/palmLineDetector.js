@@ -35,18 +35,28 @@ function bezierPoints(start, ctrl, end, numPoints = 10) {
   return points;
 }
 
-// 생명선: 엄지-검지 사이에서 시작, 엄지 둘레를 감싸며 손목 방향
+// 생명선: 엄지-검지 사이에서 시작, 엄지를 감싸며 손목 방향
 function calculateLifeLine(kp) {
-  // 시작: 엄지 MCP와 검지 MCP 사이 (손바닥 안쪽)
-  const start = lerp(kp[2], kp[5], 0.3);
+  // 손바닥 높이
+  const palmTop = lerp(kp[5], kp[17], 0.5);
+  const palmHeight = Math.abs(kp[0].y - palmTop.y);
 
-  // 끝: 손목과 엄지 CMC 사이
-  const end = lerp(kp[0], kp[1], 0.4);
+  // 시작: 엄지-검지 사이, 감정선과 두뇌선 사이 높이
+  const start = {
+    x: kp[5].x - (kp[5].x - kp[2].x) * 0.4,
+    y: palmTop.y + palmHeight * 0.35,
+  };
 
-  // 제어점: 엄지 CMC 바깥쪽으로 (곡선 만들기)
+  // 끝: 손목 근처, 엄지 쪽으로 치우침
+  const end = {
+    x: kp[0].x + (kp[1].x - kp[0].x) * 0.6,
+    y: kp[0].y - palmHeight * 0.1,
+  };
+
+  // 제어점: 엄지를 감싸도록 왼쪽으로 볼록
   const ctrl = {
-    x: kp[1].x + (kp[1].x - kp[5].x) * 0.3,
-    y: (start.y + end.y) / 2,
+    x: kp[1].x - (kp[5].x - kp[1].x) * 0.2,
+    y: (start.y + end.y) / 2 + palmHeight * 0.1,
   };
 
   return {
@@ -59,21 +69,30 @@ function calculateLifeLine(kp) {
 
 // 두뇌선: 손바닥 중간 가로선 (검지쪽에서 소지쪽으로)
 function calculateHeadLine(kp) {
-  // 손바닥 중심 높이 계산 (손가락 기저부와 손목 사이)
-  const palmTop = lerp(kp[5], kp[17], 0.5); // 손가락 기저부 중간
-  const palmMid = lerp(palmTop, kp[0], 0.45); // 손바닥 45% 지점
+  // 손바닥 영역: 손가락 기저부(5,9,13,17)와 손목(0) 사이
+  // 두뇌선은 손바닥 중간 (약 50-55%)
+  const palmTop = lerp(kp[5], kp[17], 0.5);
+  const palmHeight = Math.abs(kp[0].y - palmTop.y);
 
-  // 시작: 검지 아래 (생명선 시작 근처)
-  const start = lerp(kp[2], kp[5], 0.4);
-  start.y = palmMid.y;
+  // 손바닥 55% 지점 (중간보다 약간 아래)
+  const lineY = palmTop.y + palmHeight * 0.55;
 
-  // 끝: 소지 아래
-  const end = { x: kp[17].x, y: palmMid.y };
+  // 시작: 엄지-검지 사이 안쪽
+  const start = {
+    x: kp[5].x - (kp[5].x - kp[2].x) * 0.3,
+    y: lineY,
+  };
+
+  // 끝: 소지 기저부 안쪽
+  const end = {
+    x: kp[17].x + (kp[13].x - kp[17].x) * 0.1,
+    y: lineY + palmHeight * 0.05,
+  };
 
   // 약간 아래로 처지는 곡선
   const ctrl = {
     x: (start.x + end.x) / 2,
-    y: palmMid.y + Math.abs(kp[0].y - palmTop.y) * 0.08,
+    y: lineY + palmHeight * 0.08,
   };
 
   return {
@@ -86,21 +105,29 @@ function calculateHeadLine(kp) {
 
 // 감정선: 손바닥 상단 가로선 (소지쪽에서 검지쪽으로)
 function calculateHeartLine(kp) {
-  // 손가락 기저부 바로 아래
+  // 감정선은 손가락 기저부 바로 아래 (손바닥 상단 30%)
   const palmTop = lerp(kp[5], kp[17], 0.5);
-  const heartLineY = lerp(palmTop, kp[0], 0.2); // 손바닥 상단 20% 지점
+  const palmHeight = Math.abs(kp[0].y - palmTop.y);
 
-  // 시작: 소지 아래
-  const start = { x: kp[17].x, y: heartLineY.y };
+  // 손바닥 30% 지점 (손가락 바로 아래)
+  const lineY = palmTop.y + palmHeight * 0.30;
 
-  // 끝: 검지-중지 사이 아래
-  const end = lerp(kp[5], kp[9], 0.4);
-  end.y = heartLineY.y - Math.abs(kp[0].y - palmTop.y) * 0.03;
+  // 시작: 소지 기저부 아래
+  const start = {
+    x: kp[17].x + (kp[13].x - kp[17].x) * 0.05,
+    y: lineY,
+  };
+
+  // 끝: 검지 기저부 아래
+  const end = {
+    x: kp[5].x + (kp[9].x - kp[5].x) * 0.3,
+    y: lineY - palmHeight * 0.02,
+  };
 
   // 약간 위로 휘는 곡선
   const ctrl = {
     x: (start.x + end.x) / 2,
-    y: heartLineY.y - Math.abs(kp[0].y - palmTop.y) * 0.05,
+    y: lineY - palmHeight * 0.03,
   };
 
   return {
@@ -113,20 +140,28 @@ function calculateHeartLine(kp) {
 
 // 운명선: 손목에서 중지 방향 세로선
 function calculateFateLine(kp) {
-  // 손바닥 중심 X 좌표
-  const palmCenterX = (kp[5].x + kp[17].x) / 2;
+  // 손바닥 영역
+  const palmTop = lerp(kp[5], kp[17], 0.5);
+  const palmHeight = Math.abs(kp[0].y - palmTop.y);
 
-  // 시작: 손목 약간 위
-  const start = lerp(kp[0], kp[9], 0.15);
-  start.x = palmCenterX;
+  // 손바닥 중심 X (중지 기저부 기준)
+  const centerX = kp[9].x;
 
-  // 끝: 중지 기저부 아래
-  const end = lerp(kp[9], kp[0], 0.25);
-  end.x = kp[9].x;
+  // 시작: 손목 위 (손바닥 하단 15%)
+  const start = {
+    x: centerX,
+    y: kp[0].y - palmHeight * 0.15,
+  };
 
-  // 거의 직선
+  // 끝: 중지 기저부 아래 (두뇌선 근처)
+  const end = {
+    x: centerX,
+    y: palmTop.y + palmHeight * 0.5,
+  };
+
+  // 약간의 곡선
   const ctrl = {
-    x: (start.x + end.x) / 2,
+    x: centerX - palmHeight * 0.02,
     y: (start.y + end.y) / 2,
   };
 
