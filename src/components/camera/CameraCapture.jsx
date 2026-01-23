@@ -10,11 +10,30 @@ const videoConstraints = {
   facingMode: 'user',
 };
 
+// 손가락 연결 정의 (MediaPipe Hands)
+const HAND_CONNECTIONS = [
+  [0, 1], [1, 2], [2, 3], [3, 4],       // 엄지
+  [0, 5], [5, 6], [6, 7], [7, 8],       // 검지
+  [0, 9], [9, 10], [10, 11], [11, 12],  // 중지
+  [0, 13], [13, 14], [14, 15], [15, 16], // 약지
+  [0, 17], [17, 18], [18, 19], [19, 20], // 소지
+  [5, 9], [9, 13], [13, 17],             // 손바닥 가로 연결
+];
+
+// 키포인트 이름
+const KEYPOINT_NAMES = [
+  '손목', '엄지1', '엄지2', '엄지3', '엄지끝',
+  '검지1', '검지2', '검지3', '검지끝',
+  '중지1', '중지2', '중지3', '중지끝',
+  '약지1', '약지2', '약지3', '약지끝',
+  '소지1', '소지2', '소지3', '소지끝'
+];
+
 export default function CameraCapture({
   onCapture,
   captureLabel = '촬영하기',
   instruction,
-  detectType = 'none' // 'face', 'hand', 'none'
+  detectType = 'none'
 }) {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -28,7 +47,6 @@ export default function CameraCapture({
   const [isDetected, setIsDetected] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
 
-  // 모델 로드
   useEffect(() => {
     if (mode !== 'camera' || detectType === 'none') return;
 
@@ -63,7 +81,6 @@ export default function CameraCapture({
     };
   }, [detectType, mode]);
 
-  // 실시간 감지 루프
   useEffect(() => {
     if (!isReady || !modelRef.current || mode !== 'camera') return;
 
@@ -193,7 +210,6 @@ export default function CameraCapture({
               className="rounded-2xl"
               mirrored={true}
             />
-            {/* 감지 오버레이 캔버스 */}
             <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full pointer-events-none"
@@ -206,7 +222,6 @@ export default function CameraCapture({
                 </p>
               </div>
             )}
-            {/* 감지 상태 표시 */}
             {isReady && !isModelLoading && detectType !== 'none' && (
               <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs transition-all ${
                 isDetected
@@ -214,7 +229,7 @@ export default function CameraCapture({
                   : 'bg-gray-800/50 text-gray-400'
               }`}>
                 {isDetected
-                  ? (detectType === 'face' ? '✨ 얼굴 감지됨' : '✨ 손 감지됨')
+                  ? (detectType === 'face' ? '✨ 얼굴 감지됨' : '✨ 손 21개 포인트 감지')
                   : (detectType === 'face' ? '얼굴을 보여주세요' : '손바닥을 보여주세요')
                 }
               </div>
@@ -263,7 +278,6 @@ export default function CameraCapture({
   );
 }
 
-// 신비로운 효과 그리기
 function drawMysticEffect(ctx, detection, type, width, height) {
   const time = Date.now() * 0.003;
 
@@ -274,12 +288,10 @@ function drawMysticEffect(ctx, detection, type, width, height) {
   }
 }
 
-// 얼굴 감지 효과
 function drawFaceEffect(ctx, face, time) {
   const keypoints = face.keypoints;
   if (!keypoints || keypoints.length === 0) return;
 
-  // 얼굴 중심과 크기 계산
   const faceOvalIndices = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
 
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -299,11 +311,9 @@ function drawFaceEffect(ctx, face, time) {
   const radiusY = (maxY - minY) / 2 + 30;
   const radius = Math.max(radiusX, radiusY);
 
-  // 신비로운 원형 효과
   drawMysticCircle(ctx, centerX, centerY, radius, time);
 
-  // 주요 포인트에 작은 별 효과
-  const importantPoints = [10, 152, 234, 454, 1]; // 이마, 턱, 양쪽 볼, 코
+  const importantPoints = [10, 152, 234, 454, 1];
   importantPoints.forEach((idx, i) => {
     if (keypoints[idx]) {
       drawSparkle(ctx, keypoints[idx].x, keypoints[idx].y, time + i * 0.5);
@@ -311,11 +321,101 @@ function drawFaceEffect(ctx, face, time) {
   });
 }
 
-// 손 감지 효과
 function drawHandEffect(ctx, hand, time) {
   const keypoints = hand.keypoints;
   if (!keypoints || keypoints.length === 0) return;
 
+  // 1. 뼈대 연결선 그리기 (신비로운 스타일)
+  drawHandSkeleton(ctx, keypoints, time);
+
+  // 2. 21개 키포인트 그리기
+  drawHandKeypoints(ctx, keypoints, time);
+
+  // 3. 손바닥 영역에 신비로운 효과
+  drawPalmArea(ctx, keypoints, time);
+}
+
+// 손 뼈대 그리기
+function drawHandSkeleton(ctx, keypoints, time) {
+  HAND_CONNECTIONS.forEach(([start, end], index) => {
+    const p1 = keypoints[start];
+    const p2 = keypoints[end];
+
+    if (p1 && p2) {
+      // 그라데이션 라인
+      const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+      const alpha = 0.6 + Math.sin(time * 2 + index * 0.2) * 0.2;
+      gradient.addColorStop(0, `rgba(212, 175, 55, ${alpha})`);
+      gradient.addColorStop(1, `rgba(255, 215, 0, ${alpha})`);
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // 글로우 효과
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = `rgba(212, 175, 55, 0.3)`;
+      ctx.lineWidth = 8;
+      ctx.stroke();
+    }
+  });
+}
+
+// 21개 키포인트 그리기
+function drawHandKeypoints(ctx, keypoints, time) {
+  keypoints.forEach((point, index) => {
+    const pulseSize = Math.sin(time * 3 + index * 0.3) * 2;
+
+    // 손가락 끝은 더 크게
+    const isFingerTip = [4, 8, 12, 16, 20].includes(index);
+    const isWrist = index === 0;
+    const baseSize = isFingerTip ? 8 : (isWrist ? 10 : 5);
+    const size = baseSize + pulseSize;
+
+    // 외부 글로우
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, size + 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(212, 175, 55, 0.2)';
+    ctx.fill();
+
+    // 메인 포인트
+    const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, size);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.5, 'rgba(255, 215, 0, 1)');
+    gradient.addColorStop(1, 'rgba(212, 175, 55, 0.8)');
+
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // 손가락 끝에 별 효과
+    if (isFingerTip) {
+      drawSparkle(ctx, point.x, point.y, time + index * 0.2);
+    }
+
+    // 손목에 특별 효과
+    if (isWrist) {
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, size + 8, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(212, 175, 55, ${0.3 + Math.sin(time * 2) * 0.2})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.lineDashOffset = -time * 10;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  });
+}
+
+// 손바닥 영역 효과
+function drawPalmArea(ctx, keypoints, time) {
   // 손바닥 중심 계산
   const palmPoints = [0, 5, 9, 13, 17];
   let centerX = 0, centerY = 0;
@@ -326,31 +426,39 @@ function drawHandEffect(ctx, hand, time) {
   centerX /= palmPoints.length;
   centerY /= palmPoints.length;
 
-  // 손 크기 계산
-  const wrist = keypoints[0];
-  const middleTip = keypoints[12];
-  const radius = Math.sqrt(
-    Math.pow(middleTip.x - wrist.x, 2) + Math.pow(middleTip.y - wrist.y, 2)
-  ) * 0.6;
+  // 손바닥 크기
+  const palmSize = Math.sqrt(
+    Math.pow(keypoints[9].x - keypoints[0].x, 2) +
+    Math.pow(keypoints[9].y - keypoints[0].y, 2)
+  ) * 0.7;
 
-  // 신비로운 원형 효과
-  drawMysticCircle(ctx, centerX, centerY, radius, time);
+  // 신비로운 중앙 심볼
+  const symbolAlpha = 0.2 + Math.sin(time * 2) * 0.1;
+  ctx.font = `${palmSize * 0.5}px serif`;
+  ctx.fillStyle = `rgba(212, 175, 55, ${symbolAlpha})`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('☯', centerX, centerY);
 
-  // 손가락 끝에 별 효과
-  const fingerTips = [4, 8, 12, 16, 20];
-  fingerTips.forEach((idx, i) => {
-    drawSparkle(ctx, keypoints[idx].x, keypoints[idx].y, time + i * 0.3);
-  });
+  // 회전하는 룬 원
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(time * 0.5);
 
-  // 손금 라인 가이드
-  drawPalmLines(ctx, keypoints, time);
+  ctx.beginPath();
+  ctx.arc(0, 0, palmSize * 0.8, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(212, 175, 55, 0.15)`;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([8, 8]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
 }
 
-// 신비로운 원 그리기
 function drawMysticCircle(ctx, x, y, radius, time) {
   const pulseRadius = radius + Math.sin(time * 2) * 5;
 
-  // 외부 글로우
   const gradient = ctx.createRadialGradient(x, y, pulseRadius * 0.8, x, y, pulseRadius * 1.3);
   gradient.addColorStop(0, 'rgba(212, 175, 55, 0)');
   gradient.addColorStop(0.5, 'rgba(212, 175, 55, 0.15)');
@@ -361,7 +469,6 @@ function drawMysticCircle(ctx, x, y, radius, time) {
   ctx.fillStyle = gradient;
   ctx.fill();
 
-  // 메인 원 (점선)
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)';
@@ -371,14 +478,12 @@ function drawMysticCircle(ctx, x, y, radius, time) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // 내부 원
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius * 0.85, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // 회전하는 장식 요소
   for (let i = 0; i < 4; i++) {
     const angle = time + (i * Math.PI / 2);
     const dx = Math.cos(angle) * pulseRadius;
@@ -390,7 +495,6 @@ function drawMysticCircle(ctx, x, y, radius, time) {
     ctx.fill();
   }
 
-  // 신비로운 심볼 (☯)
   ctx.font = `${radius * 0.3}px serif`;
   ctx.fillStyle = `rgba(212, 175, 55, ${0.3 + Math.sin(time * 3) * 0.1})`;
   ctx.textAlign = 'center';
@@ -398,43 +502,36 @@ function drawMysticCircle(ctx, x, y, radius, time) {
   ctx.fillText('☯', x, y);
 }
 
-// 반짝이는 별 효과
 function drawSparkle(ctx, x, y, time) {
   const size = 3 + Math.sin(time * 4) * 2;
   const alpha = 0.5 + Math.sin(time * 3) * 0.3;
 
   ctx.beginPath();
   ctx.arc(x, y, size, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(212, 175, 55, ${alpha})`;
+  ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
   ctx.fill();
 
-  // 십자 광선
-  ctx.strokeStyle = `rgba(212, 175, 55, ${alpha * 0.5})`;
+  ctx.strokeStyle = `rgba(212, 175, 55, ${alpha * 0.7})`;
   ctx.lineWidth = 1;
 
   ctx.beginPath();
-  ctx.moveTo(x - size * 2, y);
-  ctx.lineTo(x + size * 2, y);
+  ctx.moveTo(x - size * 2.5, y);
+  ctx.lineTo(x + size * 2.5, y);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(x, y - size * 2);
-  ctx.lineTo(x, y + size * 2);
+  ctx.moveTo(x, y - size * 2.5);
+  ctx.lineTo(x, y + size * 2.5);
   ctx.stroke();
-}
 
-// 손금 라인 가이드
-function drawPalmLines(ctx, keypoints, time) {
-  ctx.strokeStyle = `rgba(212, 175, 55, ${0.2 + Math.sin(time * 2) * 0.1})`;
-  ctx.lineWidth = 1;
-  ctx.setLineDash([5, 5]);
-  ctx.lineDashOffset = -time * 10;
-
-  // 생명선 (대략적 위치)
+  // 대각선 광선
   ctx.beginPath();
-  ctx.moveTo(keypoints[2].x, keypoints[2].y);
-  ctx.quadraticCurveTo(keypoints[0].x, keypoints[0].y * 0.9, keypoints[17].x, keypoints[17].y);
+  ctx.moveTo(x - size * 1.5, y - size * 1.5);
+  ctx.lineTo(x + size * 1.5, y + size * 1.5);
   ctx.stroke();
 
-  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(x + size * 1.5, y - size * 1.5);
+  ctx.lineTo(x - size * 1.5, y + size * 1.5);
+  ctx.stroke();
 }

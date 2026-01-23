@@ -21,7 +21,7 @@ export default function PalmTab() {
     const handData = await detectHand(imageSrc);
 
     if (handData) {
-      const interpretation = interpretPalm(handData.features);
+      const interpretation = interpretPalm(handData.features, handData.palmLines);
       setResult({
         ...interpretation,
         handedness: handData.handedness,

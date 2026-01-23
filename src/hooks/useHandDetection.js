@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
+import { detectPalmLines } from '../utils/palmLineDetector';
 
 export function useHandDetection() {
   const [isLoading, setIsLoading] = useState(false);
@@ -59,11 +60,21 @@ export function useHandDetection() {
       // 손 특성 분석
       const handFeatures = analyzeHandFeatures(hand.keypoints, img.width, img.height);
 
+      // 손금 라인 감지 (이미지 처리)
+      let palmLines = null;
+      try {
+        palmLines = await detectPalmLines(imageSrc, hand.keypoints);
+      } catch (lineError) {
+        console.warn('Palm line detection failed:', lineError);
+        // 손금 감지 실패해도 계속 진행
+      }
+
       setIsLoading(false);
       return {
         keypoints: hand.keypoints,
         handedness: hand.handedness,
         features: handFeatures,
+        palmLines, // 실제 감지된 손금 라인
         imageWidth: img.width,
         imageHeight: img.height,
       };
