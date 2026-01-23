@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
 import { detectPalmLines } from '../utils/palmLineDetector';
+import { analyzeFingerGesture } from '../utils/fingerGestureAnalyzer';
 
 export function useHandDetection() {
   const [isLoading, setIsLoading] = useState(false);
@@ -69,12 +70,16 @@ export function useHandDetection() {
         // 손금 감지 실패해도 계속 진행
       }
 
+      // 손가락 자세 분석
+      const fingerGesture = analyzeFingerGesture(hand.keypoints);
+
       setIsLoading(false);
       return {
         keypoints: hand.keypoints,
         handedness: hand.handedness,
         features: handFeatures,
         palmLines, // 실제 감지된 손금 라인
+        fingerGesture, // 손가락 자세 분석 결과
         imageWidth: img.width,
         imageHeight: img.height,
       };

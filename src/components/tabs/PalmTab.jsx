@@ -26,6 +26,7 @@ export default function PalmTab() {
         ...interpretation,
         handedness: handData.handedness,
         advice: getPalmAdvice(interpretation),
+        fingerGesture: handData.fingerGesture,
       });
       setMode('result');
     } else {
@@ -165,9 +166,54 @@ export default function PalmTab() {
           </div>
         </div>
 
+        {/* 손가락 자세 해석 */}
+        {result.fingerGesture?.interpretation && (
+          <div className="glass-panel p-6 md:p-8 border-2 border-cosmic-gold/30">
+            <div className="text-center mb-6">
+              <div className="text-3xl mb-3">🤚</div>
+              <h3 className="mystic-text text-lg mb-2 font-mystic">손가락의 모양</h3>
+              <div className="inline-block px-3 py-1 bg-cosmic-gold/20 rounded-full text-cosmic-gold text-sm mb-4">
+                {result.fingerGesture.interpretation.gestureName}
+              </div>
+            </div>
+
+            {/* 성격 풀이 */}
+            <div className="bg-mystic-700/50 rounded-xl p-4 mb-4 border border-cosmic-gold/10">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🌟</span>
+                <span className="data-label">성정 풀이</span>
+              </div>
+              <p className="text-gray-200 leading-relaxed font-mystic">
+                "{result.fingerGesture.interpretation.personality}"
+              </p>
+              <p className="text-cosmic-gold text-sm mt-3">
+                → {result.fingerGesture.interpretation.trait}
+              </p>
+            </div>
+
+            {/* 건강 풀이 */}
+            <div className="bg-mystic-700/50 rounded-xl p-4 mb-4 border border-cosmic-gold/10">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">💫</span>
+                <span className="data-label">건강 풀이</span>
+              </div>
+              <p className="text-gray-200 leading-relaxed font-mystic">
+                "{result.fingerGesture.interpretation.health}"
+              </p>
+            </div>
+
+            {/* 손가락 벌림 */}
+            {result.fingerGesture.interpretation.spreadDescription && (
+              <div className="text-center text-gray-400 text-sm">
+                ✦ {result.fingerGesture.interpretation.spreadDescription}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* 세부 해석 */}
         <div className="glass-panel p-6">
-          <h3 className="mystic-text text-lg mb-4 text-center font-mystic">상세 풀이</h3>
+          <h3 className="mystic-text text-lg mb-4 text-center font-mystic">손금 상세 풀이</h3>
           <div className="space-y-4">
             {result.details.map((detail, i) => (
               <div
