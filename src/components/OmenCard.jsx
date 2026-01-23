@@ -10,7 +10,7 @@ export default function OmenCard({ omen, weather, moon, earthquake }) {
     <div className="glass-panel p-6 md:p-8 animate-float">
       {/* 에너지 지표 */}
       <div className="flex justify-between items-center mb-6">
-        <span className="data-label">오늘의 기운</span>
+        <span className="data-label">기의 흐름</span>
         <div className="flex items-center gap-2">
           <div className="w-24 h-2 bg-mystic-700 rounded-full overflow-hidden">
             <div
@@ -60,7 +60,7 @@ export default function OmenCard({ omen, weather, moon, earthquake }) {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-          })}에 관측됨
+          })} 천기
         </p>
       </div>
     </div>

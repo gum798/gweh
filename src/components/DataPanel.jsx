@@ -2,14 +2,14 @@ export default function DataPanel({ weather, moon, earthquake, nasa }) {
   return (
     <div className="glass-panel p-6">
       <h2 className="text-lg mystic-text mb-4 flex items-center gap-2">
-        <span>📊</span>
-        <span>원본 데이터</span>
+        <span>📜</span>
+        <span>천기의 원천</span>
       </h2>
 
       <div className="space-y-6">
         {/* 날씨 데이터 */}
         {weather && (
-          <DataSection title="기상 관측" icon="🌡️">
+          <DataSection title="하늘의 숨결" icon="🌡️">
             <DataRow label="위치" value={weather.cityName} />
             <DataRow label="기온" value={`${weather.temperature}°C`} />
             <DataRow label="체감" value={`${weather.feelsLike}°C`} />
@@ -23,7 +23,7 @@ export default function DataPanel({ weather, moon, earthquake, nasa }) {
 
         {/* 달 위상 */}
         {moon && (
-          <DataSection title="달의 상태" icon={moon.emoji}>
+          <DataSection title="달의 속삭임" icon={moon.emoji}>
             <DataRow label="위상" value={moon.name} />
             <DataRow label="조도" value={`${moon.illumination}%`} />
             <DataRow label="삭 이후" value={`${moon.daysSinceNew}일`} />
@@ -32,7 +32,7 @@ export default function DataPanel({ weather, moon, earthquake, nasa }) {
 
         {/* 지진 데이터 */}
         {earthquake && (
-          <DataSection title="지진 활동 (24h)" icon="🌍">
+          <DataSection title="대지의 맥동" icon="🌍">
             <DataRow label="발생 횟수" value={`${earthquake.count}회`} />
             <DataRow label="평균 규모" value={`M ${earthquake.avgMagnitude}`} />
             <DataRow label="최대 규모" value={`M ${earthquake.maxMagnitude}`} />
@@ -47,7 +47,7 @@ export default function DataPanel({ weather, moon, earthquake, nasa }) {
 
         {/* NASA APOD */}
         {nasa && (
-          <DataSection title="오늘의 우주" icon="🔭">
+          <DataSection title="우주의 계시" icon="🔭">
             <DataRow label="제목" value={nasa.title} />
             <DataRow label="날짜" value={nasa.date} />
           </DataSection>

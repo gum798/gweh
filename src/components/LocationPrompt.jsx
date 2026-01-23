@@ -33,12 +33,12 @@ export default function LocationPrompt({ onRequestLocation, error }) {
                      shadow-lg hover:shadow-cosmic-gold/50
                      animate-glow"
         >
-          위치 감지 시작
+          기운 감응 시작
         </button>
 
         {/* 부연 설명 */}
         <p className="text-gray-500 text-sm mt-4">
-          브라우저에서 위치 권한을 요청합니다
+          당신의 자리를 알아야 괘를 내릴 수 있습니다
         </p>
       </div>
     </div>

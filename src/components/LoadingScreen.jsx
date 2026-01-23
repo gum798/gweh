@@ -1,4 +1,4 @@
-export default function LoadingScreen({ message = "우주의 기운을 읽고 있습니다..." }) {
+export default function LoadingScreen({ message = "천기를 살피는 중..." }) {
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-mystic-900">
       {/* 로딩 애니메이션 - 동심원 */}

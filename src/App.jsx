@@ -97,7 +97,7 @@ function App() {
 
   // 로딩 중
   if (isLoading) {
-    return <LoadingScreen message="우주의 기운을 읽고 있습니다..." />;
+    return <LoadingScreen message="천지의 기운을 살피는 중..." />;
   }
 
   // 에러 처리 - 모든 API 에러 통합 처리
@@ -113,7 +113,7 @@ function App() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="glass-panel p-8 text-center max-w-md">
           <div className="text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl mystic-text mb-2">데이터를 불러올 수 없습니다</h2>
+          <h2 className="text-xl mystic-text mb-2">천기를 읽을 수 없습니다</h2>
           <div className="text-gray-400 mb-4 space-y-1">
             {errorMessages.map((msg, i) => (
               <p key={i}>{msg}</p>
@@ -123,7 +123,7 @@ function App() {
             onClick={() => window.location.reload()}
             className="px-6 py-2 bg-cosmic-gold text-mystic-900 rounded-full font-medium"
           >
-            다시 시도
+            다시 점괘 보기
           </button>
         </div>
       </div>
@@ -154,7 +154,7 @@ function App() {
             오늘의 괘
           </h1>
           <p className="text-gray-400">
-            {weather?.cityName ? `${weather.cityName}에서 관측됨` : ''}
+            {weather?.cityName ? `${weather.cityName}의 하늘 아래` : ''}
           </p>
         </header>
 
@@ -174,14 +174,14 @@ function App() {
             onClick={toggleShowData}
             className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
           >
-            {showData ? '데이터 숨기기 ▲' : '원본 데이터 보기 ▼'}
+            {showData ? '천기 숨기기 ▲' : '천기의 원천 보기 ▼'}
           </button>
         </div>
 
         {/* 데이터 패널 - bundle-dynamic-imports + Suspense */}
         {showData ? (
           <div className="animate-fade-in">
-            <Suspense fallback={<div className="glass-panel p-6 text-center text-gray-400">로딩 중...</div>}>
+            <Suspense fallback={<div className="glass-panel p-6 text-center text-gray-400">기운을 모으는 중...</div>}>
               <DataPanel
                 weather={weather}
                 moon={moon}
