@@ -138,13 +138,13 @@ export default function PalmTab() {
   if (mode === 'result' && result) {
     return (
       <div className="space-y-6">
-        {/* 캡처된 이미지 */}
+        {/* 캡처된 이미지 (손 크롭) */}
         {capturedImage && (
           <div className="flex justify-center">
             <img
               src={capturedImage}
               alt="분석된 손"
-              className="w-32 h-32 rounded-full object-cover border-2 border-cosmic-gold/30"
+              className="w-64 h-64 rounded-2xl object-cover border-2 border-cosmic-gold/30 shadow-lg shadow-cosmic-gold/20"
             />
           </div>
         )}

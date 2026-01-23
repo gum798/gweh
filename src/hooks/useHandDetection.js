@@ -177,15 +177,40 @@ function distance(p1, p2) {
   return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
 }
 
-// 손 스켈레톤을 이미지에 그리기
+// 손 스켈레톤을 이미지에 그리기 (손 영역만 크롭)
 function drawHandSkeleton(img, keypoints, palmLines) {
+  // 손 영역 바운딩 박스 계산
+  let minX = Infinity, maxX = 0, minY = Infinity, maxY = 0;
+  keypoints.forEach(point => {
+    minX = Math.min(minX, point.x);
+    maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y);
+    maxY = Math.max(maxY, point.y);
+  });
+
+  // 여유 공간 추가 (20%)
+  const padding = Math.max(maxX - minX, maxY - minY) * 0.25;
+  minX = Math.max(0, minX - padding);
+  minY = Math.max(0, minY - padding);
+  maxX = Math.min(img.width, maxX + padding);
+  maxY = Math.min(img.height, maxY + padding);
+
+  const cropWidth = maxX - minX;
+  const cropHeight = maxY - minY;
+
   const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
+  canvas.width = cropWidth;
+  canvas.height = cropHeight;
   const ctx = canvas.getContext('2d');
 
-  // 원본 이미지 그리기
-  ctx.drawImage(img, 0, 0);
+  // 크롭된 영역만 그리기
+  ctx.drawImage(img, minX, minY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+  // 키포인트 좌표를 크롭 영역 기준으로 변환
+  const croppedKeypoints = keypoints.map(p => ({
+    x: p.x - minX,
+    y: p.y - minY,
+  }));
 
   // 손 연결선 정의
   const HAND_CONNECTIONS = [
@@ -206,8 +231,8 @@ function drawHandSkeleton(img, keypoints, palmLines) {
   ctx.lineWidth = 2;
 
   HAND_CONNECTIONS.forEach(([i, j]) => {
-    const p1 = keypoints[i];
-    const p2 = keypoints[j];
+    const p1 = croppedKeypoints[i];
+    const p2 = croppedKeypoints[j];
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
@@ -215,7 +240,7 @@ function drawHandSkeleton(img, keypoints, palmLines) {
   });
 
   // 키포인트 그리기
-  keypoints.forEach((point, idx) => {
+  croppedKeypoints.forEach((point, idx) => {
     ctx.beginPath();
     // 손가락 끝은 더 크게
     const isFingerTip = [4, 8, 12, 16, 20].includes(idx);
@@ -240,31 +265,31 @@ function drawHandSkeleton(img, keypoints, palmLines) {
 
     // 생명선
     if (palmLines.lifeLine?.detected) {
-      drawPalmLine(ctx, keypoints[2], keypoints[0], 'curve');
+      drawPalmLine(ctx, croppedKeypoints[2], croppedKeypoints[0], 'curve');
     }
 
     // 두뇌선
     if (palmLines.headLine?.detected) {
-      const endPoint = { x: keypoints[17].x, y: (keypoints[5].y + keypoints[0].y) / 2 };
-      drawPalmLine(ctx, keypoints[5], endPoint, 'straight');
+      const endPoint = { x: croppedKeypoints[17].x, y: (croppedKeypoints[5].y + croppedKeypoints[0].y) / 2 };
+      drawPalmLine(ctx, croppedKeypoints[5], endPoint, 'straight');
     }
 
     // 감정선
     if (palmLines.heartLine?.detected) {
-      const midY = Math.min(keypoints[5].y, keypoints[17].y) + 10;
+      const midY = Math.min(croppedKeypoints[5].y, croppedKeypoints[17].y) + 10;
       drawPalmLine(ctx,
-        { x: keypoints[5].x, y: midY },
-        { x: keypoints[17].x, y: midY },
+        { x: croppedKeypoints[5].x, y: midY },
+        { x: croppedKeypoints[17].x, y: midY },
         'straight'
       );
     }
 
     // 운명선
     if (palmLines.fateLine?.detected) {
-      const midX = (keypoints[0].x + keypoints[9].x) / 2;
+      const midX = (croppedKeypoints[0].x + croppedKeypoints[9].x) / 2;
       drawPalmLine(ctx,
-        { x: midX, y: keypoints[0].y },
-        { x: midX, y: keypoints[9].y },
+        { x: midX, y: croppedKeypoints[0].y },
+        { x: midX, y: croppedKeypoints[9].y },
         'straight'
       );
     }
