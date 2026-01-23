@@ -79,8 +79,8 @@ export default function CameraCapture({ onCapture, captureLabel = '촬영하기'
       </div>
 
       {mode === 'camera' && !hasError ? (
-        <div className="space-y-4">
-          <div className="relative inline-block rounded-2xl overflow-hidden border-2 border-cosmic-gold/30">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative rounded-2xl overflow-hidden border-2 border-cosmic-gold/30">
             <Webcam
               ref={webcamRef}
               audio={false}
