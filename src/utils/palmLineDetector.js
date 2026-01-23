@@ -205,21 +205,43 @@ function analyzeLines(processed, palmRegion, keypoints) {
 
 // 생명선 분석 (엄지와 검지 사이에서 손목 방향으로 휘어지는 선)
 function analyzeLifeLine(edges, width, height, keypoints, region) {
-  // 생명선 예상 영역: 엄지 기저부 ~ 손목
+  // 생명선: 엄지 기저부에서 손목 방향으로 곡선
   const startPoint = keypoints[2]; // 엄지 두번째 마디
   const endPoint = keypoints[0]; // 손목
 
-  const lineStrength = measureLineStrength(
-    edges, width, height,
-    startPoint.x - region.x, startPoint.y - region.y,
-    endPoint.x - region.x, endPoint.y - region.y,
-    region
-  );
+  // 곡선 형태로 10개 포인트 생성 (생명선은 안쪽으로 휘어짐)
+  const points = [];
+  const numPoints = 10;
+
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / (numPoints - 1);
+    // 베지어 곡선처럼 안쪽으로 휘어지게
+    const curve = Math.sin(t * Math.PI) * 0.15; // 곡률
+    const baseX = startPoint.x + (endPoint.x - startPoint.x) * t;
+    const baseY = startPoint.y + (endPoint.y - startPoint.y) * t;
+
+    // 엣지를 따라 최적 위치 찾기
+    const optimalPoint = findOptimalPoint(
+      edges, width, height,
+      baseX - region.x - curve * (endPoint.y - startPoint.y),
+      baseY - region.y + curve * (endPoint.x - startPoint.x),
+      region
+    );
+
+    points.push({
+      x: optimalPoint.x + region.x,
+      y: optimalPoint.y + region.y,
+      strength: optimalPoint.strength,
+    });
+  }
+
+  const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: lineStrength > 30,
-    strength: lineStrength,
-    quality: getLineQuality(lineStrength),
+    detected: avgStrength > 30,
+    strength: avgStrength,
+    quality: getLineQuality(avgStrength),
+    points: points,
   };
 }
 
@@ -228,17 +250,37 @@ function analyzeHeadLine(edges, width, height, keypoints, region) {
   const startPoint = keypoints[5]; // 검지 기저부
   const endPoint = { x: keypoints[17].x, y: (keypoints[5].y + keypoints[0].y) / 2 };
 
-  const lineStrength = measureLineStrength(
-    edges, width, height,
-    startPoint.x - region.x, startPoint.y - region.y,
-    endPoint.x - region.x, endPoint.y - region.y,
-    region
-  );
+  // 두뇌선: 약간 아래로 휘어지는 곡선
+  const points = [];
+  const numPoints = 10;
+
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / (numPoints - 1);
+    const curve = Math.sin(t * Math.PI) * 0.08; // 약간의 곡률
+    const baseX = startPoint.x + (endPoint.x - startPoint.x) * t;
+    const baseY = startPoint.y + (endPoint.y - startPoint.y) * t + curve * Math.abs(endPoint.x - startPoint.x);
+
+    const optimalPoint = findOptimalPoint(
+      edges, width, height,
+      baseX - region.x,
+      baseY - region.y,
+      region
+    );
+
+    points.push({
+      x: optimalPoint.x + region.x,
+      y: optimalPoint.y + region.y,
+      strength: optimalPoint.strength,
+    });
+  }
+
+  const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: lineStrength > 25,
-    strength: lineStrength,
-    quality: getLineQuality(lineStrength),
+    detected: avgStrength > 25,
+    strength: avgStrength,
+    quality: getLineQuality(avgStrength),
+    points: points,
   };
 }
 
@@ -246,19 +288,39 @@ function analyzeHeadLine(edges, width, height, keypoints, region) {
 function analyzeHeartLine(edges, width, height, keypoints, region) {
   const startPoint = keypoints[5]; // 검지 기저부
   const endPoint = keypoints[17]; // 소지 기저부
-  const midY = Math.min(startPoint.y, endPoint.y) + 10;
+  const midY = Math.min(startPoint.y, endPoint.y) + 15;
 
-  const lineStrength = measureLineStrength(
-    edges, width, height,
-    startPoint.x - region.x, midY - region.y,
-    endPoint.x - region.x, midY - region.y,
-    region
-  );
+  // 감정선: 위로 살짝 휘어지는 곡선
+  const points = [];
+  const numPoints = 10;
+
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / (numPoints - 1);
+    const curve = -Math.sin(t * Math.PI) * 0.06; // 위로 휘어짐
+    const baseX = startPoint.x + (endPoint.x - startPoint.x) * t;
+    const baseY = midY + curve * Math.abs(endPoint.x - startPoint.x);
+
+    const optimalPoint = findOptimalPoint(
+      edges, width, height,
+      baseX - region.x,
+      baseY - region.y,
+      region
+    );
+
+    points.push({
+      x: optimalPoint.x + region.x,
+      y: optimalPoint.y + region.y,
+      strength: optimalPoint.strength,
+    });
+  }
+
+  const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: lineStrength > 25,
-    strength: lineStrength,
-    quality: getLineQuality(lineStrength),
+    detected: avgStrength > 25,
+    strength: avgStrength,
+    quality: getLineQuality(avgStrength),
+    points: points,
   };
 }
 
@@ -268,17 +330,74 @@ function analyzeFateLine(edges, width, height, keypoints, region) {
   const endPoint = keypoints[9]; // 중지 기저부
   const midX = (startPoint.x + endPoint.x) / 2;
 
-  const lineStrength = measureLineStrength(
-    edges, width, height,
-    midX - region.x, startPoint.y - region.y,
-    midX - region.x, endPoint.y - region.y,
-    region
-  );
+  // 운명선: 약간 구불거리는 세로선
+  const points = [];
+  const numPoints = 10;
+
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / (numPoints - 1);
+    const curve = Math.sin(t * Math.PI * 2) * 0.03; // 미세한 구불거림
+    const baseX = midX + curve * Math.abs(endPoint.y - startPoint.y);
+    const baseY = startPoint.y + (endPoint.y - startPoint.y) * t;
+
+    const optimalPoint = findOptimalPoint(
+      edges, width, height,
+      baseX - region.x,
+      baseY - region.y,
+      region
+    );
+
+    points.push({
+      x: optimalPoint.x + region.x,
+      y: optimalPoint.y + region.y,
+      strength: optimalPoint.strength,
+    });
+  }
+
+  const avgStrength = points.reduce((sum, p) => sum + p.strength, 0) / points.length;
 
   return {
-    detected: lineStrength > 20,
-    strength: lineStrength,
-    quality: getLineQuality(lineStrength),
+    detected: avgStrength > 20,
+    strength: avgStrength,
+    quality: getLineQuality(avgStrength),
+    points: points,
+  };
+}
+
+// 주변에서 가장 강한 엣지 포인트 찾기
+function findOptimalPoint(edges, width, height, baseX, baseY, region) {
+  const searchRadius = 8; // 탐색 반경
+  let maxStrength = 0;
+  let bestX = baseX;
+  let bestY = baseY;
+
+  const x = Math.round(baseX);
+  const y = Math.round(baseY);
+
+  for (let dy = -searchRadius; dy <= searchRadius; dy++) {
+    for (let dx = -searchRadius; dx <= searchRadius; dx++) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+        const strength = edges[ny * width + nx];
+        // 중심에서 가까울수록 가중치 부여
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const weightedStrength = strength * (1 - dist / (searchRadius * 1.5));
+
+        if (weightedStrength > maxStrength) {
+          maxStrength = weightedStrength;
+          bestX = nx;
+          bestY = ny;
+        }
+      }
+    }
+  }
+
+  return {
+    x: bestX,
+    y: bestY,
+    strength: maxStrength > 0 ? edges[Math.round(bestY) * width + Math.round(bestX)] : 0,
   };
 }
 

@@ -256,60 +256,79 @@ function drawHandSkeleton(img, keypoints, palmLines) {
     ctx.stroke();
   });
 
+  // 손금 라인 색상 정의
+  const lineColors = {
+    lifeLine: { color: '#FF6B6B', name: '생명선' },    // 빨간색
+    headLine: { color: '#4ECDC4', name: '두뇌선' },    // 청록색
+    heartLine: { color: '#FF69B4', name: '감정선' },   // 핑크색
+    fateLine: { color: '#9B59B6', name: '운명선' },    // 보라색
+  };
+
   // 손금 라인 그리기 (감지된 경우)
   if (palmLines) {
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = '#FF6B6B';
-    ctx.strokeStyle = 'rgba(255, 107, 107, 0.6)';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-    // 생명선
-    if (palmLines.lifeLine?.detected) {
-      drawPalmLine(ctx, croppedKeypoints[2], croppedKeypoints[0], 'curve');
-    }
+    Object.entries(palmLines).forEach(([lineType, lineData]) => {
+      if (lineData?.detected && lineData?.points?.length > 0) {
+        const lineConfig = lineColors[lineType];
 
-    // 두뇌선
-    if (palmLines.headLine?.detected) {
-      const endPoint = { x: croppedKeypoints[17].x, y: (croppedKeypoints[5].y + croppedKeypoints[0].y) / 2 };
-      drawPalmLine(ctx, croppedKeypoints[5], endPoint, 'straight');
-    }
+        // 크롭 영역 기준으로 좌표 변환
+        const croppedPoints = lineData.points.map(p => ({
+          x: p.x - minX,
+          y: p.y - minY,
+        }));
 
-    // 감정선
-    if (palmLines.heartLine?.detected) {
-      const midY = Math.min(croppedKeypoints[5].y, croppedKeypoints[17].y) + 10;
-      drawPalmLine(ctx,
-        { x: croppedKeypoints[5].x, y: midY },
-        { x: croppedKeypoints[17].x, y: midY },
-        'straight'
-      );
-    }
+        // 글로우 효과
+        ctx.shadowColor = lineConfig.color;
+        ctx.shadowBlur = 12;
+        ctx.strokeStyle = lineConfig.color;
 
-    // 운명선
-    if (palmLines.fateLine?.detected) {
-      const midX = (croppedKeypoints[0].x + croppedKeypoints[9].x) / 2;
-      drawPalmLine(ctx,
-        { x: midX, y: croppedKeypoints[0].y },
-        { x: midX, y: croppedKeypoints[9].y },
-        'straight'
-      );
-    }
+        // 부드러운 곡선으로 그리기 (Catmull-Rom 스플라인)
+        drawSmoothCurve(ctx, croppedPoints);
+
+        // 포인트 표시 (작은 점)
+        ctx.shadowBlur = 0;
+        croppedPoints.forEach((point, idx) => {
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = lineConfig.color;
+          ctx.fill();
+        });
+      }
+    });
   }
 
   return canvas.toDataURL('image/jpeg', 0.9);
 }
 
-// 손금 라인 그리기 헬퍼
-function drawPalmLine(ctx, start, end, type) {
+// 부드러운 곡선 그리기 (Catmull-Rom 스플라인)
+function drawSmoothCurve(ctx, points) {
+  if (points.length < 2) return;
+
   ctx.beginPath();
-  if (type === 'curve') {
-    // 곡선으로 그리기 (생명선)
-    const cpX = start.x - 30;
-    const cpY = (start.y + end.y) / 2;
-    ctx.moveTo(start.x, start.y);
-    ctx.quadraticCurveTo(cpX, cpY, end.x, end.y);
+  ctx.moveTo(points[0].x, points[0].y);
+
+  if (points.length === 2) {
+    ctx.lineTo(points[1].x, points[1].y);
   } else {
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(end.x, end.y);
+    // Catmull-Rom to Bezier 변환
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i === 0 ? i : i - 1];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2 >= points.length ? i + 1 : i + 2];
+
+      // 제어점 계산
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+    }
   }
+
   ctx.stroke();
 }
