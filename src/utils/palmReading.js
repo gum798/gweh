@@ -97,10 +97,25 @@ const lineLabels = {
 };
 
 // 종합 손금 해석
-export function interpretPalm(handFeatures, palmLines = null) {
+export function interpretPalm(handFeatures, palmLines = null, fingerGesture = null) {
   if (!handFeatures) return null;
 
   const interpretations = [];
+
+  // 손가락 자세 해석 (맨 위에 배치)
+  if (fingerGesture?.interpretation) {
+    const gesture = fingerGesture.interpretation;
+    // 성정과 건강을 한 문장으로 결합
+    const combinedMessage = `${gesture.trait}이니, ${gesture.health.replace(/\.$/, '')}`;
+
+    interpretations.push({
+      category: '손가락 자세',
+      icon: '🤚',
+      type: gesture.gestureName,
+      message: combinedMessage,
+      isDetected: true,
+    });
+  }
 
   // 손 크기 해석
   const sizeOmens = handSizeOmens[handFeatures.handSize];
