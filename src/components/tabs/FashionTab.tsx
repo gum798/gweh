@@ -1,5 +1,22 @@
 import { useState, useCallback, useRef } from 'react';
 
+// 결제 페이지로 이동
+const goToCheckout = async () => {
+  try {
+    const response = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!response.ok) throw new Error('Checkout failed');
+    const { url } = await response.json();
+    window.location.href = url;
+  } catch (err) {
+    console.error('Checkout error:', err);
+    alert('결제 페이지로 이동할 수 없습니다.');
+  }
+};
+
 type Mode = 'input' | 'analyzing' | 'result' | 'error';
 
 interface StyleRecommendation {
@@ -247,15 +264,14 @@ export default function FashionTab() {
         {/* Action Button */}
         <div className="px-4 pb-8">
           <button
-            onClick={handleAnalyze}
-            disabled={!capturedImage || !height || !weight}
+            onClick={capturedImage && height && weight ? handleAnalyze : goToCheckout}
             className={`w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
               capturedImage && height && weight
                 ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
-                : 'bg-white/10 text-white/30 cursor-not-allowed'
+                : 'bg-white/10 text-white/50 hover:bg-white/20 hover:text-white/70'
             }`}
           >
-            Begin Transformation
+            {capturedImage && height && weight ? 'Begin Transformation' : 'Unlock Premium'}
           </button>
         </div>
       </div>
