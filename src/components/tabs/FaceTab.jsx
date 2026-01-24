@@ -46,6 +46,8 @@ export default function FaceTab() {
         }
       }
 
+      // 크롭된 얼굴 이미지 (랜드마크 표시) 사용
+      setCapturedImage(faceData.annotatedImage || imageSrc);
       setResult(results);
       setMode('result');
     } else {
@@ -174,13 +176,13 @@ export default function FaceTab() {
   if (mode === 'result' && result) {
     return (
       <div className="space-y-6">
-        {/* 캡처된 이미지 */}
+        {/* 캡처된 이미지 (크롭 + 랜드마크) */}
         {capturedImage && (
           <div className="flex justify-center">
             <img
               src={capturedImage}
               alt="분석된 얼굴"
-              className="w-32 h-32 rounded-full object-cover border-2 border-cosmic-gold/30"
+              className="w-64 h-64 rounded-2xl object-cover border-2 border-cosmic-gold/30 shadow-lg shadow-cosmic-gold/20"
             />
           </div>
         )}

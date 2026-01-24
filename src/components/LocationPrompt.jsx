@@ -1,6 +1,6 @@
-export default function LocationPrompt({ onRequestLocation, error }) {
+export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-mystic-900 p-4">
+    <div className="flex items-center justify-center p-4">
       <div className="glass-panel p-8 max-w-md text-center animate-float">
         {/* 아이콘 */}
         <div className="text-6xl mb-6">🔮</div>
@@ -23,22 +23,34 @@ export default function LocationPrompt({ onRequestLocation, error }) {
           </div>
         )}
 
-        {/* 버튼 */}
-        <button
-          onClick={onRequestLocation}
-          className="px-8 py-3 bg-gradient-to-r from-cosmic-gold to-yellow-600
-                     text-mystic-900 font-bold rounded-full
-                     hover:from-yellow-500 hover:to-cosmic-gold
-                     transition-all duration-300
-                     shadow-lg hover:shadow-cosmic-gold/50
-                     animate-glow"
-        >
-          기운 감응 시작
-        </button>
+        {/* 버튼들 */}
+        <div className="space-y-3">
+          <button
+            onClick={onRequestLocation}
+            className="w-full px-8 py-3 bg-gradient-to-r from-cosmic-gold to-yellow-600
+                       text-mystic-900 font-bold rounded-full
+                       hover:from-yellow-500 hover:to-cosmic-gold
+                       transition-all duration-300
+                       shadow-lg hover:shadow-cosmic-gold/50
+                       animate-glow"
+          >
+            기운 감응 시작
+          </button>
+
+          <button
+            onClick={onSkip}
+            className="w-full px-8 py-3 bg-transparent border border-gray-600
+                       text-gray-400 font-medium rounded-full
+                       hover:border-cosmic-gold/50 hover:text-cosmic-gold/70
+                       transition-all duration-300"
+          >
+            위치 없이 진행
+          </button>
+        </div>
 
         {/* 부연 설명 */}
         <p className="text-gray-500 text-sm mt-4">
-          당신의 자리를 알아야 괘를 내릴 수 있습니다
+          위치 없이 진행하면 서울 기준으로 괘를 내립니다
         </p>
       </div>
     </div>

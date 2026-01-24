@@ -21,6 +21,9 @@ export default function OmenTab() {
   const { nasa, earthquake, loading: parallelLoading, errors: parallelErrors } = useParallelData();
   const { data: moon } = useMoonPhase();
 
+  // 서울 기본 좌표
+  const DEFAULT_LOCATION = { lat: 37.5665, lon: 126.9780 };
+
   const requestLocation = useCallback(() => {
     setLocationError(null);
 
@@ -59,6 +62,10 @@ export default function OmenTab() {
     );
   }, []);
 
+  const skipLocation = useCallback(() => {
+    setLocation(DEFAULT_LOCATION);
+  }, []);
+
   const isLoading = useMemo(
     () => location && (weatherLoading || parallelLoading),
     [location, weatherLoading, parallelLoading]
@@ -76,7 +83,11 @@ export default function OmenTab() {
   if (!location) {
     return (
       <div className="py-8">
-        <LocationPrompt onRequestLocation={requestLocation} error={locationError} />
+        <LocationPrompt
+          onRequestLocation={requestLocation}
+          onSkip={skipLocation}
+          error={locationError}
+        />
       </div>
     );
   }
