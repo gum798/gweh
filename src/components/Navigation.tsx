@@ -8,23 +8,23 @@ const tabs = [
 
 export default function Navigation({ activeTab, onTabChange }) {
   return (
-    <nav className="glass-panel p-2 mb-6">
+    <nav className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
       <div className="flex justify-center gap-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-xl
-              transition-all duration-300 font-mystic
+              flex items-center gap-2 px-4 py-2.5 rounded-xl
+              transition-all duration-300 font-medium
               ${activeTab === tab.id
-                ? 'bg-cosmic-gold/20 text-cosmic-gold border border-cosmic-gold/40'
-                : 'text-gray-400 hover:text-cosmic-gold hover:bg-mystic-700/50'
+                ? 'bg-[#5b13ec]/20 text-white border border-[#5b13ec]/40 shadow-[0_0_10px_rgba(91,19,236,0.2)]'
+                : 'text-white/50 hover:text-white hover:bg-white/5'
               }
             `}
           >
             <span className="text-lg">{tab.icon}</span>
-            <span className="hidden sm:inline">{tab.label}</span>
+            <span className="hidden sm:inline text-sm">{tab.label}</span>
           </button>
         ))}
       </div>

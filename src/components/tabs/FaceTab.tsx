@@ -5,8 +5,8 @@ import { analyzeSkinTone, getPersonalColorOmen, colorTips } from '../../utils/pe
 import { analyzeFaceFeatures, interpretPhysiognomy } from '../../utils/physiognomy';
 
 export default function FaceTab() {
-  const [mode, setMode] = useState('select'); // 'select', 'capture', 'analyzing', 'result'
-  const [analysisType, setAnalysisType] = useState(null); // 'personalColor', 'physiognomy', 'both'
+  const [mode, setMode] = useState('select');
+  const [analysisType, setAnalysisType] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
 
@@ -26,7 +26,6 @@ export default function FaceTab() {
     if (faceData) {
       const results = {};
 
-      // 퍼스널 컬러 분석
       if (analysisType === 'personalColor' || analysisType === 'both') {
         const skinTone = analyzeSkinTone(faceData.skinSamples);
         if (skinTone) {
@@ -38,7 +37,6 @@ export default function FaceTab() {
         }
       }
 
-      // 관상 분석
       if (analysisType === 'physiognomy' || analysisType === 'both') {
         const features = analyzeFaceFeatures(faceData.landmarks);
         if (features) {
@@ -46,7 +44,6 @@ export default function FaceTab() {
         }
       }
 
-      // 크롭된 얼굴 이미지 (랜드마크 표시) 사용
       setCapturedImage(faceData.annotatedImage || imageSrc);
       setResult(results);
       setMode('result');
@@ -65,63 +62,87 @@ export default function FaceTab() {
   // 모드 선택 화면
   if (mode === 'select') {
     return (
-      <div className="glass-panel p-6 md:p-8">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-4">👁️</div>
-          <h2 className="text-2xl mystic-text text-shadow-glow mb-2 font-mystic">
-            관상과 색채의 신비
-          </h2>
-          <p className="text-gray-400">
-            얼굴에 담긴 운명의 징표를 풀이하리라
-          </p>
-        </div>
-
-        <div className="grid gap-4 max-w-md mx-auto">
-          <button
-            onClick={() => handleModeSelect('personalColor')}
-            className="glass-panel p-6 text-left hover:border-cosmic-gold/40 transition-colors"
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-2xl">
+          <div
+            className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
+            style={{
+              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80")`,
+            }}
           >
-            <div className="flex items-center gap-4">
-              <span className="text-3xl">🎨</span>
-              <div>
-                <h3 className="mystic-text text-lg">퍼스널 컬러</h3>
-                <p className="text-gray-400 text-sm mt-1">
-                  피부톤에 담긴 계절의 기운을 살펴 어울리는 색을 알려드리리라
-                </p>
-              </div>
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
+                Read Your <br />
+                <span className="text-[#5b13ec] italic font-light">Inner Light</span>
+              </h1>
+              <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
+                얼굴에 담긴 운명의 징표를 AI가 풀이합니다
+              </p>
             </div>
-          </button>
+          </div>
+        </section>
 
-          <button
-            onClick={() => handleModeSelect('physiognomy')}
-            className="glass-panel p-6 text-left hover:border-cosmic-gold/40 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <span className="text-3xl">👤</span>
-              <div>
-                <h3 className="mystic-text text-lg">관상</h3>
-                <p className="text-gray-400 text-sm mt-1">
-                  이목구비에 담긴 운명의 징표를 풀이하리라
-                </p>
-              </div>
-            </div>
-          </button>
+        {/* Analysis Type Selection */}
+        <section className="px-4 space-y-4">
+          <div className="text-center mb-6">
+            <h3 className="text-white text-xl font-bold tracking-tight pb-1">Choose Analysis</h3>
+            <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
+          </div>
 
-          <button
-            onClick={() => handleModeSelect('both')}
-            className="glass-panel p-6 text-left hover:border-cosmic-gold/40 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <span className="text-3xl">✨</span>
-              <div>
-                <h3 className="mystic-text text-lg">종합 풀이</h3>
-                <p className="text-gray-400 text-sm mt-1">
-                  퍼스널 컬러와 관상을 함께 살펴드리리라
-                </p>
+          <div className="max-w-md mx-auto space-y-4">
+            <button
+              onClick={() => handleModeSelect('personalColor')}
+              className="w-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-left hover:border-[#5b13ec]/50 transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-[#5b13ec]/20 p-4 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                  <span className="text-3xl">🎨</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Personal Color</h3>
+                  <p className="text-white/50 text-sm mt-1">
+                    피부톤에 담긴 계절의 기운을 살펴 어울리는 색을 알려드립니다
+                  </p>
+                </div>
               </div>
-            </div>
-          </button>
-        </div>
+            </button>
+
+            <button
+              onClick={() => handleModeSelect('physiognomy')}
+              className="w-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-left hover:border-[#5b13ec]/50 transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-[#5b13ec]/20 p-4 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                  <span className="text-3xl">👤</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Physiognomy</h3>
+                  <p className="text-white/50 text-sm mt-1">
+                    이목구비에 담긴 운명의 징표를 풀이합니다
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleModeSelect('both')}
+              className="w-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 text-left hover:border-[#5b13ec]/50 transition-all group shadow-[0_0_15px_rgba(91,19,236,0.2)]"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-[#5b13ec]/20 p-4 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                  <span className="text-3xl">✨</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Complete Analysis</h3>
+                  <p className="text-white/50 text-sm mt-1">
+                    퍼스널 컬러와 관상을 함께 분석합니다
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
       </div>
     );
   }
@@ -129,16 +150,16 @@ export default function FaceTab() {
   // 카메라 캡처 화면
   if (mode === 'capture') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <CameraCapture
           onCapture={handleCapture}
-          captureLabel="분석하기"
+          captureLabel="Analyze Face"
           instruction="정면을 바라보고 얼굴이 잘 보이도록 해주세요"
           detectType="face"
         />
 
         {error && (
-          <div className="glass-panel p-4 text-center text-red-400">
+          <div className="max-w-md mx-auto bg-red-500/10 backdrop-blur-xl rounded-2xl border border-red-500/30 p-4 text-center text-red-400">
             {error}
           </div>
         )}
@@ -146,9 +167,9 @@ export default function FaceTab() {
         <div className="text-center">
           <button
             onClick={handleReset}
-            className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
+            className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
           >
-            ← 다른 분석 선택하기
+            ← Back to Selection
           </button>
         </div>
       </div>
@@ -158,15 +179,21 @@ export default function FaceTab() {
   // 분석 중 화면
   if (mode === 'analyzing' || isLoading) {
     return (
-      <div className="glass-panel p-8 text-center">
-        <div className="animate-pulse">
-          <div className="text-4xl mb-4">🔮</div>
-          <p className="mystic-text text-lg font-mystic">
-            얼굴에 담긴 기운을 살피는 중...
-          </p>
-          <p className="text-gray-400 text-sm mt-2">
-            잠시만 기다려주세요
-          </p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+            <span className="text-4xl animate-pulse">🔮</span>
+          </div>
+        </div>
+        <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading Your Face...</h3>
+        <p className="text-white/50 text-sm text-center max-w-xs">
+          얼굴에 담긴 기운을 살피는 중입니다
+        </p>
+        <div className="mt-6 flex gap-1">
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -175,112 +202,118 @@ export default function FaceTab() {
   // 결과 화면
   if (mode === 'result' && result) {
     return (
-      <div className="space-y-6">
-        {/* 캡처된 이미지 (크롭 + 랜드마크) */}
+      <div className="space-y-8 pb-8">
+        {/* 캡처된 이미지 */}
         {capturedImage && (
-          <div className="flex justify-center">
-            <img
-              src={capturedImage}
-              alt="분석된 얼굴"
-              className="w-64 h-64 rounded-2xl object-cover border-2 border-cosmic-gold/30 shadow-lg shadow-cosmic-gold/20"
-            />
+          <div className="flex justify-center pt-4">
+            <div className="relative">
+              <div className="absolute -inset-2 rounded-2xl border border-[#5b13ec]/30 shadow-[0_0_20px_rgba(91,19,236,0.3)] animate-pulse"></div>
+              <img
+                src={capturedImage}
+                alt="분석된 얼굴"
+                className="w-48 h-48 rounded-2xl object-cover border border-white/10 relative z-10"
+              />
+            </div>
           </div>
         )}
 
         {/* 퍼스널 컬러 결과 */}
         {result.personalColor && (
-          <div className="glass-panel p-6 md:p-8 animate-fade-in">
-            <div className="text-center mb-6">
-              <span className="text-3xl">🎨</span>
-              <h3 className="mystic-text text-xl mt-2 font-mystic">퍼스널 컬러</h3>
-            </div>
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Personal Color</span>
+                  <h3 className="text-white text-2xl font-bold tracking-tight">{result.personalColor.seasonKorean}</h3>
+                </div>
+                <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                  <span className="text-xl">🎨</span>
+                </div>
+              </div>
 
-            {/* 시즌 */}
-            <div className="text-center mb-6">
-              <span className="inline-block px-6 py-2 bg-cosmic-gold/20 rounded-full mystic-text text-lg">
-                {result.personalColor.seasonKorean}
-              </span>
-            </div>
+              <p className="text-white/70 text-sm italic leading-relaxed mb-6">
+                "{result.personalColor.omen}"
+              </p>
 
-            {/* 메인 메시지 */}
-            <p className="text-center text-xl mystic-text leading-relaxed text-shadow-glow font-mystic mb-6">
-              "{result.personalColor.omen}"
-            </p>
+              {/* 색상 팔레트 */}
+              <div className="mb-6">
+                <p className="text-white/40 text-xs uppercase tracking-widest mb-3">Color Palette</p>
+                <div className="flex justify-center gap-3">
+                  {result.personalColor.colorPalette.map((color, i) => (
+                    <div
+                      key={i}
+                      className="w-12 h-12 rounded-full border-2 border-white/20 shadow-lg"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
 
-            {/* 색상 팔레트 */}
-            <div className="mb-6">
-              <p className="data-label text-center mb-3">어울리는 색상</p>
-              <div className="flex justify-center gap-2">
-                {result.personalColor.colorPalette.map((color, i) => (
-                  <div
-                    key={i}
-                    className="w-10 h-10 rounded-full border border-white/20"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
+              <p className="text-white/50 text-sm text-center mb-6">
+                {result.personalColor.characteristics}
+              </p>
+
+              <div className="pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-[#5b13ec] text-xs uppercase tracking-widest">Best Colors</span>
+                  <p className="text-white/70 mt-1">{result.personalColor.tips.best}</p>
+                </div>
+                <div>
+                  <span className="text-red-400 text-xs uppercase tracking-widest">Avoid</span>
+                  <p className="text-white/50 mt-1">{result.personalColor.tips.avoid}</p>
+                </div>
               </div>
             </div>
-
-            {/* 특성 설명 */}
-            <p className="text-gray-300 text-center text-sm leading-relaxed">
-              {result.personalColor.characteristics}
-            </p>
-
-            {/* 스타일 팁 */}
-            <div className="mt-6 pt-6 border-t border-cosmic-gold/10 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="data-label">추천 색상</span>
-                <p className="text-gray-300 mt-1">{result.personalColor.tips.best}</p>
-              </div>
-              <div>
-                <span className="data-label">피할 색상</span>
-                <p className="text-gray-300 mt-1">{result.personalColor.tips.avoid}</p>
-              </div>
-            </div>
-          </div>
+          </section>
         )}
 
         {/* 관상 결과 */}
         {result.physiognomy && (
-          <div className="glass-panel p-6 md:p-8 animate-fade-in">
-            <div className="text-center mb-6">
-              <span className="text-3xl">👤</span>
-              <h3 className="mystic-text text-xl mt-2 font-mystic">관상 풀이</h3>
-            </div>
+          <section className="px-4">
+            <div className="max-w-md mx-auto space-y-4">
+              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Physiognomy</span>
+                    <h3 className="text-white text-xl font-bold tracking-tight">관상 풀이</h3>
+                  </div>
+                  <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                    <span className="text-xl">👤</span>
+                  </div>
+                </div>
 
-            {/* 메인 메시지 */}
-            <p className="text-center text-xl mystic-text leading-relaxed text-shadow-glow font-mystic mb-6">
-              "{result.physiognomy.mainMessage}"
-            </p>
+                <p className="text-white/70 text-lg italic leading-relaxed text-center">
+                  "{result.physiognomy.mainMessage}"
+                </p>
+              </div>
 
-            {/* 세부 해석 */}
-            <div className="space-y-4">
+              {/* 세부 해석 */}
               {result.physiognomy.details.map((detail, i) => (
                 <div
                   key={i}
-                  className="bg-mystic-700/50 rounded-xl p-4 border border-cosmic-gold/10"
+                  className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="mystic-text text-sm">
+                    <span className="px-3 py-1 bg-[#5b13ec]/20 rounded-full text-[#5b13ec] text-xs font-medium">
                       {detail.typeKorean} {detail.partKorean}
                     </span>
                   </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
+                  <p className="text-white/60 text-sm leading-relaxed">
                     {detail.message}
                   </p>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* 다시하기 버튼 */}
-        <div className="text-center">
+        {/* Reset Button */}
+        <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
           >
-            다시 분석하기
+            New Analysis
           </button>
         </div>
       </div>

@@ -1,10 +1,10 @@
 export default function DataPanel({ weather, moon, earthquake, nasa }) {
   return (
-    <div className="glass-panel p-6">
-      <h2 className="text-lg mystic-text mb-4 flex items-center gap-2">
-        <span>📜</span>
-        <span>천기의 원천</span>
-      </h2>
+    <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-2xl">📜</span>
+        <h2 className="text-white font-bold text-lg">천기의 원천</h2>
+      </div>
 
       <div className="space-y-6">
         {/* 날씨 데이터 */}
@@ -59,8 +59,8 @@ export default function DataPanel({ weather, moon, earthquake, nasa }) {
 
 function DataSection({ title, icon, children }) {
   return (
-    <div className="border-t border-cosmic-gold/10 pt-4 first:border-t-0 first:pt-0">
-      <h3 className="text-sm text-cosmic-silver flex items-center gap-2 mb-3">
+    <div className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
+      <h3 className="text-[#5b13ec] text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
         <span>{icon}</span>
         <span>{title}</span>
       </h3>
@@ -72,8 +72,8 @@ function DataSection({ title, icon, children }) {
 function DataRow({ label, value }) {
   return (
     <>
-      <span className="text-gray-500">{label}</span>
-      <span className="text-gray-200 truncate" title={value}>
+      <span className="text-white/40">{label}</span>
+      <span className="text-white/80 truncate" title={value}>
         {value}
       </span>
     </>

@@ -1,6 +1,6 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { useParallelData } from './hooks/useParallelData';
+import { useState, lazy, Suspense } from 'react';
 import Navigation from './components/Navigation';
+import PremiumBanner from './components/PremiumBanner';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -11,24 +11,17 @@ const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 
 function App() {
   const [activeTab, setActiveTab] = useState('omen');
-  const [bgImageLoaded, setBgImageLoaded] = useState(false);
-
-  // NASA 배경용 데이터
-  const { nasa } = useParallelData();
-
-  // NASA 배경 이미지 프리로딩
-  useEffect(() => {
-    if (nasa?.mediaType === 'image' && nasa?.url) {
-      const img = new Image();
-      img.onload = () => setBgImageLoaded(true);
-      img.src = nasa.url;
-    }
-  }, [nasa?.mediaType, nasa?.url]);
 
   const renderTab = () => {
     const fallback = (
-      <div className="glass-panel p-6 text-center text-gray-400">
-        기운을 모으는 중...
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
+          <div className="h-20 w-20 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+            <span className="text-3xl animate-pulse">✨</span>
+          </div>
+        </div>
+        <p className="text-white/50 text-sm mt-6">Loading...</p>
       </div>
     );
 
@@ -69,31 +62,21 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen relative">
-      {/* NASA 배경 이미지 */}
-      {nasa?.mediaType === 'image' && (
-        <div
-          className={`fixed inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-            bgImageLoaded ? 'opacity-20' : 'opacity-0'
-          }`}
-          style={{ backgroundImage: `url(${nasa.url})` }}
-        />
-      )}
-
-      {/* 오버레이 그라데이션 */}
-      <div className="fixed inset-0 bg-gradient-to-b from-mystic-900/80 via-mystic-900/90 to-mystic-900" />
-
+    <div className="min-h-screen bg-[#161022]">
       {/* 콘텐츠 */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
+      <div className="relative z-10 container mx-auto px-4 py-6 max-w-4xl">
         {/* 헤더 */}
         <header className="text-center mb-6">
-          <h1 className="text-4xl md:text-5xl font-mystic mystic-text text-shadow-glow mb-2">
-            오늘의 괘
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1">
+            MYSTIC <span className="text-[#5b13ec]">AI</span>
           </h1>
-          <p className="text-gray-500 text-sm">
-            천기와 운명의 신비로운 해석
+          <p className="text-white/40 text-xs uppercase tracking-[0.3em]">
+            Unveil Your Destiny
           </p>
         </header>
+
+        {/* Premium Banner */}
+        <PremiumBanner />
 
         {/* 네비게이션 */}
         <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -103,13 +86,12 @@ function App() {
           {renderTab()}
         </main>
 
-        {/* NASA APOD 크레딧 */}
-        {nasa && (
-          <footer className="mt-8 text-center text-gray-500 text-xs">
-            <p>배경: {nasa.title}</p>
-            <p className="mt-1">NASA Astronomy Picture of the Day</p>
-          </footer>
-        )}
+        {/* Footer */}
+        <footer className="mt-12 text-center pb-8">
+          <p className="text-[10px] text-white/20 uppercase tracking-[0.4em]">
+            © 2024 MYSTIC AI
+          </p>
+        </footer>
       </div>
     </div>
   );

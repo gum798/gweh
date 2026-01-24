@@ -5,17 +5,17 @@ import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
 const ELEMENT_COLORS = {
   목: 'text-green-400',
   화: 'text-red-400',
-  토: 'text-yellow-600',
+  토: 'text-yellow-500',
   금: 'text-gray-300',
   수: 'text-blue-400',
 };
 
 const ELEMENT_BG = {
-  목: 'bg-green-400/20',
-  화: 'bg-red-400/20',
-  토: 'bg-yellow-600/20',
-  금: 'bg-gray-300/20',
-  수: 'bg-blue-400/20',
+  목: 'bg-green-400/20 border-green-400/30',
+  화: 'bg-red-400/20 border-red-400/30',
+  토: 'bg-yellow-500/20 border-yellow-500/30',
+  금: 'bg-gray-300/20 border-gray-300/30',
+  수: 'bg-blue-400/20 border-blue-400/30',
 };
 
 export default function SajuTab() {
@@ -59,58 +59,73 @@ export default function SajuTab() {
 
   if (!result) {
     return (
-      <div className="glass-panel p-6 md:p-8">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-4">📅</div>
-          <h2 className="text-2xl mystic-text text-shadow-glow mb-2 font-mystic">
-            사주팔자
-          </h2>
-          <p className="text-gray-400">
-            태어난 날과 시를 알려주시면, 천명을 살펴드리리라
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-6">
-          <div>
-            <label className="data-label block mb-2">생년월일</label>
-            <input
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="w-full px-4 py-3 bg-mystic-700/50 border border-cosmic-gold/20
-                         rounded-xl text-white focus:outline-none focus:border-cosmic-gold/50
-                         transition-colors"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="data-label block mb-2">태어난 시</label>
-            <select
-              value={birthHour}
-              onChange={(e) => setBirthHour(e.target.value)}
-              className="w-full px-4 py-3 bg-mystic-700/50 border border-cosmic-gold/20
-                         rounded-xl text-white focus:outline-none focus:border-cosmic-gold/50
-                         transition-colors appearance-none cursor-pointer"
-            >
-              {hourOptions.map((opt) => (
-                <option key={opt.value} value={opt.value} className="bg-mystic-800">
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-gradient-to-r from-cosmic-gold to-yellow-500
-                       text-mystic-900 rounded-xl font-medium font-mystic
-                       hover:from-yellow-500 hover:to-cosmic-gold transition-all
-                       shadow-lg shadow-cosmic-gold/20"
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-2xl">
+          <div
+            className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
+            style={{
+              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1532978379173-523e16f371f2?w=800&q=80")`,
+            }}
           >
-            사주 풀이 보기
-          </button>
-        </form>
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
+                Four Pillars of <br />
+                <span className="text-[#5b13ec] italic font-light">Destiny</span>
+              </h1>
+              <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
+                태어난 날과 시를 알려주시면, 천명을 살펴드립니다
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Input Form */}
+        <section className="px-4">
+          <div className="max-w-md mx-auto">
+            <div className="text-center mb-6">
+              <h3 className="text-white text-xl font-bold tracking-tight pb-1">Birth Information</h3>
+              <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
+                <label className="block">
+                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">Birth Date</p>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 px-4 text-lg font-medium transition-all focus:bg-white/10"
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">Birth Hour</p>
+                  <select
+                    value={birthHour}
+                    onChange={(e) => setBirthHour(e.target.value)}
+                    className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 px-4 text-base font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
+                  >
+                    {hourOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value} className="bg-[#161022]">
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
+              >
+                Reveal Destiny
+              </button>
+            </form>
+          </div>
+        </section>
       </div>
     );
   }
@@ -119,102 +134,123 @@ export default function SajuTab() {
   const todayFortune = getTodayFortune(saju);
 
   return (
-    <div className="space-y-6">
-      {/* 메인 해석 카드 */}
-      <div className="glass-panel p-6 md:p-8 animate-float">
-        <div className="text-center mb-6">
-          <div className="text-4xl mb-4">✨</div>
-          <p className="text-xl md:text-2xl mystic-text leading-relaxed text-shadow-glow font-mystic">
+    <div className="space-y-8 pb-8">
+      {/* Header Card */}
+      <section className="px-4 pt-4">
+        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Four Pillars</span>
+              <h3 className="text-white text-xl font-bold tracking-tight">사주팔자</h3>
+            </div>
+            <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+              <span className="text-xl">✨</span>
+            </div>
+          </div>
+
+          <p className="text-white/70 text-lg italic leading-relaxed text-center mb-6">
             "{mainMessage}"
           </p>
-        </div>
 
-        {/* 일간 정보 */}
-        <div className="bg-mystic-700/50 rounded-xl p-4 mb-6 border border-cosmic-gold/10">
-          <div className="text-center">
-            <span className="data-label">일간 (본명)</span>
-            <p className="text-2xl mystic-text mt-2">{dayMaster.name}</p>
-            <p className="text-gray-400 mt-1">
+          {/* 일간 정보 */}
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+            <p className="text-[#5b13ec] text-xs uppercase tracking-widest mb-2">Day Master (일간)</p>
+            <p className="text-white text-2xl font-bold">{dayMaster.name}</p>
+            <p className="text-white/50 text-sm mt-1">
               {dayMaster.nature}의 기운 · {dayMaster.trait} 성정
             </p>
           </div>
         </div>
+      </section>
 
-        {/* 띠 정보 */}
-        <div className="text-center mb-4">
-          <span className="data-label">{zodiac}띠</span>
-          <p className="text-gray-200 mt-2 text-sm leading-relaxed">
+      {/* 띠 정보 */}
+      <section className="px-4">
+        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl">🐉</span>
+            <div>
+              <p className="text-[#5b13ec] text-xs uppercase tracking-widest">Zodiac</p>
+              <p className="text-white font-bold text-lg">{zodiac}띠</p>
+            </div>
+          </div>
+          <p className="text-white/60 text-sm leading-relaxed">
             {zodiacMessage}
           </p>
         </div>
-      </div>
+      </section>
 
       {/* 사주팔자 표 */}
-      <div className="glass-panel p-6">
-        <h3 className="mystic-text text-lg mb-4 text-center font-mystic">사주팔자</h3>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          {pillars.map((p, i) => (
-            <div key={i} className="space-y-2">
-              <div className="data-label text-xs">{p.name}</div>
-              <div className={`text-2xl font-mystic ${ELEMENT_COLORS[FIVE_ELEMENTS[p.pillar.stem]]}`}>
-                {p.pillar.stem}
+      <section className="px-4">
+        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Four Pillars Chart</h4>
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {pillars.map((p, i) => (
+              <div key={i} className="bg-white/5 rounded-xl p-3 border border-white/10">
+                <div className="text-white/40 text-[10px] uppercase tracking-widest mb-2">{p.name}</div>
+                <div className={`text-2xl font-bold mb-1 ${ELEMENT_COLORS[FIVE_ELEMENTS[p.pillar.stem]]}`}>
+                  {p.pillar.stem}
+                </div>
+                <div className="text-white text-lg mb-1">
+                  {p.pillar.branch}
+                </div>
+                <div className="text-white/30 text-[10px]">{p.meaning}</div>
               </div>
-              <div className="text-xl text-gray-300">
-                {p.pillar.branch}
-              </div>
-              <div className="text-xs text-gray-500">{p.meaning}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* 오행 분석 */}
-      <div className="glass-panel p-6">
-        <h3 className="mystic-text text-lg mb-4 text-center font-mystic">오행 분포</h3>
-        <div className="flex justify-center gap-3 mb-4">
-          {Object.entries(elementAnalysis.distribution).map(([element, count]) => (
-            <div
-              key={element}
-              className={`${ELEMENT_BG[element]} px-4 py-2 rounded-lg text-center`}
-            >
-              <div className={`text-lg font-medium ${ELEMENT_COLORS[element]}`}>
-                {element}
+      <section className="px-4">
+        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Five Elements</h4>
+          <div className="flex justify-center gap-2 mb-4">
+            {Object.entries(elementAnalysis.distribution).map(([element, count]) => (
+              <div
+                key={element}
+                className={`${ELEMENT_BG[element]} px-4 py-3 rounded-xl text-center border`}
+              >
+                <div className={`text-lg font-bold ${ELEMENT_COLORS[element]}`}>
+                  {element}
+                </div>
+                <div className="text-white/50 text-sm">{count}</div>
               </div>
-              <div className="text-gray-400 text-sm">{count}</div>
-            </div>
-          ))}
-        </div>
-        <p className="text-gray-300 text-sm text-center leading-relaxed">
-          {elementMessage}
-        </p>
-      </div>
-
-      {/* 오늘의 운세 */}
-      <div className="glass-panel p-6">
-        <h3 className="mystic-text text-lg mb-4 text-center font-mystic">오늘의 기운</h3>
-        <div className="text-center">
-          <span className={`inline-block px-4 py-1 rounded-full text-sm mb-3 ${
-            todayFortune.level === '대길' ? 'bg-yellow-500/20 text-yellow-400' :
-            todayFortune.level === '길' ? 'bg-green-500/20 text-green-400' :
-            todayFortune.level === '평' ? 'bg-gray-500/20 text-gray-400' :
-            todayFortune.level === '소흉' ? 'bg-orange-500/20 text-orange-400' :
-            'bg-red-500/20 text-red-400'
-          }`}>
-            {todayFortune.level}
-          </span>
-          <p className="text-gray-300 text-sm leading-relaxed">
-            {todayFortune.message}
+            ))}
+          </div>
+          <p className="text-white/60 text-sm text-center leading-relaxed">
+            {elementMessage}
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* 다시하기 버튼 */}
-      <div className="text-center">
+      {/* 오늘의 운세 */}
+      <section className="px-4">
+        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Today's Fortune</h4>
+          <div className="text-center">
+            <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${
+              todayFortune.level === '대길' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+              todayFortune.level === '길' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+              todayFortune.level === '평' ? 'bg-gray-500/20 text-gray-400 border border-gray-500/30' :
+              todayFortune.level === '소흉' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+              'bg-red-500/20 text-red-400 border border-red-500/30'
+            }`}>
+              {todayFortune.level}
+            </span>
+            <p className="text-white/60 text-sm leading-relaxed">
+              {todayFortune.message}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Reset Button */}
+      <div className="px-4 pt-4">
         <button
           onClick={handleReset}
-          className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
+          className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
         >
-          다른 사주 풀이 보기
+          New Reading
         </button>
       </div>
     </div>

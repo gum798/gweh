@@ -4,7 +4,7 @@ import { useHandDetection } from '../../hooks/useHandDetection';
 import { interpretPalm, getPalmAdvice } from '../../utils/palmReading';
 
 export default function PalmTab() {
-  const [mode, setMode] = useState('intro'); // 'intro', 'capture', 'analyzing', 'result'
+  const [mode, setMode] = useState('intro');
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
 
@@ -22,7 +22,7 @@ export default function PalmTab() {
 
     if (handData) {
       const interpretation = interpretPalm(handData.features, handData.palmLines, handData.fingerGesture);
-      setCapturedImage(handData.annotatedImage || imageSrc); // 스켈레톤이 그려진 이미지 사용
+      setCapturedImage(handData.annotatedImage || imageSrc);
       setResult({
         ...interpretation,
         handedness: handData.handedness,
@@ -43,45 +43,67 @@ export default function PalmTab() {
   // 소개 화면
   if (mode === 'intro') {
     return (
-      <div className="glass-panel p-6 md:p-8">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-4">🖐️</div>
-          <h2 className="text-2xl mystic-text text-shadow-glow mb-2 font-mystic">
-            손금 풀이
-          </h2>
-          <p className="text-gray-400">
-            손바닥에 새겨진 운명의 선을 읽어드리리라
-          </p>
-        </div>
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-2xl">
+          <div
+            className="flex min-h-[45vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
+            style={{
+              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1572879023364-ab4f53e9d5fa?w=800&q=80")`,
+            }}
+          >
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
+                Lines of <br />
+                <span className="text-[#5b13ec] italic font-light">Destiny</span>
+              </h1>
+              <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
+                손바닥에 새겨진 운명의 선을 읽어드립니다
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <div className="max-w-md mx-auto">
-          {/* 안내 사항 */}
-          <div className="bg-mystic-700/50 rounded-xl p-4 mb-6 border border-cosmic-gold/10">
-            <h3 className="mystic-text text-sm mb-3">손금을 보기 전에</h3>
-            <ul className="text-gray-400 text-sm space-y-2">
-              <li className="flex items-start gap-2">
-                <span>✋</span>
-                <span>손바닥을 펴고 카메라에 비춰주세요</span>
+        {/* Instructions */}
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h3 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Before Reading</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-4">
+                <div className="bg-[#5b13ec]/20 p-2 rounded-full">
+                  <span className="text-lg">✋</span>
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm">손바닥을 펴고 카메라에 비춰주세요</p>
+                </div>
               </li>
-              <li className="flex items-start gap-2">
-                <span>💡</span>
-                <span>밝은 곳에서 손금이 잘 보이도록 해주세요</span>
+              <li className="flex items-start gap-4">
+                <div className="bg-[#5b13ec]/20 p-2 rounded-full">
+                  <span className="text-lg">💡</span>
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm">밝은 곳에서 손금이 잘 보이도록 해주세요</p>
+                </div>
               </li>
-              <li className="flex items-start gap-2">
-                <span>📷</span>
-                <span>손바닥 전체가 화면에 들어오도록 해주세요</span>
+              <li className="flex items-start gap-4">
+                <div className="bg-[#5b13ec]/20 p-2 rounded-full">
+                  <span className="text-lg">📷</span>
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm">손바닥 전체가 화면에 들어오도록 해주세요</p>
+                </div>
               </li>
             </ul>
           </div>
+        </section>
 
+        {/* Start Button */}
+        <div className="px-4 pb-8">
           <button
             onClick={handleStart}
-            className="w-full py-3 bg-gradient-to-r from-cosmic-gold to-yellow-500
-                       text-mystic-900 rounded-xl font-medium font-mystic
-                       hover:from-yellow-500 hover:to-cosmic-gold transition-all
-                       shadow-lg shadow-cosmic-gold/20"
+            className="w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
           >
-            손금 보기 시작
+            Start Palm Reading
           </button>
         </div>
       </div>
@@ -91,16 +113,16 @@ export default function PalmTab() {
   // 카메라 캡처 화면
   if (mode === 'capture') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <CameraCapture
           onCapture={handleCapture}
-          captureLabel="손금 분석하기"
+          captureLabel="Read Palm Lines"
           instruction="손바닥을 펴서 카메라에 보여주세요"
           detectType="hand"
         />
 
         {error && (
-          <div className="glass-panel p-4 text-center text-red-400">
+          <div className="max-w-md mx-auto bg-red-500/10 backdrop-blur-xl rounded-2xl border border-red-500/30 p-4 text-center text-red-400">
             {error}
           </div>
         )}
@@ -108,9 +130,9 @@ export default function PalmTab() {
         <div className="text-center">
           <button
             onClick={handleReset}
-            className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
+            className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
           >
-            ← 돌아가기
+            ← Back
           </button>
         </div>
       </div>
@@ -120,15 +142,21 @@ export default function PalmTab() {
   // 분석 중 화면
   if (mode === 'analyzing' || isLoading) {
     return (
-      <div className="glass-panel p-8 text-center">
-        <div className="animate-pulse">
-          <div className="text-4xl mb-4">🔮</div>
-          <p className="mystic-text text-lg font-mystic">
-            손금에 담긴 운명을 읽는 중...
-          </p>
-          <p className="text-gray-400 text-sm mt-2">
-            잠시만 기다려주세요
-          </p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+            <span className="text-4xl animate-pulse">🔮</span>
+          </div>
+        </div>
+        <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading Your Palm...</h3>
+        <p className="text-white/50 text-sm text-center max-w-xs">
+          손금에 담긴 운명을 읽는 중입니다
+        </p>
+        <div className="mt-6 flex gap-1">
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -137,72 +165,83 @@ export default function PalmTab() {
   // 결과 화면
   if (mode === 'result' && result) {
     return (
-      <div className="space-y-6">
-        {/* 캡처된 이미지 (손 크롭) */}
+      <div className="space-y-8 pb-8">
+        {/* 캡처된 이미지 */}
         {capturedImage && (
-          <div className="flex justify-center">
-            <img
-              src={capturedImage}
-              alt="분석된 손"
-              className="w-64 h-64 rounded-2xl object-cover border-2 border-cosmic-gold/30 shadow-lg shadow-cosmic-gold/20"
-            />
+          <div className="flex justify-center pt-4">
+            <div className="relative">
+              <div className="absolute -inset-2 rounded-2xl border border-[#5b13ec]/30 shadow-[0_0_20px_rgba(91,19,236,0.3)] animate-pulse"></div>
+              <img
+                src={capturedImage}
+                alt="분석된 손"
+                className="w-48 h-48 rounded-2xl object-cover border border-white/10 relative z-10"
+              />
+            </div>
           </div>
         )}
 
         {/* 메인 해석 카드 */}
-        <div className="glass-panel p-6 md:p-8 animate-float">
-          <div className="text-center mb-6">
-            <div className="text-4xl mb-4">✨</div>
-            <p className="text-xl md:text-2xl mystic-text leading-relaxed text-shadow-glow font-mystic">
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Palm Reading</span>
+                <h3 className="text-white text-xl font-bold tracking-tight">
+                  {result.handedness === 'Left' ? '왼손' : '오른손'} 손금
+                </h3>
+              </div>
+              <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                <span className="text-xl">✨</span>
+              </div>
+            </div>
+
+            <p className="text-white/70 text-lg italic leading-relaxed text-center">
               "{result.mainMessage}"
             </p>
           </div>
-
-          {/* 손 정보 */}
-          <div className="text-center mb-4">
-            <span className="inline-block px-4 py-1 bg-cosmic-gold/20 rounded-full text-cosmic-gold text-sm">
-              {result.handedness === 'Left' ? '왼손' : '오른손'}
-            </span>
-          </div>
-        </div>
+        </section>
 
         {/* 세부 해석 */}
-        <div className="glass-panel p-6">
-          <h3 className="mystic-text text-lg mb-4 text-center font-mystic">손금 상세 풀이</h3>
-          <div className="space-y-4">
+        <section className="px-4">
+          <div className="max-w-md mx-auto space-y-4">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">Line Details</h4>
             {result.details.map((detail, i) => (
               <div
                 key={i}
-                className="bg-mystic-700/50 rounded-xl p-4 border border-cosmic-gold/10"
+                className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{detail.icon}</span>
-                  <span className="data-label">{detail.category}</span>
-                  <span className="text-gray-400 text-xs">· {detail.type}</span>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">{detail.icon}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-bold">{detail.category}</span>
+                    <span className="px-2 py-0.5 bg-[#5b13ec]/20 rounded-full text-[#5b13ec] text-xs">{detail.type}</span>
+                  </div>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-white/60 text-sm leading-relaxed">
                   {detail.message}
                 </p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* 조언 */}
-        <div className="glass-panel p-6 text-center">
-          <h3 className="mystic-text text-lg mb-3 font-mystic">조언</h3>
-          <p className="text-gray-300 text-sm leading-relaxed">
-            💫 {result.advice}
-          </p>
-        </div>
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Mystic Advice</h4>
+            <p className="text-white/70 text-sm leading-relaxed text-center">
+              💫 {result.advice}
+            </p>
+          </div>
+        </section>
 
-        {/* 다시하기 버튼 */}
-        <div className="text-center">
+        {/* Reset Button */}
+        <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
           >
-            다시 손금 보기
+            New Reading
           </button>
         </div>
       </div>
