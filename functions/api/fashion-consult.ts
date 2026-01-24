@@ -1,5 +1,5 @@
 interface Env {
-  OPENAI_API_KEY: string;
+  GEMINI_API_KEY: string;
 }
 
 interface RequestBody {
@@ -35,6 +35,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // BMI 계산
     const heightM = height / 100;
     const bmi = (weight / (heightM * heightM)).toFixed(1);
+
+    // base64 데이터에서 prefix 제거
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+    const mimeType = image.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/jpeg';
 
     const prompt = `당신은 전문 패션 스타일리스트입니다. 사용자의 전신 사진을 분석하여 맞춤형 패션 컨설팅을 제공해주세요.
 
@@ -95,61 +99,57 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 - 한국어로 자연스럽게 작성해주세요
 - JSON 형식만 반환해주세요 (마크다운 코드블록 없이)`;
 
-    // OpenAI Responses API (최신)
-    const response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${context.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        input: [
-          {
-            role: 'developer',
-            content: [
-              {
-                type: 'input_text',
-                text: prompt,
-              },
-            ],
-          },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'input_image',
-                image_url: image,
-                detail: 'high',
-              },
-            ],
-          },
-        ],
-        text: {
-          format: {
-            type: 'json_object',
-          },
+    // Google Gemini API
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${context.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        reasoning: {},
-        tools: [],
-        store: true,
-      }),
-    });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64Data,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+            responseMimeType: 'application/json',
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API error:', errorData);
+      console.error('Gemini API error:', errorData);
       return new Response(
-        JSON.stringify({ error: 'AI 분석 중 오류가 발생했습니다.' }),
+        JSON.stringify({ error: 'AI 분석 중 오류가 발생했습니다.', details: errorData }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await response.json() as {
-      output_text?: string;
-      output?: Array<{ content?: Array<{ text?: string }> }>;
+      candidates?: Array<{
+        content?: {
+          parts?: Array<{ text?: string }>;
+        };
+      }>;
     };
-    const content = data.output_text || data.output?.[0]?.content?.[0]?.text;
+
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!content) {
       return new Response(
