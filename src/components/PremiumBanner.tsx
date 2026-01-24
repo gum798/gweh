@@ -39,16 +39,9 @@ export default function PremiumBanner() {
     }
   };
 
+  // 프리미엄 사용자는 배너 표시 안함
   if (isPremium) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 mb-6">
-        <div className="bg-gradient-to-r from-[#5b13ec]/20 to-purple-500/20 backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-4 flex items-center justify-center gap-3">
-          <span className="text-xl">✨</span>
-          <span className="text-white font-medium">Premium Member</span>
-          <span className="px-2 py-0.5 bg-[#5b13ec] rounded-full text-white text-xs font-bold">LIFETIME</span>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
