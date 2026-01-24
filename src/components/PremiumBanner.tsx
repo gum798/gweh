@@ -1,29 +1,43 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { usePremium } from '../contexts/PremiumContext';
-
-// Polar Configuration
-const IS_SANDBOX = import.meta.env.VITE_POLAR_SANDBOX === 'true';
-// Sandbox: sandbox.polar.sh / Production: polar.sh
-const POLAR_BASE_URL = IS_SANDBOX ? 'https://sandbox.polar.sh' : 'https://polar.sh';
-// Use sandbox product ID in sandbox mode, production ID otherwise
-const POLAR_PRODUCT_ID = IS_SANDBOX
-  ? import.meta.env.VITE_POLAR_SANDBOX_PRODUCT_ID
-  : import.meta.env.VITE_POLAR_PRODUCT_ID;
 
 export default function PremiumBanner() {
   const { isPremium } = usePremium();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Load Polar Embed Checkout script (official CDN)
-    if (!document.getElementById('polar-embed-script')) {
-      const script = document.createElement('script');
-      script.id = 'polar-embed-script';
-      script.src = 'https://cdn.jsdelivr.net/npm/@polar-sh/checkout@latest/dist/embed.global.js';
-      script.defer = true;
-      script.dataset.autoInit = 'true';
-      document.body.appendChild(script);
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // 선택적: 고객 이메일, 메타데이터 추가 가능
+          // customerEmail: 'user@example.com',
+          // metadata: { userId: '123' },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Checkout failed');
+      }
+
+      const { url } = await response.json();
+
+      // Polar Checkout 페이지로 리다이렉트
+      window.location.href = url;
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to start checkout');
+      setIsLoading(false);
     }
-  }, []);
+  };
 
   if (isPremium) {
     return (
@@ -36,8 +50,6 @@ export default function PremiumBanner() {
       </div>
     );
   }
-
-  const successUrl = `${window.location.origin}?checkout_success=true&order_id={CHECKOUT_ID}`;
 
   return (
     <div className="max-w-4xl mx-auto px-4 mb-6">
@@ -53,17 +65,31 @@ export default function PremiumBanner() {
             </p>
           </div>
 
-          <a
-            href={`${POLAR_BASE_URL}/checkout?productId=${POLAR_PRODUCT_ID}&successUrl=${encodeURIComponent(successUrl)}`}
-            data-polar-checkout
-            data-polar-checkout-theme="dark"
-            className="flex items-center justify-center gap-2 px-8 py-3 bg-[#5b13ec] text-white rounded-full font-bold uppercase tracking-widest text-sm transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95 whitespace-nowrap"
+          <button
+            onClick={handleCheckout}
+            disabled={isLoading}
+            className="flex items-center justify-center gap-2 px-8 py-3 bg-[#5b13ec] text-white rounded-full font-bold uppercase tracking-widest text-sm transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            <span>$1.99</span>
-            <span className="text-white/70">•</span>
-            <span>Lifetime Access</span>
-          </a>
+            {isLoading ? (
+              <>
+                <span className="animate-spin">⏳</span>
+                <span>Loading...</span>
+              </>
+            ) : (
+              <>
+                <span>$1.99</span>
+                <span className="text-white/70">•</span>
+                <span>Lifetime Access</span>
+              </>
+            )}
+          </button>
         </div>
+
+        {error && (
+          <div className="mt-3 text-center text-red-400 text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="mt-4 pt-4 border-t border-white/10">
           <div className="flex flex-wrap justify-center gap-4 text-xs text-white/40">

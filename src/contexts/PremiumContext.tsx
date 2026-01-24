@@ -19,8 +19,8 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     if (stored) {
       try {
         const data = JSON.parse(stored);
-        // Verify the purchase is valid (you could add signature verification here)
-        if (data.purchased && data.orderId) {
+        // Verify the purchase is valid
+        if (data.purchased && (data.checkoutId || data.orderId)) {
           setIsPremium(true);
         }
       } catch {
@@ -31,13 +31,13 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     // Also check URL for successful purchase callback
     const urlParams = new URLSearchParams(window.location.search);
     const checkoutSuccess = urlParams.get('checkout_success');
-    const orderId = urlParams.get('order_id');
+    const checkoutId = urlParams.get('checkout_id');
 
-    if (checkoutSuccess === 'true' && orderId) {
+    if (checkoutSuccess === 'true' && checkoutId) {
       // Store premium status
       localStorage.setItem(PREMIUM_KEY, JSON.stringify({
         purchased: true,
-        orderId: orderId,
+        checkoutId: checkoutId,
         purchasedAt: new Date().toISOString(),
       }));
       setIsPremium(true);
