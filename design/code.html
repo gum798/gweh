@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mysterious AI Stylist</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5b13ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#161022",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glow-border {
+            box-shadow: 0 0 15px rgba(91, 19, 236, 0.3);
+            border: 1px solid rgba(91, 19, 236, 0.5);
+        }
+        .glass-panel {
+            background: rgba(34, 25, 51, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-text {
+            text-shadow: 0 0 10px rgba(91, 19, 236, 0.8);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white selection:bg-primary/30">
+<!-- Top Navigation -->
+<nav class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 justify-between border-b border-white/5">
+<div class="text-white flex size-10 items-center justify-center">
+<span class="material-symbols-outlined">menu</span>
+</div>
+<h2 class="text-white text-lg font-bold tracking-tight text-center flex-1">MYSTIC AI</h2>
+<div class="flex size-10 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center rounded-lg h-10 w-10 bg-transparent text-white">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative overflow-hidden">
+<div class="@container">
+<div class="p-0">
+<div class="flex min-h-[85vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-20 px-6 text-center" data-alt="High fashion model in dark avant-garde clothing with purple neon lighting" style='background-image: linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.4) 50%, rgba(0, 0, 0, 0.1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4nQj-qJlva8AQ6WBFm3QhpPEeeapJF1IfHXPUu19hcl-DeIb4gp1NFiD7cK9Pw8fMBwyjMNr_Emptb4FTirBhNggUaoYUCHBt29yId1WMncHm6pyf7AYB1NtzwjobDfm_8xhmmpNZ6n6-k65AR7UQkqxVzZGqozd6Q7uKSh6momPRI92tzI-d63_pt4uJ5a19xneYDkRaUGHEi5Fn_oqi9XLXwQbElKPY50jBQuQuEFBoElWdeyurnrd8abMJ8cBD6ULBVWW6ERI");'>
+<div class="flex flex-col gap-3 max-w-2xl">
+<h1 class="text-white text-5xl font-bold leading-tight tracking-tighter @[480px]:text-7xl">
+                            Define Your <br/><span class="text-primary italic font-light">Shadow Self</span>
+</h1>
+<p class="text-white/70 text-base font-light leading-relaxed max-w-xs mx-auto">
+                            The AI that knows your silhouette better than you do. Personal styling for the unseen.
+                        </p>
+</div>
+<button class="mt-4 flex min-w-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-8 bg-primary text-white text-base font-bold tracking-widest uppercase transition-all hover:scale-105 active:scale-95 glow-border">
+<span>Begin Transformation</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Input Section: Physical Essence -->
+<section class="py-12 px-6 space-y-8">
+<div class="text-center">
+<h3 class="text-white text-2xl font-bold tracking-tight pb-1">Physical Essence</h3>
+<div class="h-1 w-12 bg-primary mx-auto rounded-full"></div>
+</div>
+<div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+<label class="flex flex-col gap-2">
+<p class="text-white/60 text-xs font-bold uppercase tracking-widest pl-1">Height</p>
+<div class="relative">
+<input class="form-input w-full rounded-xl text-white focus:outline-0 focus:ring-1 focus:ring-primary border border-white/10 bg-white/5 h-16 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10" placeholder="180cm" value=""/>
+</div>
+</label>
+<label class="flex flex-col gap-2">
+<p class="text-white/60 text-xs font-bold uppercase tracking-widest pl-1">Weight</p>
+<div class="relative">
+<input class="form-input w-full rounded-xl text-white focus:outline-0 focus:ring-1 focus:ring-primary border border-white/10 bg-white/5 h-16 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10" placeholder="75kg" value=""/>
+</div>
+</label>
+</div>
+</section>
+<!-- Upload Section: The Portal -->
+<section class="py-12 px-6">
+<div class="text-center mb-10">
+<h3 class="text-white text-2xl font-bold tracking-tight pb-1">The Portal</h3>
+<p class="text-white/40 text-sm font-light">Upload your form to sync with the AI</p>
+</div>
+<div class="max-w-md mx-auto aspect-square relative flex items-center justify-center">
+<!-- Neon Etched Border -->
+<div class="absolute inset-0 rounded-3xl border-[1px] border-primary/30 glow-border animate-pulse"></div>
+<div class="w-full h-full glass-panel rounded-3xl flex flex-col items-center justify-center p-8 text-center group cursor-pointer border-dashed border-2 border-primary/20">
+<div class="mb-6 bg-primary/20 p-6 rounded-full group-hover:bg-primary/40 transition-colors">
+<span class="material-symbols-outlined text-5xl text-primary">cloud_upload</span>
+</div>
+<h4 class="text-lg font-bold mb-2">Sync Your Silhouette</h4>
+<p class="text-white/50 text-sm leading-relaxed">Drag and drop your full-body portrait or tap to browse</p>
+<div class="mt-8 flex gap-4">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-tighter text-white/60">
+<span class="material-symbols-outlined text-sm">check_circle</span> Front View
+                    </div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-tighter text-white/60">
+<span class="material-symbols-outlined text-sm">radio_button_unchecked</span> Side View
+                    </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Results Section: Mystic Chic -->
+<section class="py-16 px-6 bg-gradient-to-b from-transparent to-black/40">
+<div class="max-w-md mx-auto space-y-8">
+<div class="flex items-center justify-between">
+<div>
+<span class="text-primary text-[10px] font-bold uppercase tracking-[0.3em]">Analysis Complete</span>
+<h3 class="text-white text-3xl font-bold tracking-tight">Mystic Chic</h3>
+</div>
+<div class="h-12 w-12 rounded-full border border-primary/50 flex items-center justify-center glow-border">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+</div>
+</div>
+<!-- Recommendation Card -->
+<div class="relative rounded-2xl overflow-hidden glass-panel">
+<div class="aspect-[4/5] bg-cover bg-center" data-alt="Draped dark minimalist clothing ensemble on a high fashion mannequin" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAlMch8OgWQCShr3C3ioQmQuyDIXGVKE_3AC-IlpQHAWt3N52I7pTKZsFVfjrzrrHBc28k13dM4Yx3u5pOXwt2KAB-JOT-zj6OcYsIjtUIwVASGniry-fCqcjJMRNm_Cno4paWYkYPIFQHZYWK7FQTXuAx5hCPa2DvvzshWyw0gQoBK09A1BlnmgYhNel1kY3gbxNqIWs8v7bs-xCl5LyKy7ckETJRmsbi5nSrVGs-y80zru25HAX44O6YdiIbq5rgNSNyrwl1UDds");'>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex items-center justify-between">
+<h4 class="text-lg font-bold">The Void Ensemble</h4>
+<span class="text-primary font-bold">98% Match</span>
+</div>
+<p class="text-white/60 text-sm italic leading-relaxed">
+                        "Designed to elongate your 180cm frame while providing structure to your silhouette. The heavy draping mimics architectural shadows."
+                    </p>
+<div class="pt-4 border-t border-white/10 space-y-3">
+<div class="flex items-center justify-between text-sm">
+<span class="text-white/80 font-medium">Oversized Drape Coat</span>
+<span class="text-white/40">Charcoal Wool</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-white/80 font-medium">Tapered Shadow Trousers</span>
+<span class="text-white/40">Midnight Silk</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-white/80 font-medium">Ankle-high Combat Boots</span>
+<span class="text-white/40">Matte Leather</span>
+</div>
+</div>
+<button class="w-full mt-4 bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-colors">
+                        View Item Breakdown
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="p-8 text-center border-t border-white/5 space-y-4 pb-12">
+<div class="flex justify-center gap-6 text-white/30">
+<span class="material-symbols-outlined">share</span>
+<span class="material-symbols-outlined">bookmark</span>
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">© 2024 MYSTIC STYLIST AI</p>
+</footer>
+<!-- Sticky Action Button (Mobile) -->
+<div class="fixed bottom-6 right-6 z-50">
+<button class="h-16 w-16 bg-primary rounded-full shadow-2xl flex items-center justify-center glow-border group">
+<span class="material-symbols-outlined text-white text-3xl transition-transform group-hover:rotate-12">bolt</span>
+</button>
+</div>
+</body></html>

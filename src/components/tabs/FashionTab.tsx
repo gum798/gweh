@@ -44,7 +44,6 @@ export default function FashionTab() {
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // 이미지 리사이즈 (API 비용 절감)
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
@@ -145,40 +144,93 @@ export default function FashionTab() {
   // 입력 화면
   if (mode === 'input') {
     return (
-      <div className="glass-panel p-6 md:p-8">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-4">👔</div>
-          <h2 className="text-2xl mystic-text text-shadow-glow mb-2 font-mystic">
-            AI 패션 스타일 컨설팅
-          </h2>
-          <p className="text-gray-400">
-            AI가 당신의 체형을 분석하고 맞춤 스타일을 추천합니다
-          </p>
-        </div>
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-2xl">
+          <div
+            className="flex min-h-[50vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
+            style={{
+              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4nQj-qJlva8AQ6WBFm3QhpPEeeapJF1IfHXPUu19hcl-DeIb4gp1NFiD7cK9Pw8fMBwyjMNr_Emptb4FTirBhNggUaoYUCHBt29yId1WMncHm6pyf7AYB1NtzwjobDfm_8xhmmpNZ6n6-k65AR7UQkqxVzZGqozd6Q7uKSh6momPRI92tzI-d63_pt4uJ5a19xneYDkRaUGHEi5Fn_oqi9XLXwQbElKPY50jBQuQuEFBoElWdeyurnrd8abMJ8cBD6ULBVWW6ERI")`,
+            }}
+          >
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
+                Define Your <br />
+                <span className="text-[#5b13ec] italic font-light">Shadow Self</span>
+              </h1>
+              <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
+                AI가 당신의 실루엣을 분석하고 맞춤 스타일을 제안합니다
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <div className="max-w-md mx-auto space-y-6">
-          {/* 사진 업로드 (필수) */}
-          <div>
-            <label className="data-label block mb-2">사진 <span className="text-red-400">*</span></label>
+        {/* Physical Essence Section */}
+        <section className="py-6 px-4 space-y-6">
+          <div className="text-center">
+            <h3 className="text-white text-xl font-bold tracking-tight pb-1">Physical Essence</h3>
+            <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+            <label className="flex flex-col gap-2">
+              <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1">Height</p>
+              <input
+                type="number"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
+                placeholder="180cm"
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1">Weight</p>
+              <input
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
+                placeholder="75kg"
+              />
+            </label>
+          </div>
+        </section>
+
+        {/* Upload Section: The Portal */}
+        <section className="py-6 px-4">
+          <div className="text-center mb-8">
+            <h3 className="text-white text-xl font-bold tracking-tight pb-1">The Portal</h3>
+            <p className="text-white/40 text-sm font-light">AI와 동기화할 사진을 업로드하세요</p>
+          </div>
+          <div className="max-w-md mx-auto aspect-square relative flex items-center justify-center">
+            {/* Neon Border */}
+            <div className="absolute inset-0 rounded-3xl border border-[#5b13ec]/30 shadow-[0_0_15px_rgba(91,19,236,0.3)] animate-pulse"></div>
             <div
               onClick={triggerFileInput}
-              className={`border-2 border-dashed rounded-xl p-6 cursor-pointer transition-colors text-center ${
-                capturedImage
-                  ? 'border-cosmic-gold/50'
-                  : 'border-cosmic-gold/30 hover:border-cosmic-gold/50'
-              }`}
+              className="w-full h-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-3xl flex flex-col items-center justify-center p-8 text-center cursor-pointer border-dashed border-2 border-[#5b13ec]/20 hover:border-[#5b13ec]/50 transition-all group"
             >
               {capturedImage ? (
                 <img
                   src={capturedImage}
                   alt="업로드된 사진"
-                  className="w-32 h-32 mx-auto rounded-xl object-cover"
+                  className="w-full h-full object-cover rounded-2xl"
                 />
               ) : (
                 <>
-                  <div className="text-3xl mb-2">📷</div>
-                  <p className="text-gray-400 text-sm">전신 사진을 업로드하세요</p>
-                  <p className="text-red-400/70 text-xs mt-1">(필수)</p>
+                  <div className="mb-6 bg-[#5b13ec]/20 p-6 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                    <span className="text-5xl text-[#5b13ec]">☁️</span>
+                  </div>
+                  <h4 className="text-lg font-bold mb-2">Sync Your Silhouette</h4>
+                  <p className="text-white/50 text-sm leading-relaxed">
+                    전신 사진을 드래그하거나 탭하여 업로드
+                  </p>
+                  <div className="mt-6 flex gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-tight text-white/60">
+                      ✓ Front View
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-tight text-white/60">
+                      ○ Side View
+                    </div>
+                  </div>
                 </>
               )}
             </div>
@@ -190,49 +242,21 @@ export default function FashionTab() {
               className="hidden"
             />
           </div>
+        </section>
 
-          {/* 키 입력 */}
-          <div>
-            <label className="data-label block mb-2">키 (cm)</label>
-            <input
-              type="number"
-              value={height}
-              onChange={(e) => setHeight(e.target.value)}
-              placeholder="예: 165"
-              className="w-full px-4 py-3 bg-mystic-700/50 border border-cosmic-gold/20 rounded-xl
-                         text-white placeholder-gray-500 focus:border-cosmic-gold/50 focus:outline-none"
-            />
-          </div>
-
-          {/* 몸무게 입력 */}
-          <div>
-            <label className="data-label block mb-2">몸무게 (kg)</label>
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder="예: 55"
-              className="w-full px-4 py-3 bg-mystic-700/50 border border-cosmic-gold/20 rounded-xl
-                         text-white placeholder-gray-500 focus:border-cosmic-gold/50 focus:outline-none"
-            />
-          </div>
-
-          {/* 분석 버튼 */}
+        {/* Action Button */}
+        <div className="px-4 pb-8">
           <button
             onClick={handleAnalyze}
             disabled={!capturedImage || !height || !weight}
-            className={`w-full py-3 rounded-xl font-medium font-mystic transition-all ${
+            className={`w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
               capturedImage && height && weight
-                ? 'bg-gradient-to-r from-cosmic-gold to-yellow-500 text-mystic-900 hover:from-yellow-500 hover:to-cosmic-gold shadow-lg shadow-cosmic-gold/20'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                : 'bg-white/10 text-white/30 cursor-not-allowed'
             }`}
           >
-            AI 스타일 컨설팅 받기
+            Begin Transformation
           </button>
-
-          <p className="text-gray-500 text-xs text-center">
-            * GPT-4 Vision을 사용하여 분석합니다
-          </p>
         </div>
       </div>
     );
@@ -241,20 +265,21 @@ export default function FashionTab() {
   // 분석 중 화면
   if (mode === 'analyzing') {
     return (
-      <div className="glass-panel p-8 text-center">
-        <div className="animate-pulse">
-          <div className="text-4xl mb-4">🤖</div>
-          <p className="mystic-text text-lg font-mystic">
-            AI가 체형과 스타일을 분석하고 있습니다...
-          </p>
-          <p className="text-gray-400 text-sm mt-2">
-            잠시만 기다려주세요 (약 10-20초)
-          </p>
-          <div className="mt-6 flex justify-center gap-1">
-            <div className="w-2 h-2 bg-cosmic-gold rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-cosmic-gold rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-cosmic-gold rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+            <span className="text-4xl animate-pulse">✨</span>
           </div>
+        </div>
+        <h3 className="text-white text-xl font-bold mt-8 mb-2">Analyzing Your Essence...</h3>
+        <p className="text-white/50 text-sm text-center max-w-xs">
+          AI가 당신의 체형과 스타일을 분석하고 있습니다
+        </p>
+        <div className="mt-6 flex gap-1">
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -263,15 +288,17 @@ export default function FashionTab() {
   // 에러 화면
   if (mode === 'error') {
     return (
-      <div className="glass-panel p-8 text-center">
-        <div className="text-4xl mb-4">😥</div>
-        <p className="text-red-400 text-lg mb-2">분석에 실패했습니다</p>
-        <p className="text-gray-400 text-sm mb-6">{errorMessage}</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
+        <div className="h-20 w-20 rounded-full border border-red-500/50 flex items-center justify-center mb-6">
+          <span className="text-4xl">⚠️</span>
+        </div>
+        <h3 className="text-white text-xl font-bold mb-2">Connection Lost</h3>
+        <p className="text-white/50 text-sm mb-6 max-w-xs">{errorMessage}</p>
         <button
           onClick={handleReset}
-          className="px-6 py-2 bg-cosmic-gold/20 text-cosmic-gold rounded-xl hover:bg-cosmic-gold/30 transition-colors"
+          className="px-8 py-3 bg-[#5b13ec]/20 text-[#5b13ec] rounded-full font-bold uppercase tracking-widest text-sm hover:bg-[#5b13ec]/30 transition-colors border border-[#5b13ec]/30"
         >
-          다시 시도하기
+          Try Again
         </button>
       </div>
     );
@@ -280,166 +307,179 @@ export default function FashionTab() {
   // 결과 화면
   if (mode === 'result' && result) {
     return (
-      <div className="space-y-6">
-        {/* 사진 */}
-        {capturedImage && (
-          <div className="flex justify-center">
-            <img
-              src={capturedImage}
-              alt="업로드된 사진"
-              className="w-48 h-48 rounded-2xl object-cover border-2 border-cosmic-gold/30 shadow-lg shadow-cosmic-gold/20"
-            />
-          </div>
-        )}
-
-        {/* 체형 분석 결과 */}
-        <div className="glass-panel p-6 md:p-8 animate-fade-in">
-          <div className="text-center mb-6">
-            <span className="text-3xl">📊</span>
-            <h3 className="mystic-text text-xl mt-2 font-mystic">AI 체형 분석</h3>
-          </div>
-
-          <div className="space-y-4 mb-6">
-            <div className="bg-mystic-700/50 rounded-xl p-4">
-              <p className="data-label mb-1">체형 유형</p>
-              <p className="text-cosmic-gold font-medium">{result.bodyAnalysis.bodyType}</p>
+      <div className="space-y-8 pb-8">
+        {/* Header */}
+        <section className="py-8 px-4 bg-gradient-to-b from-transparent to-black/20">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Analysis Complete</span>
+                <h3 className="text-white text-2xl font-bold tracking-tight">{result.bodyAnalysis.bodyType}</h3>
+              </div>
+              <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                <span className="text-[#5b13ec] text-xl">✨</span>
+              </div>
             </div>
-            <div className="bg-mystic-700/50 rounded-xl p-4">
-              <p className="data-label mb-1">체형 특징</p>
-              <p className="text-gray-300 text-sm">{result.bodyAnalysis.features}</p>
-            </div>
-            <div className="bg-mystic-700/50 rounded-xl p-4">
-              <p className="data-label mb-1">비율 분석</p>
-              <p className="text-gray-300 text-sm">{result.bodyAnalysis.proportions}</p>
-            </div>
-          </div>
 
-          {/* 메인 메시지 */}
-          <p className="text-center text-lg mystic-text leading-relaxed text-shadow-glow font-mystic">
-            "{result.mainMessage}"
-          </p>
-        </div>
-
-        {/* 스타일 추천 */}
-        <div className="glass-panel p-6">
-          <h3 className="mystic-text text-lg mb-4 text-center font-mystic">추천 스타일</h3>
-          <div className="space-y-4">
-            {result.styles.map((style, i) => (
-              <div
-                key={i}
-                className="bg-mystic-700/50 rounded-xl p-4 border border-cosmic-gold/10"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{style.icon}</span>
-                  <span className="mystic-text">{style.category}</span>
+            {/* 업로드된 사진 */}
+            {capturedImage && (
+              <div className="relative rounded-2xl overflow-hidden bg-[rgba(34,25,51,0.6)] backdrop-blur-xl border border-white/10">
+                <div className="aspect-[4/5] bg-cover bg-center" style={{ backgroundImage: `url(${capturedImage})` }}></div>
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-bold">Your Style Profile</h4>
+                    <span className="text-[#5b13ec] font-bold">AI Match</span>
+                  </div>
+                  <p className="text-white/60 text-sm italic leading-relaxed">
+                    "{result.mainMessage}"
+                  </p>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-2">
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Body Analysis */}
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-4">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec]">Body Analysis</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm border-b border-white/5 pb-3">
+                <span className="text-white/80 font-medium">체형 특징</span>
+                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis.features}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-white/80 font-medium">비율 분석</span>
+                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis.proportions}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Style Recommendations */}
+        <section className="px-4">
+          <div className="max-w-md mx-auto space-y-4">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">Style Recommendations</h4>
+            {result.styles.map((style, i) => (
+              <div key={i} className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">{style.icon}</span>
+                  <span className="text-white font-bold">{style.category}</span>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-3">
                   {style.items.map((item, j) => (
                     <span
                       key={j}
-                      className="px-3 py-1 bg-cosmic-gold/20 rounded-full text-cosmic-gold text-sm"
+                      className="px-3 py-1.5 bg-[#5b13ec]/20 rounded-full text-[#5b13ec] text-xs font-medium"
                     >
                       {item}
                     </span>
                   ))}
                 </div>
-                <p className="text-gray-400 text-sm">{style.description}</p>
+                <p className="text-white/50 text-sm">{style.description}</p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* 색상 추천 */}
-        <div className="glass-panel p-6">
-          <h3 className="mystic-text text-lg mb-4 text-center font-mystic">추천 색상</h3>
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {result.colors.recommended.map((color, i) => (
-              <span
-                key={i}
-                className="px-4 py-2 bg-cosmic-gold/20 rounded-full text-cosmic-gold"
-              >
-                {color}
-              </span>
-            ))}
-          </div>
-          {result.colors.avoid.length > 0 && (
-            <div className="mb-4">
-              <p className="text-gray-500 text-sm text-center mb-2">피해야 할 색상/패턴</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {result.colors.avoid.map((color, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1 bg-red-900/30 rounded-full text-red-400 text-sm"
-                  >
-                    {color}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          <p className="text-gray-400 text-sm text-center">{result.colors.description}</p>
-        </div>
-
-        {/* 액세서리 추천 */}
-        {result.accessories && result.accessories.length > 0 && (
-          <div className="glass-panel p-6">
-            <h3 className="mystic-text text-lg mb-4 text-center font-mystic">추천 액세서리</h3>
-            <div className="flex flex-wrap justify-center gap-2">
-              {result.accessories.map((item, i) => (
+        {/* Color Palette */}
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Color Palette</h4>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {result.colors.recommended.map((color, i) => (
                 <span
                   key={i}
-                  className="px-4 py-2 bg-purple-900/30 rounded-full text-purple-300"
+                  className="px-4 py-2 bg-white/5 rounded-full text-white/80 text-sm border border-white/10"
                 >
-                  {item}
+                  {color}
                 </span>
               ))}
             </div>
+            {result.colors.avoid.length > 0 && (
+              <div className="pt-4 border-t border-white/10">
+                <p className="text-white/40 text-xs uppercase tracking-widest mb-2">Avoid</p>
+                <div className="flex flex-wrap gap-2">
+                  {result.colors.avoid.map((color, i) => (
+                    <span key={i} className="px-3 py-1 bg-red-500/10 rounded-full text-red-400/80 text-xs">
+                      {color}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <p className="text-white/40 text-sm mt-4">{result.colors.description}</p>
           </div>
-        )}
+        </section>
 
-        {/* 스타일링 팁 */}
-        <div className="glass-panel p-6">
-          <h3 className="mystic-text text-lg mb-4 text-center font-mystic">스타일링 팁</h3>
-          <ul className="space-y-2">
-            {result.tips.map((tip, i) => (
-              <li key={i} className="flex items-start gap-2 text-gray-300">
-                <span className="text-cosmic-gold">✓</span>
-                <span>{tip}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* 피해야 할 것 */}
-        {result.avoid.length > 0 && (
-          <div className="glass-panel p-6">
-            <h3 className="mystic-text text-lg mb-4 text-center font-mystic">피하면 좋은 것</h3>
-            <ul className="space-y-2">
-              {result.avoid.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-gray-400">
-                  <span className="text-red-400">✕</span>
-                  <span>{item}</span>
+        {/* Styling Tips */}
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Styling Tips</h4>
+            <ul className="space-y-3">
+              {result.tips.map((tip, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm">
+                  <span className="text-[#5b13ec]">✓</span>
+                  <span className="text-white/70">{tip}</span>
                 </li>
               ))}
             </ul>
           </div>
+        </section>
+
+        {/* Avoid Section */}
+        {result.avoid.length > 0 && (
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-red-400 mb-4">Style Warnings</h4>
+              <ul className="space-y-3">
+                {result.avoid.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm">
+                    <span className="text-red-400">✕</span>
+                    <span className="text-white/50">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
         )}
 
-        {/* 계절별 조언 */}
+        {/* Accessories */}
+        {result.accessories && result.accessories.length > 0 && (
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Accessories</h4>
+              <div className="flex flex-wrap gap-2">
+                {result.accessories.map((item, i) => (
+                  <span
+                    key={i}
+                    className="px-4 py-2 bg-purple-500/10 rounded-full text-purple-300 text-sm border border-purple-500/20"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Seasonal Advice */}
         {result.seasonalAdvice && (
-          <div className="glass-panel p-6">
-            <h3 className="mystic-text text-lg mb-4 text-center font-mystic">계절별 스타일링</h3>
-            <p className="text-gray-300 text-center">{result.seasonalAdvice}</p>
-          </div>
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Seasonal Guide</h4>
+              <p className="text-white/60 text-sm leading-relaxed">{result.seasonalAdvice}</p>
+            </div>
+          </section>
         )}
 
-        {/* 다시하기 버튼 */}
-        <div className="text-center">
+        {/* Reset Button */}
+        <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="text-cosmic-gold/70 hover:text-cosmic-gold transition-colors text-sm"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
           >
-            다시 분석하기
+            New Analysis
           </button>
         </div>
       </div>
