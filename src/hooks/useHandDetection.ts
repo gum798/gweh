@@ -1,22 +1,38 @@
 import { useState, useCallback, useRef } from 'react';
-import * as tf from '@tensorflow/tfjs';
-import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
 import { detectPalmLines } from '../utils/palmLineDetector';
 import { analyzeFingerGesture } from '../utils/fingerGestureAnalyzer';
 
+// TensorFlow 동적 import (bundle-defer-third-party)
+type TFModule = typeof import('@tensorflow/tfjs');
+type HandModule = typeof import('@tensorflow-models/hand-pose-detection');
+
+let tf: TFModule | null = null;
+let handPoseDetection: HandModule | null = null;
+
+async function loadModules() {
+  if (!tf) {
+    tf = await import('@tensorflow/tfjs');
+    await tf.ready();
+  }
+  if (!handPoseDetection) {
+    handPoseDetection = await import('@tensorflow-models/hand-pose-detection');
+  }
+  return { tf, handPoseDetection };
+}
+
 export function useHandDetection() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const modelRef = useRef(null);
+  const [error, setError] = useState<string | null>(null);
+  const modelRef = useRef<any>(null);
 
   const loadModel = useCallback(async () => {
     if (modelRef.current) return modelRef.current;
 
     try {
-      await tf.ready();
+      const { handPoseDetection: handModule } = await loadModules();
 
-      const model = await handPoseDetection.createDetector(
-        handPoseDetection.SupportedModels.MediaPipeHands,
+      const model = await handModule!.createDetector(
+        handModule!.SupportedModels.MediaPipeHands,
         {
           runtime: 'tfjs',
           modelType: 'full',

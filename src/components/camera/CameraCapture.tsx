@@ -1,8 +1,39 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
-import * as tf from '@tensorflow/tfjs';
-import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
-import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
+
+// TensorFlow 모듈들을 dynamic import로 변경 (bundle-defer-third-party)
+// 2MB+ 번들을 초기 로딩에서 제외하고 필요할 때만 로드
+type TFModule = typeof import('@tensorflow/tfjs');
+type FaceModule = typeof import('@tensorflow-models/face-landmarks-detection');
+type HandModule = typeof import('@tensorflow-models/hand-pose-detection');
+
+let tf: TFModule | null = null;
+let faceLandmarksDetection: FaceModule | null = null;
+let handPoseDetection: HandModule | null = null;
+
+async function loadTensorFlow() {
+  if (!tf) {
+    tf = await import('@tensorflow/tfjs');
+    await tf.ready();
+  }
+  return tf;
+}
+
+async function loadFaceDetection() {
+  await loadTensorFlow();
+  if (!faceLandmarksDetection) {
+    faceLandmarksDetection = await import('@tensorflow-models/face-landmarks-detection');
+  }
+  return faceLandmarksDetection;
+}
+
+async function loadHandDetection() {
+  await loadTensorFlow();
+  if (!handPoseDetection) {
+    handPoseDetection = await import('@tensorflow-models/hand-pose-detection');
+  }
+  return handPoseDetection;
+}
 
 const videoConstraints = {
   width: 480,
@@ -53,16 +84,16 @@ export default function CameraCapture({
     const loadModel = async () => {
       setIsModelLoading(true);
       try {
-        await tf.ready();
-
         if (detectType === 'face') {
-          modelRef.current = await faceLandmarksDetection.createDetector(
-            faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+          const faceModule = await loadFaceDetection();
+          modelRef.current = await faceModule.createDetector(
+            faceModule.SupportedModels.MediaPipeFaceMesh,
             { runtime: 'tfjs', refineLandmarks: true, maxFaces: 1 }
           );
         } else if (detectType === 'hand') {
-          modelRef.current = await handPoseDetection.createDetector(
-            handPoseDetection.SupportedModels.MediaPipeHands,
+          const handModule = await loadHandDetection();
+          modelRef.current = await handModule.createDetector(
+            handModule.SupportedModels.MediaPipeHands,
             { runtime: 'tfjs', modelType: 'full', maxHands: 1 }
           );
         }

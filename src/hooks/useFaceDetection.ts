@@ -1,20 +1,36 @@
 import { useState, useCallback, useRef } from 'react';
-import * as tf from '@tensorflow/tfjs';
-import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
+
+// TensorFlow 동적 import (bundle-defer-third-party)
+type TFModule = typeof import('@tensorflow/tfjs');
+type FaceModule = typeof import('@tensorflow-models/face-landmarks-detection');
+
+let tf: TFModule | null = null;
+let faceLandmarksDetection: FaceModule | null = null;
+
+async function loadModules() {
+  if (!tf) {
+    tf = await import('@tensorflow/tfjs');
+    await tf.ready();
+  }
+  if (!faceLandmarksDetection) {
+    faceLandmarksDetection = await import('@tensorflow-models/face-landmarks-detection');
+  }
+  return { tf, faceLandmarksDetection };
+}
 
 export function useFaceDetection() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const modelRef = useRef(null);
+  const [error, setError] = useState<string | null>(null);
+  const modelRef = useRef<any>(null);
 
   const loadModel = useCallback(async () => {
     if (modelRef.current) return modelRef.current;
 
     try {
-      await tf.ready();
+      const { faceLandmarksDetection: faceModule } = await loadModules();
 
-      const model = await faceLandmarksDetection.createDetector(
-        faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+      const model = await faceModule!.createDetector(
+        faceModule!.SupportedModels.MediaPipeFaceMesh,
         {
           runtime: 'tfjs',
           refineLandmarks: true,
