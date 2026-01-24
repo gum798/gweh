@@ -3,6 +3,7 @@ const tabs = [
   { id: 'face', label: '관상', icon: '👁️' },
   { id: 'palm', label: '손금', icon: '🖐️' },
   { id: 'saju', label: '사주', icon: '📅' },
+  { id: 'fashion', label: '패션', icon: '👔' },
 ];
 
 export default function Navigation({ activeTab, onTabChange }) {

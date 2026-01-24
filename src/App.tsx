@@ -7,6 +7,7 @@ const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
 const FaceTab = lazy(() => import('./components/tabs/FaceTab'));
 const PalmTab = lazy(() => import('./components/tabs/PalmTab'));
 const SajuTab = lazy(() => import('./components/tabs/SajuTab'));
+const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 
 function App() {
   const [activeTab, setActiveTab] = useState('omen');
@@ -54,6 +55,12 @@ function App() {
         return (
           <Suspense fallback={fallback}>
             <SajuTab />
+          </Suspense>
+        );
+      case 'fashion':
+        return (
+          <Suspense fallback={fallback}>
+            <FashionTab />
           </Suspense>
         );
       default:
