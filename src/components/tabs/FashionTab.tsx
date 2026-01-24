@@ -268,7 +268,7 @@ export default function FashionTab() {
             className={`w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
               capturedImage && height && weight
                 ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
-                : 'bg-white/10 text-white/50 hover:bg-white/20 hover:text-white/70'
+                : 'bg-white/10 text-white/30 cursor-not-allowed'
             }`}
           >
             {capturedImage && height && weight ? 'Begin Transformation' : 'Unlock Premium'}
