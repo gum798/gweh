@@ -7,11 +7,9 @@ import {
 } from '../../utils/fashionRecommend';
 
 type Mode = 'input' | 'analyzing' | 'result';
-type Gender = 'male' | 'female';
 
 export default function FashionTab() {
   const [mode, setMode] = useState<Mode>('input');
-  const [gender, setGender] = useState<Gender>('female');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -34,6 +32,11 @@ export default function FashionTab() {
   };
 
   const handleAnalyze = useCallback(() => {
+    if (!capturedImage) {
+      alert('사진을 업로드해주세요.');
+      return;
+    }
+
     const heightNum = parseFloat(height);
     const weightNum = parseFloat(weight);
 
@@ -59,7 +62,6 @@ export default function FashionTab() {
       const bodyInfo: BodyInfo = {
         height: heightNum,
         weight: weightNum,
-        gender,
       };
 
       const bodyAnalysis = analyzeBody(bodyInfo);
@@ -68,7 +70,7 @@ export default function FashionTab() {
       setResult(recommendation);
       setMode('result');
     }, 1500);
-  }, [height, weight, gender]);
+  }, [height, weight, capturedImage]);
 
   const handleReset = () => {
     setMode('input');
@@ -93,13 +95,16 @@ export default function FashionTab() {
         </div>
 
         <div className="max-w-md mx-auto space-y-6">
-          {/* 사진 업로드 (선택) */}
+          {/* 사진 업로드 (필수) */}
           <div>
-            <label className="data-label block mb-2">사진 (선택)</label>
+            <label className="data-label block mb-2">사진 <span className="text-red-400">*</span></label>
             <div
               onClick={triggerFileInput}
-              className="border-2 border-dashed border-cosmic-gold/30 rounded-xl p-6 cursor-pointer
-                         hover:border-cosmic-gold/50 transition-colors text-center"
+              className={`border-2 border-dashed rounded-xl p-6 cursor-pointer transition-colors text-center ${
+                capturedImage
+                  ? 'border-cosmic-gold/50'
+                  : 'border-cosmic-gold/30 hover:border-cosmic-gold/50'
+              }`}
             >
               {capturedImage ? (
                 <img
@@ -111,7 +116,7 @@ export default function FashionTab() {
                 <>
                   <div className="text-3xl mb-2">📷</div>
                   <p className="text-gray-400 text-sm">전신 사진을 업로드하세요</p>
-                  <p className="text-gray-500 text-xs mt-1">(선택 사항)</p>
+                  <p className="text-red-400/70 text-xs mt-1">(필수)</p>
                 </>
               )}
             </div>
@@ -122,33 +127,6 @@ export default function FashionTab() {
               onChange={handleImageUpload}
               className="hidden"
             />
-          </div>
-
-          {/* 성별 선택 */}
-          <div>
-            <label className="data-label block mb-2">성별</label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setGender('female')}
-                className={`flex-1 py-3 rounded-xl transition-colors ${
-                  gender === 'female'
-                    ? 'bg-cosmic-gold/20 text-cosmic-gold border border-cosmic-gold/40'
-                    : 'bg-mystic-700/50 text-gray-400 border border-transparent'
-                }`}
-              >
-                👩 여성
-              </button>
-              <button
-                onClick={() => setGender('male')}
-                className={`flex-1 py-3 rounded-xl transition-colors ${
-                  gender === 'male'
-                    ? 'bg-cosmic-gold/20 text-cosmic-gold border border-cosmic-gold/40'
-                    : 'bg-mystic-700/50 text-gray-400 border border-transparent'
-                }`}
-              >
-                👨 남성
-              </button>
-            </div>
           </div>
 
           {/* 키 입력 */}
@@ -180,9 +158,9 @@ export default function FashionTab() {
           {/* 분석 버튼 */}
           <button
             onClick={handleAnalyze}
-            disabled={!height || !weight}
+            disabled={!capturedImage || !height || !weight}
             className={`w-full py-3 rounded-xl font-medium font-mystic transition-all ${
-              height && weight
+              capturedImage && height && weight
                 ? 'bg-gradient-to-r from-cosmic-gold to-yellow-500 text-mystic-900 hover:from-yellow-500 hover:to-cosmic-gold shadow-lg shadow-cosmic-gold/20'
                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
             }`}

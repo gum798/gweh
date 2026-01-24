@@ -3,7 +3,6 @@
 export interface BodyInfo {
   height: number; // cm
   weight: number; // kg
-  gender: 'male' | 'female';
 }
 
 export interface BodyAnalysis {
@@ -51,68 +50,36 @@ export function analyzeBody(info: BodyInfo): BodyAnalysis {
     bmiCategory = 'obese';
   }
 
-  // 체형 분류 (키와 BMI 조합)
+  // 체형 분류 (키와 BMI 조합) - 성별 중립
   let bodyType: string;
   let bodyTypeKorean: string;
 
-  if (info.gender === 'male') {
-    if (info.height >= 180) {
-      if (bmi < 23) {
-        bodyType = 'tallSlim';
-        bodyTypeKorean = '키 크고 마른 체형';
-      } else {
-        bodyType = 'tallLarge';
-        bodyTypeKorean = '키 크고 건장한 체형';
-      }
-    } else if (info.height >= 170) {
-      if (bmi < 20) {
-        bodyType = 'averageSlim';
-        bodyTypeKorean = '보통 키에 마른 체형';
-      } else if (bmi < 25) {
-        bodyType = 'averageNormal';
-        bodyTypeKorean = '균형 잡힌 체형';
-      } else {
-        bodyType = 'averageLarge';
-        bodyTypeKorean = '보통 키에 넓은 체형';
-      }
+  if (info.height >= 175) {
+    if (bmi < 22) {
+      bodyType = 'tallSlim';
+      bodyTypeKorean = '키 크고 슬림한 체형';
     } else {
-      if (bmi < 23) {
-        bodyType = 'shortSlim';
-        bodyTypeKorean = '아담하고 마른 체형';
-      } else {
-        bodyType = 'shortLarge';
-        bodyTypeKorean = '아담하고 다부진 체형';
-      }
+      bodyType = 'tallLarge';
+      bodyTypeKorean = '키 크고 볼륨감 있는 체형';
+    }
+  } else if (info.height >= 165) {
+    if (bmi < 20) {
+      bodyType = 'averageSlim';
+      bodyTypeKorean = '보통 키에 슬림한 체형';
+    } else if (bmi < 24) {
+      bodyType = 'averageNormal';
+      bodyTypeKorean = '균형 잡힌 체형';
+    } else {
+      bodyType = 'averageLarge';
+      bodyTypeKorean = '보통 키에 볼륨감 있는 체형';
     }
   } else {
-    // 여성
-    if (info.height >= 168) {
-      if (bmi < 21) {
-        bodyType = 'tallSlim';
-        bodyTypeKorean = '키 크고 마른 체형';
-      } else {
-        bodyType = 'tallLarge';
-        bodyTypeKorean = '키 크고 풍성한 체형';
-      }
-    } else if (info.height >= 158) {
-      if (bmi < 19) {
-        bodyType = 'averageSlim';
-        bodyTypeKorean = '보통 키에 마른 체형';
-      } else if (bmi < 23) {
-        bodyType = 'averageNormal';
-        bodyTypeKorean = '균형 잡힌 체형';
-      } else {
-        bodyType = 'averageLarge';
-        bodyTypeKorean = '보통 키에 풍성한 체형';
-      }
+    if (bmi < 22) {
+      bodyType = 'shortSlim';
+      bodyTypeKorean = '아담하고 슬림한 체형';
     } else {
-      if (bmi < 21) {
-        bodyType = 'shortSlim';
-        bodyTypeKorean = '아담하고 마른 체형';
-      } else {
-        bodyType = 'shortLarge';
-        bodyTypeKorean = '아담하고 사랑스러운 체형';
-      }
+      bodyType = 'shortLarge';
+      bodyTypeKorean = '아담하고 볼륨감 있는 체형';
     }
   }
 
@@ -130,7 +97,6 @@ export function generateFashionRecommendation(
   bodyAnalysis: BodyAnalysis
 ): FashionRecommendation {
   const { bodyType } = bodyAnalysis;
-  const isMale = bodyInfo.gender === 'male';
 
   // 체형별 메인 메시지
   const mainMessages: Record<string, string> = {
@@ -144,10 +110,10 @@ export function generateFashionRecommendation(
   };
 
   // 체형별 스타일 추천
-  const styleRecommendations = getStyleRecommendations(bodyType, isMale);
+  const styleRecommendations = getStyleRecommendations(bodyType);
   const colorRecommendation = getColorRecommendation(bodyType);
-  const tips = getTips(bodyType, isMale);
-  const avoid = getAvoid(bodyType, isMale);
+  const tips = getTips(bodyType);
+  const avoid = getAvoid(bodyType);
 
   return {
     mainMessage: mainMessages[bodyType] || '당신만의 스타일을 찾아보세요.',
@@ -159,31 +125,24 @@ export function generateFashionRecommendation(
   };
 }
 
-function getStyleRecommendations(bodyType: string, isMale: boolean): StyleRecommendation[] {
-  if (isMale) {
-    return getMaleStyles(bodyType);
-  }
-  return getFemaleStyles(bodyType);
-}
-
-function getMaleStyles(bodyType: string): StyleRecommendation[] {
+function getStyleRecommendations(bodyType: string): StyleRecommendation[] {
   const styles: Record<string, StyleRecommendation[]> = {
     tallSlim: [
       {
         category: '상의',
-        items: ['오버사이즈 코트', '레이어드 스타일', '가로 스트라이프'],
+        items: ['오버사이즈 니트', '레이어드 스타일', '볼륨 있는 아우터'],
         description: '볼륨감을 더해 균형 잡힌 실루엣을 만들어줍니다.',
-        icon: '🧥',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['와이드 팬츠', '카고 팬츠', '배기 진'],
+        items: ['와이드 팬츠', '플레어 팬츠', 'A라인 스커트'],
         description: '하체에 볼륨감을 더해줍니다.',
         icon: '👖',
       },
       {
         category: '스타일',
-        items: ['캐주얼 레이어드', '스트릿 패션', '아메카지'],
+        items: ['캐주얼 레이어드', '로맨틱', '보헤미안'],
         description: '자유로운 실루엣이 잘 어울립니다.',
         icon: '✨',
       },
@@ -191,19 +150,19 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
     tallLarge: [
       {
         category: '상의',
-        items: ['테일러드 코트', '싱글 자켓', '세로 스트라이프 셔츠'],
-        description: '클래식하고 정돈된 느낌을 강조합니다.',
-        icon: '🧥',
+        items: ['V넥 상의', '세로 스트라이프', '롱 카디건'],
+        description: '세로 라인으로 슬림한 느낌을 강조합니다.',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['스트레이트 팬츠', '슬랙스', '치노 팬츠'],
+        items: ['스트레이트 팬츠', '부츠컷', 'A라인 스커트'],
         description: '깔끔한 실루엣을 유지합니다.',
         icon: '👖',
       },
       {
         category: '스타일',
-        items: ['비즈니스 캐주얼', '미니멀', '클래식'],
+        items: ['클래식', '미니멀', '시크'],
         description: '당당한 체격을 살리는 정제된 스타일.',
         icon: '✨',
       },
@@ -211,19 +170,19 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
     averageSlim: [
       {
         category: '상의',
-        items: ['피티드 셔츠', '니트', '블루종'],
+        items: ['피티드 상의', '니트', '크롭탑'],
         description: '몸에 맞는 핏으로 깔끔하게.',
-        icon: '🧥',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['슬림핏 청바지', '조거 팬츠', '테이퍼드 팬츠'],
+        items: ['슬림핏 팬츠', '미니 스커트', '하이웨이스트'],
         description: '다양한 핏을 소화할 수 있습니다.',
         icon: '👖',
       },
       {
         category: '스타일',
-        items: ['캐주얼', '댄디', '모던'],
+        items: ['캐주얼 시크', '미니멀', '모던'],
         description: '깔끔하고 세련된 스타일이 잘 어울립니다.',
         icon: '✨',
       },
@@ -231,13 +190,13 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
     averageNormal: [
       {
         category: '상의',
-        items: ['다양한 자켓', '후드티', '가디건'],
+        items: ['다양한 상의', '자켓', '가디건'],
         description: '어떤 스타일이든 잘 소화합니다.',
-        icon: '🧥',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['레귤러핏 청바지', '면바지', '반바지'],
+        items: ['청바지', '슬랙스', '스커트'],
         description: '자유롭게 선택해도 좋습니다.',
         icon: '👖',
       },
@@ -251,13 +210,13 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
     averageLarge: [
       {
         category: '상의',
-        items: ['V넥 상의', '세로 스트라이프', '어두운 색 자켓'],
+        items: ['V넥 상의', '랩 스타일', '세로 라인'],
         description: '세로 라인을 강조해 슬림하게.',
-        icon: '🧥',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['스트레이트 팬츠', '어두운 색 바지'],
+        items: ['A라인', '부츠컷', '스트레이트 팬츠'],
         description: '깔끔한 실루엣을 유지합니다.',
         icon: '👖',
       },
@@ -271,19 +230,19 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
     shortSlim: [
       {
         category: '상의',
-        items: ['숏 자켓', '크롭 아우터', '하이웨이스트 코디'],
+        items: ['크롭 상의', '숏 자켓', '하이웨이스트 코디'],
         description: '다리 길이를 길어 보이게 합니다.',
-        icon: '🧥',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['하이웨이스트 팬츠', '슬림핏 바지', '9부 팬츠'],
+        items: ['하이웨이스트 팬츠', '미니 스커트', '9부 팬츠'],
         description: '세로 라인을 강조합니다.',
         icon: '👖',
       },
       {
         category: '스타일',
-        items: ['미니멀', '모노톤', '슬림 캐주얼'],
+        items: ['미니멀', '프렌치 시크', '모노톤'],
         description: '심플하고 정돈된 스타일이 좋습니다.',
         icon: '✨',
       },
@@ -293,11 +252,11 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
         category: '상의',
         items: ['V넥', '세로 스트라이프', '단색 상의'],
         description: '세로 라인으로 키가 커 보이게.',
-        icon: '🧥',
+        icon: '👕',
       },
       {
         category: '하의',
-        items: ['하이웨이스트', '스트레이트 팬츠', '어두운 색'],
+        items: ['하이웨이스트', 'A라인', '스트레이트 팬츠'],
         description: '다리 라인을 길게 보이게 합니다.',
         icon: '👖',
       },
@@ -305,153 +264,6 @@ function getMaleStyles(bodyType: string): StyleRecommendation[] {
         category: '스타일',
         items: ['모던', '심플', '원톤 코디'],
         description: '깔끔한 통일감으로 비율을 좋게.',
-        icon: '✨',
-      },
-    ],
-  };
-
-  return styles[bodyType] || styles.averageNormal;
-}
-
-function getFemaleStyles(bodyType: string): StyleRecommendation[] {
-  const styles: Record<string, StyleRecommendation[]> = {
-    tallSlim: [
-      {
-        category: '상의',
-        items: ['오버사이즈 니트', '볼륨 블라우스', '레이어드'],
-        description: '볼륨감을 더해 여성스러운 실루엣을.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['와이드 팬츠', 'A라인 스커트', '플레어 스커트'],
-        description: '우아한 실루엣을 연출합니다.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['엘레강스', '로맨틱', '보헤미안'],
-        description: '우아하고 여성스러운 스타일이 잘 어울립니다.',
-        icon: '✨',
-      },
-    ],
-    tallLarge: [
-      {
-        category: '상의',
-        items: ['랩 블라우스', 'V넥 원피스', '롱 카디건'],
-        description: '세로 라인으로 슬림하게.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['부츠컷', 'A라인 스커트', '미디 스커트'],
-        description: '균형 잡힌 실루엣을 만듭니다.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['클래식', '시크', '모던'],
-        description: '세련되고 당당한 스타일.',
-        icon: '✨',
-      },
-    ],
-    averageSlim: [
-      {
-        category: '상의',
-        items: ['피티드 블라우스', '크롭탑', '니트'],
-        description: '몸에 맞는 핏이 예쁩니다.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['스키니 진', '미니 스커트', '하이웨이스트'],
-        description: '다양한 스타일을 소화할 수 있어요.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['캐주얼 시크', '걸리시', '미니멀'],
-        description: '다양한 시도가 가능합니다.',
-        icon: '✨',
-      },
-    ],
-    averageNormal: [
-      {
-        category: '상의',
-        items: ['다양한 블라우스', '티셔츠', '자켓'],
-        description: '어떤 스타일이든 잘 어울려요.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['청바지', '슬랙스', '스커트'],
-        description: '자유롭게 선택하세요.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['올라운더', '트렌디', '믹스매치'],
-        description: '모든 스타일을 시도해보세요.',
-        icon: '✨',
-      },
-    ],
-    averageLarge: [
-      {
-        category: '상의',
-        items: ['V넥', '랩 스타일', '세로 라인'],
-        description: '상체를 날씬하게 보이게 합니다.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['A라인', '부츠컷', '미디 스커트'],
-        description: '하체 라인을 부드럽게.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['페미닌', '엘레강스', '클래식'],
-        description: '여성스럽고 우아한 스타일.',
-        icon: '✨',
-      },
-    ],
-    shortSlim: [
-      {
-        category: '상의',
-        items: ['크롭탑', '숏 자켓', '하이웨이스트 코디'],
-        description: '다리가 길어 보이게 합니다.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['하이웨이스트', '미니 스커트', '9부 팬츠'],
-        description: '비율을 좋게 만듭니다.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['미니멀', '걸리시', '프렌치 시크'],
-        description: '깔끔하고 사랑스러운 스타일.',
-        icon: '✨',
-      },
-    ],
-    shortLarge: [
-      {
-        category: '상의',
-        items: ['V넥', '세로 스트라이프', '단색'],
-        description: '세로 라인을 강조합니다.',
-        icon: '👚',
-      },
-      {
-        category: '하의',
-        items: ['하이웨이스트', 'A라인', '롱 스커트'],
-        description: '다리가 길어 보이게 합니다.',
-        icon: '👗',
-      },
-      {
-        category: '스타일',
-        items: ['원톤 코디', '미니멀', '심플'],
-        description: '통일감 있는 스타일로 비율을 좋게.',
         icon: '✨',
       },
     ],
@@ -487,7 +299,7 @@ function getColorRecommendation(bodyType: string): ColorRecommendation {
   };
 }
 
-function getTips(bodyType: string, isMale: boolean): string[] {
+function getTips(bodyType: string): string[] {
   const tips: Record<string, string[]> = {
     tallSlim: [
       '레이어드 스타일로 볼륨감을 더해보세요.',
@@ -529,7 +341,7 @@ function getTips(bodyType: string, isMale: boolean): string[] {
   return tips[bodyType] || tips.averageNormal;
 }
 
-function getAvoid(bodyType: string, isMale: boolean): string[] {
+function getAvoid(bodyType: string): string[] {
   const avoid: Record<string, string[]> = {
     tallSlim: ['너무 타이트한 옷', '세로 스트라이프만 입기'],
     tallLarge: ['가로 스트라이프', '너무 밝은 색상 전체 코디'],
