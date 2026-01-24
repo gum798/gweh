@@ -1,6 +1,5 @@
 import { useState, lazy, Suspense } from 'react';
 import Navigation from './components/Navigation';
-import PremiumBanner from './components/PremiumBanner';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -74,9 +73,6 @@ function App() {
             Unveil Your Destiny
           </p>
         </header>
-
-        {/* Premium Banner */}
-        <PremiumBanner />
 
         {/* 네비게이션 */}
         <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
