@@ -95,34 +95,44 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 - 한국어로 자연스럽게 작성해주세요
 - JSON 형식만 반환해주세요 (마크다운 코드블록 없이)`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // OpenAI Responses API (최신)
+    const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${context.env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
+        model: 'gpt-4.1',
+        input: [
+          {
+            role: 'developer',
+            content: [
+              {
+                type: 'input_text',
+                text: prompt,
+              },
+            ],
+          },
           {
             role: 'user',
             content: [
               {
-                type: 'text',
-                text: prompt,
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: image,
-                  detail: 'high',
-                },
+                type: 'input_image',
+                image_url: image,
+                detail: 'high',
               },
             ],
           },
         ],
-        max_tokens: 2000,
-        temperature: 0.7,
+        text: {
+          format: {
+            type: 'json_object',
+          },
+        },
+        reasoning: {},
+        tools: [],
+        store: true,
       }),
     });
 
@@ -135,8 +145,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const data = await response.json() as {
+      output_text?: string;
+      output?: Array<{ content?: Array<{ text?: string }> }>;
+    };
+    const content = data.output_text || data.output?.[0]?.content?.[0]?.text;
 
     if (!content) {
       return new Response(
