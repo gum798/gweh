@@ -1,21 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
-// 결제 페이지로 이동
-const goToCheckout = async () => {
-  try {
-    const response = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    });
-    if (!response.ok) throw new Error('Checkout failed');
-    const { url } = await response.json();
-    window.location.href = url;
-  } catch (err) {
-    console.error('Checkout error:', err);
-    alert('결제 페이지로 이동할 수 없습니다.');
-  }
-};
+const FASHION_DATA_KEY = 'mystic_fashion_data';
 
 type Mode = 'input' | 'analyzing' | 'result' | 'error';
 
@@ -57,6 +42,106 @@ export default function FashionTab() {
   const [result, setResult] = useState<FashionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPaid, setIsPaid] = useState(false);
+
+  // 결제 완료 후 자동 분석
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const checkoutSuccess = urlParams.get('checkout_success');
+
+    if (checkoutSuccess === 'true') {
+      // localStorage에서 저장된 데이터 복원
+      const savedData = localStorage.getItem(FASHION_DATA_KEY);
+      if (savedData) {
+        try {
+          const { image, height: h, weight: w } = JSON.parse(savedData);
+          setCapturedImage(image);
+          setHeight(h);
+          setWeight(w);
+          setIsPaid(true);
+          localStorage.removeItem(FASHION_DATA_KEY);
+        } catch {
+          // 데이터 파싱 실패
+        }
+      }
+      // URL 정리
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  // 결제 완료 + 데이터 복원 후 자동 분석
+  useEffect(() => {
+    if (isPaid && capturedImage && height && weight) {
+      setIsPaid(false);
+      // 자동 분석 시작
+      handleAnalyzeAfterPayment();
+    }
+  }, [isPaid, capturedImage, height, weight]);
+
+  // 결제 페이지로 이동 (데이터 저장 후)
+  const goToCheckout = async () => {
+    // 데이터 검증
+    if (!capturedImage) {
+      alert('사진을 업로드해주세요.');
+      return;
+    }
+    const heightNum = parseFloat(height);
+    const weightNum = parseFloat(weight);
+    if (!heightNum || !weightNum) {
+      alert('키와 몸무게를 입력해주세요.');
+      return;
+    }
+
+    // localStorage에 데이터 저장
+    localStorage.setItem(FASHION_DATA_KEY, JSON.stringify({
+      image: capturedImage,
+      height,
+      weight,
+    }));
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) throw new Error('Checkout failed');
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('결제 페이지로 이동할 수 없습니다.');
+    }
+  };
+
+  // 결제 후 분석 실행
+  const handleAnalyzeAfterPayment = async () => {
+    setMode('analyzing');
+    try {
+      const response = await fetch('/api/fashion-consult', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: capturedImage,
+          height: parseFloat(height),
+          weight: parseFloat(weight),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+      }
+
+      setResult(data.data);
+      setMode('result');
+    } catch (err) {
+      console.error('Fashion consult error:', err);
+      setErrorMessage(err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.');
+      setMode('error');
+    }
+  };
 
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -261,13 +346,18 @@ export default function FashionTab() {
           </div>
         </section>
 
-        {/* Action Button - 항상 결제 페이지로 이동 */}
+        {/* Action Button - 결제 후 분석 */}
         <div className="px-4 pb-8">
           <button
             onClick={goToCheckout}
-            className="w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
+            disabled={!capturedImage || !height || !weight}
+            className={`w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+              capturedImage && height && weight
+                ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                : 'bg-white/10 text-white/30 cursor-not-allowed'
+            }`}
           >
-            Unlock Premium
+            {capturedImage && height && weight ? 'Start Analysis ($1.99)' : 'Fill All Fields'}
           </button>
         </div>
       </div>
