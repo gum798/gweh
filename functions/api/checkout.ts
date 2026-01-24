@@ -1,6 +1,7 @@
 // Polar Checkout Session API Handler for Cloudflare Pages Functions
 
 interface Env {
+  POLAR_SANDBOX_ACCESS_TOKEN: string;
   POLAR_ACCESS_TOKEN: string;
   POLAR_SANDBOX: string;
   POLAR_SANDBOX_PRODUCT_ID: string;
@@ -14,17 +15,20 @@ interface CheckoutRequest {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
-    const accessToken = context.env.POLAR_ACCESS_TOKEN;
+    // Sandbox or Production
+    const isSandbox = context.env.POLAR_SANDBOX === 'true';
+
+    const accessToken = isSandbox
+      ? context.env.POLAR_SANDBOX_ACCESS_TOKEN
+      : context.env.POLAR_ACCESS_TOKEN;
 
     if (!accessToken) {
       return new Response(
-        JSON.stringify({ error: 'POLAR_ACCESS_TOKEN not configured' }),
+        JSON.stringify({ error: `POLAR_${isSandbox ? 'SANDBOX_' : ''}ACCESS_TOKEN not configured` }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Sandbox or Production
-    const isSandbox = context.env.POLAR_SANDBOX === 'true';
     const apiBaseUrl = isSandbox
       ? 'https://sandbox-api.polar.sh'
       : 'https://api.polar.sh';
