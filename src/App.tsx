@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import Navigation from './components/Navigation';
 
 // 탭 컴포넌트 동적 로딩
@@ -8,8 +8,17 @@ const PalmTab = lazy(() => import('./components/tabs/PalmTab'));
 const SajuTab = lazy(() => import('./components/tabs/SajuTab'));
 const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 
+// 결제 완료 후 fashion 탭으로 시작하는지 확인
+const getInitialTab = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('checkout_success') === 'true') {
+    return 'fashion';
+  }
+  return 'omen';
+};
+
 function App() {
-  const [activeTab, setActiveTab] = useState('omen');
+  const [activeTab, setActiveTab] = useState(getInitialTab);
 
   const renderTab = () => {
     const fallback = (
