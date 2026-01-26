@@ -1,4 +1,7 @@
-export default function DataPanel({ weather, moon, earthquake, nasa }) {
+import { memo } from 'react';
+
+// rerender-memo: Memoize component to prevent re-renders from parent
+export default memo(function DataPanel({ weather, moon, earthquake, nasa }) {
   return (
     <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
       <div className="flex items-center gap-3 mb-6">
@@ -55,9 +58,10 @@ export default function DataPanel({ weather, moon, earthquake, nasa }) {
       </div>
     </div>
   );
-}
+});
 
-function DataSection({ title, icon, children }) {
+// rerender-memo: Memoize sub-components to prevent unnecessary re-renders
+const DataSection = memo(function DataSection({ title, icon, children }) {
   return (
     <div className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
       <h3 className="text-[#5b13ec] text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
@@ -67,9 +71,9 @@ function DataSection({ title, icon, children }) {
       <div className="grid grid-cols-2 gap-2 text-sm">{children}</div>
     </div>
   );
-}
+});
 
-function DataRow({ label, value }) {
+const DataRow = memo(function DataRow({ label, value }) {
   return (
     <>
       <span className="text-white/40">{label}</span>
@@ -78,4 +82,4 @@ function DataRow({ label, value }) {
       </span>
     </>
   );
-}
+});

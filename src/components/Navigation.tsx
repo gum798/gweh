@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 const tabs = [
   { id: 'omen', label: '괘', icon: '☯️' },
   { id: 'face', label: '관상', icon: '👁️' },
@@ -6,7 +8,8 @@ const tabs = [
   { id: 'fashion', label: '패션', icon: '👔' },
 ];
 
-export default function Navigation({ activeTab, onTabChange }) {
+// rerender-memo: Memoize component to prevent re-renders when callback prop is stable
+export default memo(function Navigation({ activeTab, onTabChange }) {
   return (
     <nav className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
       <div className="flex justify-center gap-1">
@@ -30,4 +33,4 @@ export default function Navigation({ activeTab, onTabChange }) {
       </div>
     </nav>
   );
-}
+});

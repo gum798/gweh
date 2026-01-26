@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
 
@@ -39,7 +39,8 @@ export default function SajuTab() {
     return options;
   }, []);
 
-  const handleSubmit = (e) => {
+  // rerender-functional-setstate: Wrap handlers in useCallback for stable references
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
     if (!birthDate) return;
 
@@ -49,13 +50,13 @@ export default function SajuTab() {
     const interpretation = interpretSaju(saju);
 
     setResult(interpretation);
-  };
+  }, [birthDate, birthHour]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setResult(null);
     setBirthDate('');
     setBirthHour('12');
-  };
+  }, []);
 
   if (!result) {
     return (

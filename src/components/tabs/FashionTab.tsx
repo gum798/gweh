@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { storeFashionData, getFashionData, deleteFashionData } from '../../utils/imageStorage';
 
 const FASHION_DATA_KEY = 'mystic_fashion_data';
 
@@ -50,20 +51,18 @@ export default function FashionTab() {
     const checkoutSuccess = urlParams.get('checkout_success');
 
     if (checkoutSuccess === 'true') {
-      // localStorage에서 저장된 데이터 복원
-      const savedData = localStorage.getItem(FASHION_DATA_KEY);
-      if (savedData) {
-        try {
-          const { image, height: h, weight: w } = JSON.parse(savedData);
-          setCapturedImage(image);
-          setHeight(h);
-          setWeight(w);
+      // client-localstorage-schema: Use IndexedDB for large image data
+      const restoreData = async () => {
+        const savedData = await getFashionData(FASHION_DATA_KEY);
+        if (savedData) {
+          setCapturedImage(savedData.image);
+          setHeight(savedData.height);
+          setWeight(savedData.weight);
           setIsPaid(true);
-          localStorage.removeItem(FASHION_DATA_KEY);
-        } catch {
-          // 데이터 파싱 실패
+          await deleteFashionData(FASHION_DATA_KEY);
         }
-      }
+      };
+      restoreData();
       // URL 정리
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -92,12 +91,12 @@ export default function FashionTab() {
       return;
     }
 
-    // localStorage에 데이터 저장
-    localStorage.setItem(FASHION_DATA_KEY, JSON.stringify({
+    // client-localstorage-schema: Use IndexedDB for large image data
+    await storeFashionData(FASHION_DATA_KEY, {
       image: capturedImage,
       height,
       weight,
-    }));
+    });
 
     try {
       const response = await fetch('/api/checkout', {

@@ -11,26 +11,39 @@ let tf: TFModule | null = null;
 let faceLandmarksDetection: FaceModule | null = null;
 let handPoseDetection: HandModule | null = null;
 
-async function loadTensorFlow() {
-  if (!tf) {
-    tf = await import('@tensorflow/tfjs');
-    await tf.ready();
-  }
-  return tf;
-}
-
+// async-parallel: Parallelize TensorFlow module imports for faster loading
 async function loadFaceDetection() {
-  await loadTensorFlow();
-  if (!faceLandmarksDetection) {
-    faceLandmarksDetection = await import('@tensorflow-models/face-landmarks-detection');
+  if (!tf || !faceLandmarksDetection) {
+    const [tfModule, faceModule] = await Promise.all([
+      tf || import('@tensorflow/tfjs'),
+      faceLandmarksDetection || import('@tensorflow-models/face-landmarks-detection')
+    ]);
+
+    if (!tf) {
+      tf = tfModule;
+      await tf.ready();
+    }
+    if (!faceLandmarksDetection) {
+      faceLandmarksDetection = faceModule;
+    }
   }
   return faceLandmarksDetection;
 }
 
 async function loadHandDetection() {
-  await loadTensorFlow();
-  if (!handPoseDetection) {
-    handPoseDetection = await import('@tensorflow-models/hand-pose-detection');
+  if (!tf || !handPoseDetection) {
+    const [tfModule, handModule] = await Promise.all([
+      tf || import('@tensorflow/tfjs'),
+      handPoseDetection || import('@tensorflow-models/hand-pose-detection')
+    ]);
+
+    if (!tf) {
+      tf = tfModule;
+      await tf.ready();
+    }
+    if (!handPoseDetection) {
+      handPoseDetection = handModule;
+    }
   }
   return handPoseDetection;
 }

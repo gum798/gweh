@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import Navigation from './components/Navigation';
 
 // 탭 컴포넌트 동적 로딩
@@ -19,6 +19,11 @@ const getInitialTab = () => {
 
 function App() {
   const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  // rerender-functional-setstate: Wrap in useCallback to provide stable reference for memoized Navigation
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+  }, []);
 
   const renderTab = () => {
     const fallback = (
@@ -84,7 +89,7 @@ function App() {
         </header>
 
         {/* 네비게이션 */}
-        <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* 탭 콘텐츠 */}
         <main>

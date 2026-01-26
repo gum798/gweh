@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { getOverallEnergy, getEnergyLabel } from '../utils/omenGenerator';
 
-export default function OmenCard({ omen, weather, moon, earthquake }) {
+// rerender-memo: Memoize component to prevent re-renders with complex object props
+export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
   const energy = getOverallEnergy(weather, moon, earthquake);
   const energyInfo = getEnergyLabel(energy);
 
@@ -65,4 +67,4 @@ export default function OmenCard({ omen, weather, moon, earthquake }) {
       </div>
     </div>
   );
-}
+});

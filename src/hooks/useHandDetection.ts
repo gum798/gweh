@@ -9,13 +9,21 @@ type HandModule = typeof import('@tensorflow-models/hand-pose-detection');
 let tf: TFModule | null = null;
 let handPoseDetection: HandModule | null = null;
 
+// async-parallel: Parallelize TensorFlow module imports for faster loading
 async function loadModules() {
-  if (!tf) {
-    tf = await import('@tensorflow/tfjs');
-    await tf.ready();
-  }
-  if (!handPoseDetection) {
-    handPoseDetection = await import('@tensorflow-models/hand-pose-detection');
+  if (!tf || !handPoseDetection) {
+    const [tfModule, handModule] = await Promise.all([
+      tf || import('@tensorflow/tfjs'),
+      handPoseDetection || import('@tensorflow-models/hand-pose-detection')
+    ]);
+
+    if (!tf) {
+      tf = tfModule;
+      await tf.ready();
+    }
+    if (!handPoseDetection) {
+      handPoseDetection = handModule;
+    }
   }
   return { tf, handPoseDetection };
 }

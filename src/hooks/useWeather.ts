@@ -10,11 +10,14 @@ export function useWeather(lat, lon) {
     if (lat == null || lon == null) return;
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
-    fetchWeather(lat, lon)
-      .then((result) => {
+    // Refactored to async/await for consistency
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const result = await fetchWeather(lat, lon);
         if (!cancelled) {
           setData({
             temperature: Math.round(result.main.temp),
@@ -29,15 +32,19 @@ export function useWeather(lat, lon) {
             visibility: result.visibility,
             cityName: result.name,
           });
-          setLoading(false);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!cancelled) {
           setError(err.message);
+        }
+      } finally {
+        if (!cancelled) {
           setLoading(false);
         }
-      });
+      }
+    };
+
+    fetchData();
 
     return () => {
       cancelled = true;
