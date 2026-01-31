@@ -110,13 +110,13 @@ export default function PalmTab() {
           <div
             className="flex min-h-[45vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
             style={{
-              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1572879023364-ab4f53e9d5fa?w=800&q=80")`,
+              backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1572879023364-ab4f53e9d5fa?w=800&q=80")`,
             }}
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
                 Lines of <br />
-                <span className="text-[#5b13ec] italic font-light">Destiny</span>
+                <span className="text-[var(--accent)] italic font-light">Destiny</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('subtitle')}
@@ -128,9 +128,9 @@ export default function PalmTab() {
         {/* Previous Photo */}
         {previousPhotoUrl && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-5">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.previousPhoto')}</span>
+                <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.previousPhoto')}</span>
               </div>
               <div className="flex items-center gap-4 mb-4">
                 <img
@@ -142,7 +142,7 @@ export default function PalmTab() {
               </div>
               <button
                 onClick={handleUsePreviousPhoto}
-                className="w-full py-3 bg-[#5b13ec]/30 hover:bg-[#5b13ec]/50 rounded-xl text-white text-sm font-bold transition-colors"
+                className="w-full py-3 bg-[var(--accent-30)] hover:bg-[var(--accent-50)] rounded-xl text-white text-sm font-bold transition-colors"
               >
                 ✋ {tc('palm.analyzeWithPrevious')}
               </button>
@@ -152,11 +152,11 @@ export default function PalmTab() {
 
         {/* Instructions */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h3 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{tc('palm.beforeReading')}</h3>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h3 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{tc('palm.beforeReading')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-4">
-                <div className="bg-[#5b13ec]/20 p-2 rounded-full">
+                <div className="bg-[var(--accent-20)] p-2 rounded-full">
                   <span className="text-lg">✋</span>
                 </div>
                 <div>
@@ -164,7 +164,7 @@ export default function PalmTab() {
                 </div>
               </li>
               <li className="flex items-start gap-4">
-                <div className="bg-[#5b13ec]/20 p-2 rounded-full">
+                <div className="bg-[var(--accent-20)] p-2 rounded-full">
                   <span className="text-lg">💡</span>
                 </div>
                 <div>
@@ -172,7 +172,7 @@ export default function PalmTab() {
                 </div>
               </li>
               <li className="flex items-start gap-4">
-                <div className="bg-[#5b13ec]/20 p-2 rounded-full">
+                <div className="bg-[var(--accent-20)] p-2 rounded-full">
                   <span className="text-lg">📷</span>
                 </div>
                 <div>
@@ -187,7 +187,7 @@ export default function PalmTab() {
         <div className="px-4 pb-8">
           <button
             onClick={handleStart}
-            className="w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
+            className="w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 bg-[var(--accent)] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95"
           >
             {previousPhotoUrl ? tc('palm.newReading') : tc('palm.startReading')}
           </button>
@@ -216,7 +216,7 @@ export default function PalmTab() {
         <div className="text-center">
           <button
             onClick={handleReset}
-            className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
+            className="px-6 py-2 text-[var(--accent)] text-sm hover:text-white transition-colors"
           >
             {tc('palm.back')}
           </button>
@@ -230,8 +230,8 @@ export default function PalmTab() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
-          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
@@ -240,9 +240,9 @@ export default function PalmTab() {
           {t('analyzing')}
         </p>
         <div className="mt-6 flex gap-1">
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -256,7 +256,7 @@ export default function PalmTab() {
         {capturedImage && (
           <div className="flex justify-center pt-4">
             <div className="relative">
-              <div className="absolute -inset-2 rounded-2xl border border-[#5b13ec]/30 shadow-[0_0_20px_rgba(91,19,236,0.3)] animate-pulse"></div>
+              <div className="absolute -inset-2 rounded-2xl border border-[var(--accent-30)] shadow-[0_0_20px_var(--accent-30)] animate-pulse"></div>
               <img
                 src={capturedImage}
                 alt={t('result.analyzedHand')}
@@ -268,15 +268,15 @@ export default function PalmTab() {
 
         {/* 메인 해석 카드 */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.palmReading')}</span>
+                <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.palmReading')}</span>
                 <h3 className="text-white text-xl font-bold tracking-tight">
                   {result.handedness === 'Left' ? t('result.leftHand') : t('result.rightHand')}
                 </h3>
               </div>
-              <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+              <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
                 <span className="text-xl">✨</span>
               </div>
             </div>
@@ -290,17 +290,17 @@ export default function PalmTab() {
         {/* 세부 해석 */}
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">{tc('palm.lineDetails')}</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1">{tc('palm.lineDetails')}</h4>
             {result.details.map((detail, i) => (
               <div
                 key={i}
-                className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
+                className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{detail.icon}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-white font-bold">{detail.category}</span>
-                    <span className="px-2 py-0.5 bg-[#5b13ec]/20 rounded-full text-[#5b13ec] text-xs">{detail.type}</span>
+                    <span className="px-2 py-0.5 bg-[var(--accent-20)] rounded-full text-[var(--accent)] text-xs">{detail.type}</span>
                   </div>
                 </div>
                 <p className="text-white/60 text-sm leading-relaxed">
@@ -313,8 +313,8 @@ export default function PalmTab() {
 
         {/* 조언 */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{tc('palm.mysticAdvice')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 shadow-[0_0_15px_var(--accent-20)]">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{tc('palm.mysticAdvice')}</h4>
             <p className="text-white/70 text-sm leading-relaxed text-center">
               💫 {result.advice}
             </p>
@@ -325,7 +325,7 @@ export default function PalmTab() {
         <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-colors"
           >
             {tc('palm.newReading')}
           </button>

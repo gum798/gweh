@@ -423,13 +423,13 @@ export default function FashionTab() {
           <div
             className="flex min-h-[50vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
             style={{
-              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4nQj-qJlva8AQ6WBFm3QhpPEeeapJF1IfHXPUu19hcl-DeIb4gp1NFiD7cK9Pw8fMBwyjMNr_Emptb4FTirBhNggUaoYUCHBt29yId1WMncHm6pyf7AYB1NtzwjobDfm_8xhmmpNZ6n6-k65AR7UQkqxVzZGqozd6Q7uKSh6momPRI92tzI-d63_pt4uJ5a19xneYDkRaUGHEi5Fn_oqi9XLXwQbElKPY50jBQuQuEFBoElWdeyurnrd8abMJ8cBD6ULBVWW6ERI")`,
+              backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4nQj-qJlva8AQ6WBFm3QhpPEeeapJF1IfHXPUu19hcl-DeIb4gp1NFiD7cK9Pw8fMBwyjMNr_Emptb4FTirBhNggUaoYUCHBt29yId1WMncHm6pyf7AYB1NtzwjobDfm_8xhmmpNZ6n6-k65AR7UQkqxVzZGqozd6Q7uKSh6momPRI92tzI-d63_pt4uJ5a19xneYDkRaUGHEi5Fn_oqi9XLXwQbElKPY50jBQuQuEFBoElWdeyurnrd8abMJ8cBD6ULBVWW6ERI")`,
             }}
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
                 Define Your <br />
-                <span className="text-[#5b13ec] italic font-light">Shadow Self</span>
+                <span className="text-[var(--accent)] italic font-light">Shadow Self</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('subtitle')}
@@ -442,7 +442,7 @@ export default function FashionTab() {
         <section className="py-6 px-4 space-y-6">
           <div className="text-center">
             <h3 className="text-white text-xl font-bold tracking-tight pb-1">{t('section.physicalEssence')}</h3>
-            <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
+            <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full"></div>
           </div>
           <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
             <label className="flex flex-col gap-2">
@@ -451,7 +451,7 @@ export default function FashionTab() {
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
-                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
+                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
                 placeholder={t('placeholder.height')}
               />
             </label>
@@ -461,7 +461,7 @@ export default function FashionTab() {
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
+                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
                 placeholder={t('placeholder.weight')}
               />
             </label>
@@ -471,7 +471,7 @@ export default function FashionTab() {
         {/* 이전 사진 */}
         {previousPhotoUrl && !capturedImage && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-4">
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-4">
               <div className="flex items-center gap-4">
                 <img
                   src={previousPhotoUrl}
@@ -484,7 +484,7 @@ export default function FashionTab() {
                   <button
                     onClick={handleUsePreviousPhoto}
                     disabled={loadingPrevious}
-                    className="px-4 py-2 bg-[#5b13ec]/20 text-[#5b13ec] rounded-full text-xs font-bold border border-[#5b13ec]/30 hover:bg-[#5b13ec]/30 transition-colors"
+                    className="px-4 py-2 bg-[var(--accent-20)] text-[var(--accent)] rounded-full text-xs font-bold border border-[var(--accent-30)] hover:bg-[var(--accent-30)] transition-colors"
                   >
                     {loadingPrevious ? '...' : tc('face.previousPhotoDesc')}
                   </button>
@@ -502,10 +502,10 @@ export default function FashionTab() {
           </div>
           <div className="max-w-md mx-auto aspect-square relative flex items-center justify-center">
             {/* Neon Border */}
-            <div className="absolute inset-0 rounded-3xl border border-[#5b13ec]/30 shadow-[0_0_15px_rgba(91,19,236,0.3)] animate-pulse"></div>
+            <div className="absolute inset-0 rounded-3xl border border-[var(--accent-30)] shadow-[0_0_15px_var(--accent-30)] animate-pulse"></div>
             <div
               onClick={triggerFileInput}
-              className="w-full h-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-3xl flex flex-col items-center justify-center p-8 text-center cursor-pointer border-dashed border-2 border-[#5b13ec]/20 hover:border-[#5b13ec]/50 transition-all group"
+              className="w-full h-full bg-[var(--bg-panel)] backdrop-blur-xl rounded-3xl flex flex-col items-center justify-center p-8 text-center cursor-pointer border-dashed border-2 border-[var(--accent-20)] hover:border-[var(--accent-50)] transition-all group"
             >
               {capturedImage ? (
                 <img
@@ -515,8 +515,8 @@ export default function FashionTab() {
                 />
               ) : (
                 <>
-                  <div className="mb-6 bg-[#5b13ec]/20 p-6 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
-                    <span className="text-5xl text-[#5b13ec]">☁️</span>
+                  <div className="mb-6 bg-[var(--accent-20)] p-6 rounded-full group-hover:bg-[var(--accent-40)] transition-colors">
+                    <span className="text-5xl text-[var(--accent)]">☁️</span>
                   </div>
                   <h4 className="text-lg font-bold mb-2">{t('upload.title')}</h4>
                   <p className="text-white/50 text-sm leading-relaxed">
@@ -552,7 +552,7 @@ export default function FashionTab() {
               disabled={!capturedImage || !height || !weight || usedToday}
               className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
                 capturedImage && height && weight && !usedToday
-                  ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                  ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
                   : 'bg-white/10 text-white/30 cursor-not-allowed'
               }`}
             >
@@ -566,7 +566,7 @@ export default function FashionTab() {
                 disabled={!capturedImage || !height || !weight}
                 className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
                   capturedImage && height && weight
-                    ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                    ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
                     : 'bg-white/10 text-white/30 cursor-not-allowed'
                 }`}
               >
@@ -575,7 +575,7 @@ export default function FashionTab() {
               {/* 무료체험 및 구독 */}
               <button
                 onClick={() => subscribe()}
-                className="w-full flex items-center justify-center rounded-full h-12 px-8 text-sm font-bold tracking-widest uppercase transition-all bg-white/5 text-[#5b13ec] border border-[#5b13ec]/30 hover:bg-[#5b13ec]/10 hover:border-[#5b13ec]/50"
+                className="w-full flex items-center justify-center rounded-full h-12 px-8 text-sm font-bold tracking-widest uppercase transition-all bg-white/5 text-[var(--accent)] border border-[var(--accent-30)] hover:bg-[var(--accent-10)] hover:border-[var(--accent-50)]"
               >
                 {tc('fashion.subscribeButton')}
               </button>
@@ -591,8 +591,8 @@ export default function FashionTab() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
-          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
             <span className="text-4xl animate-pulse">✨</span>
           </div>
         </div>
@@ -601,9 +601,9 @@ export default function FashionTab() {
           {t('analyzing.description')}
         </p>
         <div className="mt-6 flex gap-1">
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -620,7 +620,7 @@ export default function FashionTab() {
         <p className="text-white/50 text-sm mb-6 max-w-xs">{errorMessage}</p>
         <button
           onClick={handleReset}
-          className="px-8 py-3 bg-[#5b13ec]/20 text-[#5b13ec] rounded-full font-bold uppercase tracking-widest text-sm hover:bg-[#5b13ec]/30 transition-colors border border-[#5b13ec]/30"
+          className="px-8 py-3 bg-[var(--accent-20)] text-[var(--accent)] rounded-full font-bold uppercase tracking-widest text-sm hover:bg-[var(--accent-30)] transition-colors border border-[var(--accent-30)]"
         >
           {t('error.tryAgain')}
         </button>
@@ -637,22 +637,22 @@ export default function FashionTab() {
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{t('result.complete')}</span>
+                <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{t('result.complete')}</span>
                 <h3 className="text-white text-2xl font-bold tracking-tight">{result.bodyAnalysis.bodyType}</h3>
               </div>
-              <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
-                <span className="text-[#5b13ec] text-xl">✨</span>
+              <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
+                <span className="text-[var(--accent)] text-xl">✨</span>
               </div>
             </div>
 
             {/* 업로드된 사진 */}
             {capturedImage && (
-              <div className="relative rounded-2xl overflow-hidden bg-[rgba(34,25,51,0.6)] backdrop-blur-xl border border-white/10">
+              <div className="relative rounded-2xl overflow-hidden bg-[var(--bg-panel)] backdrop-blur-xl border border-white/10">
                 <div className="aspect-[4/5] bg-cover bg-center" style={{ backgroundImage: `url(${capturedImage})` }}></div>
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-lg font-bold">{t('result.styleProfile')}</h4>
-                    <span className="text-[#5b13ec] font-bold">{t('result.aiMatch')}</span>
+                    <span className="text-[var(--accent)] font-bold">{t('result.aiMatch')}</span>
                   </div>
                   <p className="text-white/60 text-sm italic leading-relaxed">
                     "{result.mainMessage}"
@@ -665,8 +665,8 @@ export default function FashionTab() {
 
         {/* Body Analysis */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec]">{t('result.bodyAnalysis')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-4">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)]">{t('result.bodyAnalysis')}</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm border-b border-white/5 pb-3">
                 <span className="text-white/80 font-medium">{t('result.bodyFeatures')}</span>
@@ -683,9 +683,9 @@ export default function FashionTab() {
         {/* Style Recommendations */}
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">{t('result.styleRecommendations')}</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1">{t('result.styleRecommendations')}</h4>
             {result.styles.map((style, i) => (
-              <div key={i} className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5">
+              <div key={i} className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{style.icon}</span>
                   <span className="text-white font-bold">{style.category}</span>
@@ -694,7 +694,7 @@ export default function FashionTab() {
                   {style.items.map((item, j) => (
                     <span
                       key={j}
-                      className="px-3 py-1.5 bg-[#5b13ec]/20 rounded-full text-[#5b13ec] text-xs font-medium"
+                      className="px-3 py-1.5 bg-[var(--accent-20)] rounded-full text-[var(--accent)] text-xs font-medium"
                     >
                       {item}
                     </span>
@@ -708,8 +708,8 @@ export default function FashionTab() {
 
         {/* Color Palette */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('result.colorPalette')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.colorPalette')}</h4>
             <div className="flex flex-wrap gap-2 mb-4">
               {result.colors.recommended.map((color, i) => (
                 <span
@@ -738,12 +738,12 @@ export default function FashionTab() {
 
         {/* Styling Tips */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('result.stylingTips')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.stylingTips')}</h4>
             <ul className="space-y-3">
               {result.tips.map((tip, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
-                  <span className="text-[#5b13ec]">✓</span>
+                  <span className="text-[var(--accent)]">✓</span>
                   <span className="text-white/70">{tip}</span>
                 </li>
               ))}
@@ -754,7 +754,7 @@ export default function FashionTab() {
         {/* Avoid Section */}
         {result.avoid.length > 0 && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
               <h4 className="text-white font-bold uppercase tracking-widest text-xs text-red-400 mb-4">{t('result.styleWarnings')}</h4>
               <ul className="space-y-3">
                 {result.avoid.map((item, i) => (
@@ -771,8 +771,8 @@ export default function FashionTab() {
         {/* Accessories */}
         {result.accessories && result.accessories.length > 0 && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('result.accessories')}</h4>
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.accessories')}</h4>
               <div className="flex flex-wrap gap-2">
                 {result.accessories.map((item, i) => (
                   <span
@@ -790,8 +790,8 @@ export default function FashionTab() {
         {/* Seasonal Advice */}
         {result.seasonalAdvice && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('result.seasonalGuide')}</h4>
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.seasonalGuide')}</h4>
               <p className="text-white/60 text-sm leading-relaxed">{result.seasonalAdvice}</p>
             </div>
           </section>
@@ -801,7 +801,7 @@ export default function FashionTab() {
         <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-colors"
           >
             {t('button.newAnalysis')}
           </button>

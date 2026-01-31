@@ -319,13 +319,13 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           <div
             className="flex min-h-[45vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
             style={{
-              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=800&q=80")`,
+              backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=800&q=80")`,
             }}
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
                 Divine <br />
-                <span className="text-[#5b13ec] italic font-light">Omen</span>
+                <span className="text-[var(--accent)] italic font-light">Omen</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('omenTab.heroDesc')}
@@ -336,9 +336,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
         {/* Location Request */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
             <div className="text-center mb-6">
-              <div className="h-16 w-16 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)] mx-auto mb-4">
+              <div className="h-16 w-16 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)] mx-auto mb-4">
                 <span className="text-3xl">🔮</span>
               </div>
               <h3 className="text-white text-xl font-bold tracking-tight">{t('omenTab.locationSensing')}</h3>
@@ -357,7 +357,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
             <div className="space-y-3">
               <button
                 onClick={requestLocation}
-                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
+                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[var(--accent)] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
               >
                 {t('location.startButton')}
               </button>
@@ -374,8 +374,8 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
-          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
@@ -384,9 +384,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           {t('omenTab.sensing')}
         </p>
         <div className="mt-6 flex gap-1">
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -403,7 +403,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
     return (
       <div className="px-4 py-8">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-red-500/30 p-8 text-center">
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-red-500/30 p-8 text-center">
           <div className="h-16 w-16 rounded-full border border-red-500/50 flex items-center justify-center mx-auto mb-6">
             <span className="text-3xl">⚠️</span>
           </div>
@@ -415,7 +415,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="px-8 py-3 bg-[#5b13ec] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
+            className="px-8 py-3 bg-[var(--accent)] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_var(--accent-30)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
           >
             {t('omenTab.readAgain')}
           </button>
@@ -438,7 +438,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           </p>
           <button
             onClick={requestLocation}
-            className="text-[#5b13ec]/60 hover:text-[#5b13ec] text-xs transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] rounded"
+            className="text-[var(--accent)]/60 hover:text-[var(--accent)] text-xs transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded"
             aria-label={t('location.startButton')}
           >
             <span aria-hidden="true">📍</span>
@@ -448,14 +448,14 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
       {/* 메인 괘 카드 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           {/* 에너지 지표 */}
           <div className="flex justify-between items-center mb-6">
             <span className="text-white/40 text-xs uppercase tracking-widest">{t('omenCard.energyFlow')}</span>
             <div className="flex items-center gap-2">
               <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#5b13ec] to-purple-400 transition-all duration-1000"
+                  className="h-full bg-gradient-to-r from-[var(--accent)] to-purple-400 transition-all duration-1000"
                   style={{ width: `${energy}%` }}
                 />
               </div>
@@ -472,7 +472,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
           {/* 메인 메시지 */}
           <div className="text-center mb-6">
-            <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)] mx-auto mb-4">
+            <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)] mx-auto mb-4">
               <span className="text-xl">✨</span>
             </div>
             <p className="text-white/70 text-lg italic leading-relaxed">
@@ -498,11 +498,11 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       {/* 세부 괘 */}
       <section className="px-4">
         <div className="max-w-md mx-auto space-y-4">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">{t('omenTab.detailedOmens')}</h4>
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1">{t('omenTab.detailedOmens')}</h4>
           {omen?.details?.map((detail, index) => (
             <div
               key={index}
-              className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
+              className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">{detail.icon}</span>
@@ -520,24 +520,24 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       {session && (personalOmen || personalLoading || personalError) && (
         <section className="px-4">
           <div className="max-w-md mx-auto">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1 mb-4">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1 mb-4">
               {t('omenTab.personalSaju')}
             </h4>
             {personalLoading ? (
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 text-center">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 text-center">
                 <div className="flex gap-1 justify-center mb-2">
-                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-white/40 text-sm">{t('omenTab.loadingPersonal')}</p>
               </div>
             ) : personalError ? (
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-red-500/30 p-6 text-center">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-red-500/30 p-6 text-center">
                 <p className="text-red-400 text-sm">{personalError}</p>
               </div>
             ) : personalOmen ? (
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5 space-y-4">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-5 space-y-4">
                 <p className="text-white/80 text-base italic text-center">"{personalOmen.headline}"</p>
 
                 <div>
@@ -587,20 +587,20 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
         <div className="max-w-md mx-auto">
           {isSubscribed ? (
             // Subscriber: show daily style
-            <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+            <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-5">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">👔</span>
                 <h4 className="text-white font-bold text-sm">{t('sub.dailyStyleTitle')}</h4>
-                <span className="ml-auto text-[10px] text-[#5b13ec] bg-[#5b13ec]/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                <span className="ml-auto text-[10px] text-[var(--accent)] bg-[var(--accent-10)] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                   {t('sub.badge')}
                 </span>
               </div>
               {styleLoading ? (
                 <div className="text-center py-6">
                   <div className="flex gap-1 justify-center mb-2">
-                    <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                   <p className="text-white/40 text-sm">{t('sub.loadingStyle')}</p>
                 </div>
@@ -611,7 +611,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   <div className="flex flex-wrap gap-2">
                     <span className="text-white/40 text-xs">{t('sub.styleColors')}:</span>
                     {dailyStyle.colors?.map((color: string, i: number) => (
-                      <span key={i} className="text-[#5b13ec] text-xs bg-[#5b13ec]/10 px-2 py-0.5 rounded-full">
+                      <span key={i} className="text-[var(--accent)] text-xs bg-[var(--accent-10)] px-2 py-0.5 rounded-full">
                         {color}
                       </span>
                     ))}
@@ -633,7 +633,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
             // Non-subscriber: locked preview with blur
             <div className="relative overflow-hidden rounded-2xl border border-white/10">
               {/* Blurred fake content */}
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-lg">👔</span>
                   <span className="text-white font-bold text-sm">{t('sub.dailyStyleTitle')}</span>
@@ -647,7 +647,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               </div>
               {/* Lock overlay */}
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center mb-3 shadow-[0_0_15px_var(--accent-30)]">
                   <span className="text-xl">🔒</span>
                 </div>
                 <p className="text-white/70 text-sm font-medium mb-1">{t('sub.locked')}</p>
@@ -656,7 +656,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
+                  className="mt-2 px-6 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_var(--accent-40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
                 >
                   {t('sub.unlockStyle')}
                 </button>
@@ -670,7 +670,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       <div className="text-center">
         <button
           onClick={toggleShowData}
-          className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
+          className="px-6 py-2 text-[var(--accent)] text-sm hover:text-white transition-colors"
         >
           {showData ? `${t('data.source')} ▲` : `${t('data.source')} ▼`}
         </button>
@@ -679,7 +679,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       {showData && (
         <div className="px-4 animate-fade-in">
           <Suspense fallback={
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-center text-white/50">
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-center text-white/50">
               {t('omenTab.gatheringEnergy')}
             </div>
           }>

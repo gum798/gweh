@@ -154,13 +154,13 @@ export default function SajuTab() {
           <div
             className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
             style={{
-              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1532978379173-523e16f371f2?w=800&q=80")`,
+              backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1532978379173-523e16f371f2?w=800&q=80")`,
             }}
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
                 {tc('saju.heroTitle1')} <br />
-                <span className="text-[#5b13ec] italic font-light">{tc('saju.heroTitle2')}</span>
+                <span className="text-[var(--accent)] italic font-light">{tc('saju.heroTitle2')}</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {tc('saju.heroDesc')}
@@ -174,11 +174,11 @@ export default function SajuTab() {
           <div className="max-w-md mx-auto">
             <div className="text-center mb-6">
               <h3 className="text-white text-xl font-bold tracking-tight pb-1">{tc('saju.birthInfo')}</h3>
-              <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
+              <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full"></div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
                 <label className="block">
                   <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{tc('saju.birthDate')}</p>
                   <input
@@ -186,7 +186,7 @@ export default function SajuTab() {
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
                     max={new Date().toISOString().split('T')[0]}
-                    className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 px-4 text-lg font-medium transition-all focus:bg-white/10"
+                    className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 px-4 text-lg font-medium transition-all focus:bg-white/10"
                     required
                   />
                 </label>
@@ -196,10 +196,10 @@ export default function SajuTab() {
                   <select
                     value={birthHour}
                     onChange={(e) => setBirthHour(e.target.value)}
-                    className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 px-4 text-base font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
+                    className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 px-4 text-base font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
                   >
                     {hourOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="bg-[#161022]">
+                      <option key={opt.value} value={opt.value} className="bg-[var(--bg-primary)]">
                         {opt.label}
                       </option>
                     ))}
@@ -209,7 +209,7 @@ export default function SajuTab() {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
+                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[var(--accent)] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
               >
                 {tc('saju.revealDestiny')}
               </button>
@@ -227,13 +227,13 @@ export default function SajuTab() {
     <div className="space-y-8 pb-8">
       {/* Header Card */}
       <section className="px-4 pt-4">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('saju.fourPillars')}</span>
+              <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('saju.fourPillars')}</span>
               <h3 className="text-white text-xl font-bold tracking-tight">{t('title')}</h3>
             </div>
-            <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+            <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
               <span className="text-xl">✨</span>
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function SajuTab() {
 
           {/* 일간 정보 */}
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-            <p className="text-[#5b13ec] text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
+            <p className="text-[var(--accent)] text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
             <p className="text-white text-2xl font-bold">{dayMaster.name}</p>
             <p className="text-white/50 text-sm mt-1">
               {tc('saju.dayMasterEnergy', { nature: dayMaster.nature, trait: dayMaster.trait })}
@@ -255,11 +255,11 @@ export default function SajuTab() {
 
       {/* 띠 정보 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl">{{ '쥐': '🐀', '소': '🐂', '호랑이': '🐅', '토끼': '🐇', '용': '🐉', '뱀': '🐍', '말': '🐎', '양': '🐏', '원숭이': '🐒', '닭': '🐓', '개': '🐕', '돼지': '🐖' }[zodiac] || '🐉'}</span>
             <div>
-              <p className="text-[#5b13ec] text-xs uppercase tracking-widest">{t('zodiac')}</p>
+              <p className="text-[var(--accent)] text-xs uppercase tracking-widest">{t('zodiac')}</p>
               <p className="text-white font-bold text-lg">{tc('saju.zodiacSuffix', { zodiac })}</p>
             </div>
           </div>
@@ -271,8 +271,8 @@ export default function SajuTab() {
 
       {/* 사주팔자 표 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('chart')}</h4>
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('chart')}</h4>
           <div className="grid grid-cols-4 gap-2 text-center">
             {pillars.map((p, i) => (
               <div key={i} className="bg-white/5 rounded-xl p-3 border border-white/10">
@@ -292,8 +292,8 @@ export default function SajuTab() {
 
       {/* 오행 분석 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('fiveElements')}</h4>
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('fiveElements')}</h4>
           <div className="flex justify-center gap-2 mb-4">
             {Object.entries(elementAnalysis.distribution).map(([element, count]) => (
               <div
@@ -315,8 +315,8 @@ export default function SajuTab() {
 
       {/* 오늘의 운세 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('todayFortune')}</h4>
+        <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 shadow-[0_0_15px_var(--accent-20)]">
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('todayFortune')}</h4>
           <div className="text-center">
             <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${
               todayFortune.level === '대길' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
@@ -342,7 +342,7 @@ export default function SajuTab() {
       <div className="px-4 pt-4">
         <button
           onClick={handleReset}
-          className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
+          className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
         >
           {tc('saju.newReading')}
         </button>

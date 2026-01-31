@@ -7,6 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Legacy mystic colors (kept for any non-themed usage)
         mystic: {
           900: '#0a0a1a',
           800: '#12122a',
@@ -18,7 +19,15 @@ export default {
           gold: '#d4af37',
           silver: '#c0c0c0',
           purple: '#9b59b6',
-        }
+        },
+        // Theme-aware semantic colors via CSS vars
+        th: {
+          bg: 'var(--bg-primary)',
+          panel: 'var(--bg-panel)',
+          'panel-solid': 'var(--bg-panel-solid)',
+          accent: 'var(--accent)',
+          'accent-hover': 'var(--accent-hover)',
+        },
       },
       fontFamily: {
         mystic: ['"Gowun Batang"', 'serif'],
@@ -35,8 +44,8 @@ export default {
           '50%': { transform: 'translateY(-10px)' },
         },
         glow: {
-          '0%': { boxShadow: '0 0 5px #d4af37, 0 0 10px #d4af37' },
-          '100%': { boxShadow: '0 0 20px #d4af37, 0 0 30px #d4af37' },
+          '0%': { boxShadow: 'var(--glow-1)' },
+          '100%': { boxShadow: 'var(--glow-2)' },
         }
       }
     },

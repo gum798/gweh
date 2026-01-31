@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-mystic-900 text-gray-100 min-h-screen;
+    background-color: var(--bg-primary);
+    @apply text-gray-100 min-h-screen;
     font-family: 'Gowun Batang', serif;
   }
 
@@ -17,11 +18,14 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-mystic-800/80 backdrop-blur-md rounded-2xl border border-cosmic-gold/20;
+    background: var(--bg-panel);
+    @apply backdrop-blur-md rounded-2xl;
+    border: 1px solid var(--glass-border);
   }
 
   .mystic-text {
-    @apply text-cosmic-gold font-mystic;
+    color: var(--accent);
+    @apply font-mystic;
   }
 
   .data-label {
@@ -35,7 +39,7 @@
 
 @layer utilities {
   .text-shadow-glow {
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    text-shadow: 0 0 10px var(--text-glow);
   }
 }
 
@@ -63,14 +67,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a1a;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4af37;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c4a030;
+  background: var(--scrollbar-thumb-hover);
 }

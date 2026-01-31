@@ -86,7 +86,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-md bg-[#1a1030] border border-[#5b13ec]/30 rounded-2xl p-6 shadow-[0_0_40px_rgba(91,19,236,0.2)]"
+        className="relative w-full max-w-md bg-[var(--bg-panel-solid)] border border-[var(--accent-30)] rounded-2xl p-6 shadow-[0_0_40px_var(--accent-20)]"
         onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-white/40 hover:text-white/80 text-xl">
@@ -135,7 +135,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <span className="text-white/50 text-sm">{tc('sub.subscriptionStatus')}</span>
               {isSubscribed ? (
                 <div className="text-right">
-                  <span className="text-[#5b13ec] text-sm font-medium">
+                  <span className="text-[var(--accent)] text-sm font-medium">
                     {isTrialing ? tc('sub.trialActive') : tc('sub.active')}
                   </span>
                   {isTrialing && trialEndsAt && (
@@ -174,7 +174,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               ) : (
                 <button
                   onClick={() => subscribe()}
-                  className="text-[#5b13ec] text-sm font-medium hover:underline"
+                  className="text-[var(--accent)] text-sm font-medium hover:underline"
                 >
                   {tc('sub.inactive')} · {tc('sub.subscribeNow')}
                 </button>

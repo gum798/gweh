@@ -79,7 +79,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-md bg-[#1a1030] border border-[#5b13ec]/30 rounded-2xl p-6 shadow-[0_0_40px_rgba(91,19,236,0.2)]"
+        className="relative w-full max-w-md bg-[var(--bg-panel-solid)] border border-[var(--accent-30)] rounded-2xl p-6 shadow-[0_0_40px_var(--accent-20)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -127,7 +127,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#5b13ec]/50 transition-colors"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent-50)] transition-colors"
           />
           {mode !== 'forgot' && (
             <input
@@ -137,7 +137,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#5b13ec]/50 transition-colors"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent-50)] transition-colors"
             />
           )}
           {mode === 'signup' && (
@@ -148,7 +148,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#5b13ec]/50 transition-colors"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent-50)] transition-colors"
             />
           )}
 
@@ -158,7 +158,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-[#5b13ec] hover:bg-[#4a0fd0] disabled:opacity-50 rounded-xl text-white font-semibold transition-colors"
+            className="w-full py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 rounded-xl text-white font-semibold transition-colors"
           >
             {mode === 'forgot' ? t('sendResetEmail') : mode === 'login' ? t('loginButton') : t('signupButton')}
           </button>
@@ -170,7 +170,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <p className="text-white/40">
               <button
                 onClick={() => { setMode('login'); setError(''); setMessage(''); }}
-                className="text-[#5b13ec] hover:text-[#7b3ff5] font-semibold"
+                className="text-[var(--accent)] hover:text-[var(--accent)] font-semibold"
               >
                 {t('backToLogin')}
               </button>
@@ -181,7 +181,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {mode === 'login' ? t('switchToSignup') : t('switchToLogin')}{' '}
                 <button
                   onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-                  className="text-[#5b13ec] hover:text-[#7b3ff5] font-semibold"
+                  className="text-[var(--accent)] hover:text-[var(--accent)] font-semibold"
                 >
                   {mode === 'login' ? t('signup') : t('login')}
                 </button>

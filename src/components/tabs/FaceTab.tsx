@@ -134,13 +134,13 @@ export default function FaceTab() {
           <div
             className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
             style={{
-              backgroundImage: `linear-gradient(to top, #161022 10%, rgba(22, 16, 34, 0.6) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80")`,
+              backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80")`,
             }}
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
                 {tc('face.heroTitle1')} <br />
-                <span className="text-[#5b13ec] italic font-light">{tc('face.heroTitle2')}</span>
+                <span className="text-[var(--accent)] italic font-light">{tc('face.heroTitle2')}</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('subtitle', 'AI interprets the signs of destiny in your face')}
@@ -152,9 +152,9 @@ export default function FaceTab() {
         {/* Previous Photo */}
         {previousPhotoUrl && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-5">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.previousPhoto')}</span>
+                <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.previousPhoto')}</span>
               </div>
               <div className="flex items-center gap-4 mb-4">
                 <img
@@ -167,19 +167,19 @@ export default function FaceTab() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => handleUsePreviousPhoto('personalColor')}
-                  className="py-2.5 bg-[#5b13ec]/20 hover:bg-[#5b13ec]/40 rounded-xl text-white/80 text-xs font-medium transition-colors"
+                  className="py-2.5 bg-[var(--accent-20)] hover:bg-[var(--accent-40)] rounded-xl text-white/80 text-xs font-medium transition-colors"
                 >
                   🎨 {tc('face.personalColor')}
                 </button>
                 <button
                   onClick={() => handleUsePreviousPhoto('physiognomy')}
-                  className="py-2.5 bg-[#5b13ec]/20 hover:bg-[#5b13ec]/40 rounded-xl text-white/80 text-xs font-medium transition-colors"
+                  className="py-2.5 bg-[var(--accent-20)] hover:bg-[var(--accent-40)] rounded-xl text-white/80 text-xs font-medium transition-colors"
                 >
                   👤 {tc('face.physiognomy')}
                 </button>
                 <button
                   onClick={() => handleUsePreviousPhoto('both')}
-                  className="py-2.5 bg-[#5b13ec]/30 hover:bg-[#5b13ec]/50 rounded-xl text-white text-xs font-bold transition-colors"
+                  className="py-2.5 bg-[var(--accent-30)] hover:bg-[var(--accent-50)] rounded-xl text-white text-xs font-bold transition-colors"
                 >
                   ✨ {tc('face.completeAnalysis')}
                 </button>
@@ -192,16 +192,16 @@ export default function FaceTab() {
         <section className="px-4 space-y-4">
           <div className="text-center mb-6">
             <h3 className="text-white text-xl font-bold tracking-tight pb-1">{previousPhotoUrl ? tc('face.newPhotoAnalysis') : tc('face.chooseAnalysis')}</h3>
-            <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
+            <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full"></div>
           </div>
 
           <div className="max-w-md mx-auto space-y-4">
             <button
               onClick={() => handleModeSelect('personalColor')}
-              className="w-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-left hover:border-[#5b13ec]/50 transition-all group"
+              className="w-full bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-left hover:border-[var(--accent-50)] transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="bg-[#5b13ec]/20 p-4 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                <div className="bg-[var(--accent-20)] p-4 rounded-full group-hover:bg-[var(--accent-40)] transition-colors">
                   <span className="text-3xl">🎨</span>
                 </div>
                 <div>
@@ -215,10 +215,10 @@ export default function FaceTab() {
 
             <button
               onClick={() => handleModeSelect('physiognomy')}
-              className="w-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-left hover:border-[#5b13ec]/50 transition-all group"
+              className="w-full bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-left hover:border-[var(--accent-50)] transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="bg-[#5b13ec]/20 p-4 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                <div className="bg-[var(--accent-20)] p-4 rounded-full group-hover:bg-[var(--accent-40)] transition-colors">
                   <span className="text-3xl">👤</span>
                 </div>
                 <div>
@@ -232,10 +232,10 @@ export default function FaceTab() {
 
             <button
               onClick={() => handleModeSelect('both')}
-              className="w-full bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 text-left hover:border-[#5b13ec]/50 transition-all group shadow-[0_0_15px_rgba(91,19,236,0.2)]"
+              className="w-full bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 text-left hover:border-[var(--accent-50)] transition-all group shadow-[0_0_15px_var(--accent-20)]"
             >
               <div className="flex items-center gap-4">
-                <div className="bg-[#5b13ec]/20 p-4 rounded-full group-hover:bg-[#5b13ec]/40 transition-colors">
+                <div className="bg-[var(--accent-20)] p-4 rounded-full group-hover:bg-[var(--accent-40)] transition-colors">
                   <span className="text-3xl">✨</span>
                 </div>
                 <div>
@@ -272,7 +272,7 @@ export default function FaceTab() {
         <div className="text-center">
           <button
             onClick={handleReset}
-            className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
+            className="px-6 py-2 text-[var(--accent)] text-sm hover:text-white transition-colors"
           >
             {tc('face.backToSelection')}
           </button>
@@ -286,8 +286,8 @@ export default function FaceTab() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[#5b13ec]/30 shadow-[0_0_30px_rgba(91,19,236,0.5)] animate-ping"></div>
-          <div className="h-24 w-24 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
+          <div className="h-24 w-24 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
@@ -296,9 +296,9 @@ export default function FaceTab() {
           {t('analyzing', 'Examining the energy in your face')}
         </p>
         <div className="mt-6 flex gap-1">
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -312,7 +312,7 @@ export default function FaceTab() {
         {capturedImage && (
           <div className="flex justify-center pt-4">
             <div className="relative">
-              <div className="absolute -inset-2 rounded-2xl border border-[#5b13ec]/30 shadow-[0_0_20px_rgba(91,19,236,0.3)] animate-pulse"></div>
+              <div className="absolute -inset-2 rounded-2xl border border-[var(--accent-30)] shadow-[0_0_20px_var(--accent-30)] animate-pulse"></div>
               <img
                 src={capturedImage}
                 alt={t('result.analyzedFace')}
@@ -325,13 +325,13 @@ export default function FaceTab() {
         {/* 퍼스널 컬러 결과 */}
         {result.personalColor && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.personalColor')}</span>
+                  <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.personalColor')}</span>
                   <h3 className="text-white text-2xl font-bold tracking-tight">{result.personalColor.seasonKorean}</h3>
                 </div>
-                <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
                   <span className="text-xl">🎨</span>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function FaceTab() {
 
               <div className="pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-[#5b13ec] text-xs uppercase tracking-widest">{tc('face.bestColors')}</span>
+                  <span className="text-[var(--accent)] text-xs uppercase tracking-widest">{tc('face.bestColors')}</span>
                   <p className="text-white/70 mt-1">{result.personalColor.tips.best}</p>
                 </div>
                 <div>
@@ -376,13 +376,13 @@ export default function FaceTab() {
         {result.physiognomy && (
           <section className="px-4">
             <div className="max-w-md mx-auto space-y-4">
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.physiognomy')}</span>
+                    <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.physiognomy')}</span>
                     <h3 className="text-white text-xl font-bold tracking-tight">{t('result.physiognomyReading')}</h3>
                   </div>
-                  <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                  <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
                     <span className="text-xl">👤</span>
                   </div>
                 </div>
@@ -396,10 +396,10 @@ export default function FaceTab() {
               {result.physiognomy.details.map((detail, i) => (
                 <div
                   key={i}
-                  className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
+                  className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-3 py-1 bg-[#5b13ec]/20 rounded-full text-[#5b13ec] text-xs font-medium">
+                    <span className="px-3 py-1 bg-[var(--accent-20)] rounded-full text-[var(--accent)] text-xs font-medium">
                       {detail.typeKorean} {detail.partKorean}
                     </span>
                   </div>
@@ -416,7 +416,7 @@ export default function FaceTab() {
         <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-colors"
           >
             {tc('face.newAnalysis')}
           </button>

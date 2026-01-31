@@ -161,11 +161,11 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
           <div className="max-w-md mx-auto">
             <div className="text-center mb-6">
               <h3 className="text-white text-xl font-bold tracking-tight pb-1">{t('summary.title')}</h3>
-              <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full" />
+              <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full" />
             </div>
 
             <div className="relative overflow-hidden rounded-2xl border border-white/10">
-              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none space-y-4">
+              <div className="bg-[var(--bg-panel)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none space-y-4">
                 <div className="text-center">
                   <span className="text-4xl" aria-hidden="true">📊</span>
                   <p className="text-white font-bold mt-2">{t('summary.title')}</p>
@@ -185,7 +185,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center mb-3 shadow-[0_0_15px_var(--accent-30)]">
                   <span className="text-xl">🔒</span>
                 </div>
                 <p className="text-white/70 text-sm font-medium mb-1">{t('sub.locked')}</p>
@@ -194,7 +194,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
+                  className="mt-2 px-6 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_var(--accent-40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
                 >
                   {t('summary.unlock')}
                 </button>
@@ -215,7 +215,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </div>
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
-            <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-8">
+            <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-8">
               <span className="text-5xl mb-4 block" aria-hidden="true">📊</span>
               <h3 className="text-white text-lg font-bold mb-2">{t('summary.title')}</h3>
               <p className="text-white/50 text-sm leading-relaxed">{t('summary.noData')}</p>
@@ -236,26 +236,26 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 헤더 */}
       <section className="px-4">
         <div className="max-w-md mx-auto text-center">
-          <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{t('sub.badge')}</span>
+          <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{t('sub.badge')}</span>
           <h3 className="text-white text-xl font-bold tracking-tight pb-1">{t('summary.title')}</h3>
-          <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full" />
+          <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full" />
         </div>
       </section>
 
       {/* 1. 스타일 추천 */}
       {(dailyStyle || loading) && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 shadow-[0_0_15px_var(--accent-20)]">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">👔</span>
-              <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
+              <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
             </div>
             {loading && !dailyStyle ? (
               <div className="text-center py-4">
                 <div className="flex gap-1 justify-center mb-2">
-                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-white/40 text-sm">{t('sub.loadingStyle')}</p>
               </div>
@@ -266,7 +266,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 <div className="flex flex-wrap gap-2">
                   <span className="text-white/40 text-xs">{t('sub.styleColors')}:</span>
                   {dailyStyle.colors?.map((color: string, i: number) => (
-                    <span key={i} className="text-[#5b13ec] text-xs bg-[#5b13ec]/10 px-2 py-0.5 rounded-full">
+                    <span key={i} className="text-[var(--accent)] text-xs bg-[var(--accent-10)] px-2 py-0.5 rounded-full">
                       {color}
                     </span>
                   ))}
@@ -290,8 +290,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 2. 에너지 + 괘 */}
       {(energyLabel || dailyReading?.omen_message) && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 shadow-[0_0_15px_var(--accent-20)]">
+            <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
             {energyLabel && (
               <div className="text-center">
                 <span className={`text-3xl font-bold ${energyLabel.color}`}>{energyLabel.label}</span>
@@ -309,8 +309,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 3. 운세 요약 */}
       {fortune && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
             <div className="text-center mb-4">
               <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(fortune.level)}`}>
                 {fortune.level}
@@ -342,8 +342,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 3-1. 조언 + 행운 정보 */}
       {fortune && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
+          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6">
+            <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             <p className="text-white/80 text-sm leading-relaxed mb-5">"{fortune.advice}"</p>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
               <div className="text-center">
