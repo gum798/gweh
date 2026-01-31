@@ -33,9 +33,13 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   // 서울 기본 좌표
   const DEFAULT_LOCATION = { lat: 37.5665, lon: 126.9780 };
 
-  // 이전 저장된 위치 자동 불러오기
+  // 이전 저장된 위치 자동 불러오기, 없으면 서울 기본값
   useEffect(() => {
-    if (!session?.access_token) return;
+    if (!session?.access_token) {
+      // 비로그인: 서울 기본값
+      if (!location) setLocation(DEFAULT_LOCATION);
+      return;
+    }
     fetch('/api/profile', {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
@@ -43,9 +47,13 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       .then(d => {
         if (d.profile?.last_lat && d.profile?.last_lon) {
           setLocation({ lat: d.profile.last_lat, lon: d.profile.last_lon });
+        } else {
+          setLocation(DEFAULT_LOCATION);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!location) setLocation(DEFAULT_LOCATION);
+      });
   }, [session?.access_token]);
 
   const requestLocation = useCallback(() => {
@@ -98,9 +106,6 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     );
   }, [session?.access_token]);
 
-  const skipLocation = useCallback(() => {
-    setLocation(DEFAULT_LOCATION);
-  }, []);
 
   const isLoading = useMemo(
     () => location && (weatherLoading || parallelLoading),
@@ -218,17 +223,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                 {t('location.startButton')}
               </button>
 
-              <button
-                onClick={skipLocation}
-                className="w-full flex items-center justify-center rounded-full h-12 px-8 bg-transparent border border-white/20 text-white/60 text-sm font-medium tracking-widest uppercase transition-all hover:border-[#5b13ec]/50 hover:text-white"
-              >
-                {t('location.skipButton')}
-              </button>
             </div>
-
-            <p className="text-white/30 text-xs text-center mt-4">
-              {t('location.skipWarning')}
-            </p>
           </div>
         </section>
       </div>
