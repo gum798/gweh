@@ -12,6 +12,8 @@ const ELEMENT_COLORS = {
   수: 'text-blue-400',
 };
 
+const SAJU_INPUT_KEY = 'mystic_saju_input';
+
 const ELEMENT_BG = {
   목: 'bg-green-400/20 border-green-400/30',
   화: 'bg-red-400/20 border-red-400/30',
@@ -27,22 +29,43 @@ export default function SajuTab() {
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
-  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [ready, setReady] = useState(false);
   const autoSubmitted = useRef(false);
 
-  // 이전 정보 불러오기
+  // 우선순위: 1) localStorage → 2) DB 프로필 → 3) 사용자 입력
   useEffect(() => {
-    if (!session?.access_token) return;
+    try {
+      const saved = localStorage.getItem(SAJU_INPUT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.birthDate) {
+          setBirthDate(parsed.birthDate);
+          if (parsed.birthHour != null) setBirthHour(String(parsed.birthHour));
+          setReady(true);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+
+    if (!session?.access_token) {
+      setReady(true);
+      return;
+    }
+
     fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } })
       .then(r => r.json())
       .then(d => {
         if (d.profile?.birth_date) {
           setBirthDate(d.profile.birth_date);
           if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
-          setProfileLoaded(true);
+          localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify({
+            birthDate: d.profile.birth_date,
+            birthHour: d.profile.birth_hour ?? 12,
+          }));
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setReady(true));
   }, [session?.access_token]);
 
   const hourOptions = useMemo(() => {
@@ -55,9 +78,9 @@ export default function SajuTab() {
     return options;
   }, [t]);
 
-  // 이전 데이터 있으면 자동 제출
+  // 데이터 준비되면 자동 제출
   useEffect(() => {
-    if (profileLoaded && birthDate && !autoSubmitted.current) {
+    if (ready && birthDate && !autoSubmitted.current) {
       autoSubmitted.current = true;
       const date = new Date(birthDate);
       if (date > new Date()) return;
@@ -77,7 +100,7 @@ export default function SajuTab() {
         }).catch(() => {});
       }
     }
-  }, [profileLoaded, birthDate, birthHour]);
+  }, [ready, birthDate, birthHour]);
 
   // rerender-functional-setstate: Wrap handlers in useCallback for stable references
   const handleSubmit = useCallback((e) => {
@@ -91,6 +114,7 @@ export default function SajuTab() {
     const interpretation = interpretSaju(saju);
 
     setResult(interpretation);
+    localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify({ birthDate, birthHour: hour }));
 
     // Save birth data to profile
     if (session?.access_token) {
@@ -109,6 +133,8 @@ export default function SajuTab() {
     setResult(null);
     setBirthDate('');
     setBirthHour('12');
+    localStorage.removeItem(SAJU_INPUT_KEY);
+    autoSubmitted.current = false;
   }, []);
 
   if (!result) {
