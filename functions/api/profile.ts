@@ -100,7 +100,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!res.ok) {
       const err = await res.text();
       console.error('Upsert profile error:', err);
-      return Response.json({ error: 'Failed to save profile' }, { status: 500 });
+      return Response.json({ error: 'Failed to save profile', detail: err }, { status: 500 });
     }
 
     const result = await res.json();
