@@ -15,6 +15,26 @@ interface FortuneResult {
   luckyDirection: string;
 }
 
+const CACHE_KEY = 'mystic_fortune_cache';
+
+function getCachedFortune(birthDate: string): FortuneResult | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    const today = new Date().toISOString().split('T')[0];
+    if (cached.date === today && cached.birthDate === birthDate && cached.fortune) {
+      return cached.fortune;
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function setCachedFortune(birthDate: string, fortune: FortuneResult) {
+  const today = new Date().toISOString().split('T')[0];
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ date: today, birthDate, fortune }));
+}
+
 export default function FortuneTab() {
   const { t } = useTranslation();
   const { session } = useAuth();
@@ -49,6 +69,13 @@ export default function FortuneTab() {
   }, [profileLoaded, birthDate]);
 
   const submitFortune = async (date: string) => {
+    // 캐시 확인
+    const cached = getCachedFortune(date);
+    if (cached) {
+      setResult(cached);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/fortune', {
@@ -59,6 +86,7 @@ export default function FortuneTab() {
       const data = await res.json();
       if (data.success) {
         setResult(data.fortune);
+        setCachedFortune(date, data.fortune);
       }
     } catch {
       // ignore
@@ -87,12 +115,29 @@ export default function FortuneTab() {
     submitFortune(birthDate);
   };
 
+  const handleNewReading = () => {
+    // 캐시 삭제 후 다시 요청
+    localStorage.removeItem(CACHE_KEY);
+    setResult(null);
+    if (birthDate) {
+      autoSubmitted.current = false;
+    }
+  };
+
   const getLevelStyle = (level: string) => {
     if (level === '대길') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
     if (level === '길') return 'bg-green-500/20 text-green-400 border-green-500/30';
     if (level === '평') return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     if (level === '소흉') return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
     return 'bg-red-500/20 text-red-400 border-red-500/30';
+  };
+
+  const getLevelEmoji = (level: string) => {
+    if (level === '대길') return '✨';
+    if (level === '길') return '🌟';
+    if (level === '평') return '☁️';
+    if (level === '소흉') return '🌧️';
+    return '⚡';
   };
 
   // 로딩 화면
@@ -117,13 +162,26 @@ export default function FortuneTab() {
 
   // 결과 화면
   if (result) {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString(t('fortune.locale') || 'ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    });
+
     return (
       <div className="space-y-6 pb-8">
+        {/* 오늘 날짜 */}
+        <div className="text-center pt-4">
+          <p className="text-white/40 text-sm">{dateStr}</p>
+        </div>
+
         {/* 헤더 */}
-        <section className="px-4 pt-4">
+        <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
             <div className="text-center mb-4">
-              <span className="text-4xl mb-3 block">🔮</span>
+              <span className="text-5xl mb-3 block">{getLevelEmoji(result.level)}</span>
               <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(result.level)}`}>
                 {result.level}
               </span>
@@ -179,7 +237,7 @@ export default function FortuneTab() {
         {/* 다시 보기 */}
         <div className="px-4 pt-2">
           <button
-            onClick={() => setResult(null)}
+            onClick={handleNewReading}
             className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
           >
             {t('fortune.newReading')}
@@ -220,12 +278,6 @@ export default function FortuneTab() {
             <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full" />
           </div>
 
-          {profileLoaded && (
-            <div className="mb-4 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2 text-center">
-              <span className="text-green-400 text-xs">{t('fortune.loadedPrevious')}</span>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
               <label className="block">
@@ -239,7 +291,6 @@ export default function FortuneTab() {
                   required
                 />
               </label>
-
             </div>
 
             <button
