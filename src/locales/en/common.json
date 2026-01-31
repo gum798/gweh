@@ -192,6 +192,11 @@
   "sub.active": "Active",
   "sub.inactive": "Inactive",
   "sub.subscribeNow": "Subscribe",
+  "sub.cancelSubscription": "Cancel subscription",
+  "sub.confirmCancel": "Are you sure you want to cancel?",
+  "sub.confirmYes": "Yes, cancel",
+  "sub.cancelSuccess": "Subscription has been cancelled.",
+  "cancel": "Cancel",
 
   "profile.height": "Height",
   "profile.weight": "Weight",

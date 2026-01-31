@@ -202,6 +202,11 @@
   "sub.active": "구독 중",
   "sub.inactive": "미구독",
   "sub.subscribeNow": "구독하기",
+  "sub.cancelSubscription": "구독 취소",
+  "sub.confirmCancel": "정말 구독을 취소하시겠습니까?",
+  "sub.confirmYes": "네, 취소합니다",
+  "sub.cancelSuccess": "구독이 취소되었습니다.",
+  "cancel": "취소",
 
   "profile.height": "키",
   "profile.weight": "몸무게",
