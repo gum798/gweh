@@ -777,7 +777,7 @@ export default function FashionTab() {
                 {result.accessories.map((item, i) => (
                   <span
                     key={i}
-                    className="px-4 py-2 bg-purple-500/10 rounded-full text-purple-300 text-sm border border-purple-500/20"
+                    className="px-4 py-2 bg-[var(--accent-10)] rounded-full text-[var(--accent)] text-sm border border-[var(--accent-20)]"
                   >
                     {item}
                   </span>

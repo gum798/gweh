@@ -12,8 +12,8 @@ interface ProfileModalProps {
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { t } = useTranslation('auth');
-  const { t: tc } = useTranslation();
-  const { user, resetPassword, deleteAccount, signOut } = useAuth();
+  const { t: tc, i18n } = useTranslation();
+  const { user, session, resetPassword, deleteAccount, signOut } = useAuth();
   const { isSubscribed, isTrialing, trialEndsAt, subscribe, cancelSubscription } = useSubscription();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -22,7 +22,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number; theme?: string } | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => (localStorage.getItem('theme') as ThemeKey) || 'cosmic');
-  const { session } = useAuth();
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -31,6 +30,13 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
+
+  // Body scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || !session?.access_token) return;
@@ -105,7 +111,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-md bg-[var(--bg-panel-solid)] border border-[var(--accent-30)] rounded-2xl p-6 shadow-[0_0_40px_var(--accent-20)]"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-[var(--bg-panel-solid)] border border-[var(--accent-30)] rounded-2xl p-6 shadow-[0_0_40px_var(--accent-20)]"
         onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-white/40 hover:text-white/80 text-xl">
@@ -224,7 +230,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                     style={{ background: th['--accent'] }}
                   />
                   <span className={`text-xs font-medium ${isActive ? 'text-white' : 'text-white/60'}`}>
-                    {th.nameKo}
+                    {i18n.language === 'ko' ? th.nameKo : th.name}
                   </span>
                 </button>
               );

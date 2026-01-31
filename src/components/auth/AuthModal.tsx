@@ -26,6 +26,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
+  // Body scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,7 +177,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <p className="text-white/40">
               <button
                 onClick={() => { setMode('login'); setError(''); setMessage(''); }}
-                className="text-[var(--accent)] hover:text-[var(--accent)] font-semibold"
+                className="text-[var(--accent)] hover:underline font-semibold"
               >
                 {t('backToLogin')}
               </button>
@@ -181,7 +188,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {mode === 'login' ? t('switchToSignup') : t('switchToLogin')}{' '}
                 <button
                   onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-                  className="text-[var(--accent)] hover:text-[var(--accent)] font-semibold"
+                  className="text-[var(--accent)] hover:underline font-semibold"
                 >
                   {mode === 'login' ? t('signup') : t('login')}
                 </button>

@@ -165,7 +165,7 @@ function App() {
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="text-xs text-[var(--accent)] hover:text-[var(--accent)] border border-[var(--accent-30)] hover:border-[var(--accent)]/60 min-h-[44px] px-3 flex items-center rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                className="text-xs text-[var(--accent)] hover:text-[var(--accent)] border border-[var(--accent-30)] hover:border-[var(--accent-50)] min-h-[44px] px-3 flex items-center rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
               >
                 {t('login')}
               </button>

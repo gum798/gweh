@@ -438,7 +438,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           </p>
           <button
             onClick={requestLocation}
-            className="text-[var(--accent)]/60 hover:text-[var(--accent)] text-xs transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded"
+            className="text-[var(--accent-50)] hover:text-[var(--accent)] text-xs transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded"
             aria-label={t('location.startButton')}
           >
             <span aria-hidden="true">📍</span>
@@ -455,7 +455,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
             <div className="flex items-center gap-2">
               <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[var(--accent)] to-purple-400 transition-all duration-1000"
+                  className="h-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-50)] transition-all duration-1000"
                   style={{ width: `${energy}%` }}
                 />
               </div>
@@ -640,9 +640,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                 </div>
                 <p className="text-white/60 text-sm mb-3">오늘의 에너지에 맞는 스타일을 추천해드립니다. 보라색 계열의 색상이 오늘의 기운과 잘 어울립니다.</p>
                 <div className="flex gap-2">
-                  <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">Purple</span>
-                  <span className="text-xs bg-blue-500/20 px-2 py-1 rounded text-blue-300">Navy</span>
-                  <span className="text-xs bg-gray-500/20 px-2 py-1 rounded text-gray-300">Silver</span>
+                  <span className="text-xs bg-[var(--accent-20)] px-2 py-1 rounded text-[var(--accent)]">Purple</span>
+                  <span className="text-xs bg-white/10 px-2 py-1 rounded text-white/60">Navy</span>
+                  <span className="text-xs bg-white/10 px-2 py-1 rounded text-white/40">Silver</span>
                 </div>
               </div>
               {/* Lock overlay */}

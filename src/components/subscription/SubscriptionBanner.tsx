@@ -110,7 +110,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
 
         {/* Glow effect */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-[var(--accent-20)] rounded-full blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[var(--accent-10)] rounded-full blur-2xl" />
 
         <div className="relative p-5">
           <div className="flex items-center gap-2 mb-3">
