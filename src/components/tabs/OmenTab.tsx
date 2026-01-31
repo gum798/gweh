@@ -1,17 +1,28 @@
-import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWeather } from '../../hooks/useWeather';
 import { useParallelData } from '../../hooks/useParallelData';
 import { useMoonPhase } from '../../hooks/useMoonPhase';
 import { generateOmen, getOverallEnergy, getEnergyLabel } from '../../utils/omenGenerator';
+import { useAuth } from '../../contexts/AuthContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
+import SubscriptionBanner from '../subscription/SubscriptionBanner';
 
 const DataPanel = lazy(() => import('../DataPanel'));
 
-export default function OmenTab() {
+interface OmenTabProps {
+  onLoginRequired: () => void;
+}
+
+export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   const { t, i18n } = useTranslation();
+  const { session } = useAuth();
+  const { isSubscribed, subscribe } = useSubscription();
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [showData, setShowData] = useState(false);
+  const [dailyStyle, setDailyStyle] = useState<any>(null);
+  const [styleLoading, setStyleLoading] = useState(false);
 
   const { data: weather, loading: weatherLoading, error: weatherError } = useWeather(
     location?.lat,
@@ -75,6 +86,41 @@ export default function OmenTab() {
     return generateOmen(weather, moon, earthquake);
   }, [weather, moon, earthquake]);
 
+  // Fetch daily style for subscribers
+  useEffect(() => {
+    if (!isSubscribed || !omen?.main?.message || !session?.access_token) return;
+    if (dailyStyle) return; // already fetched
+
+    const fetchStyle = async () => {
+      setStyleLoading(true);
+      try {
+        const energy = getOverallEnergy(weather!, moon!, earthquake!);
+        const energyInfo = getEnergyLabel(energy);
+        const res = await fetch('/api/daily-style', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            omenMessage: omen.main.message,
+            energy: energyInfo.label,
+            lang: i18n.language,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) setDailyStyle(data.data);
+        }
+      } catch (err) {
+        console.error('Daily style error:', err);
+      } finally {
+        setStyleLoading(false);
+      }
+    };
+    fetchStyle();
+  }, [isSubscribed, omen, session?.access_token]);
+
   const toggleShowData = useCallback(() => {
     setShowData(prev => !prev);
   }, []);
@@ -83,6 +129,7 @@ export default function OmenTab() {
   if (!location) {
     return (
       <div className="space-y-8">
+        <SubscriptionBanner onLoginRequired={onLoginRequired} />
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-2xl">
           <div
@@ -284,6 +331,90 @@ export default function OmenTab() {
               </p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Daily Style - Premium */}
+      <section className="px-4">
+        <div className="max-w-md mx-auto">
+          {isSubscribed ? (
+            // Subscriber: show daily style
+            <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-lg">👔</span>
+                <h4 className="text-white font-bold text-sm">{t('sub.dailyStyleTitle')}</h4>
+                <span className="ml-auto text-[10px] text-[#5b13ec] bg-[#5b13ec]/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                  {t('sub.badge')}
+                </span>
+              </div>
+              {styleLoading ? (
+                <div className="text-center py-6">
+                  <div className="flex gap-1 justify-center mb-2">
+                    <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                  <p className="text-white/40 text-sm">{t('sub.loadingStyle')}</p>
+                </div>
+              ) : dailyStyle ? (
+                <div className="space-y-4">
+                  <p className="text-white/80 text-base italic">"{dailyStyle.headline}"</p>
+                  <p className="text-white/60 text-sm leading-relaxed">{dailyStyle.style}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-white/40 text-xs">{t('sub.styleColors')}:</span>
+                    {dailyStyle.colors?.map((color: string, i: number) => (
+                      <span key={i} className="text-[#5b13ec] text-xs bg-[#5b13ec]/10 px-2 py-0.5 rounded-full">
+                        {color}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+                    <div>
+                      <span className="text-white/40 text-xs block mb-1">{t('sub.styleItem')}</span>
+                      <span className="text-white text-sm">{dailyStyle.item}</span>
+                    </div>
+                    <div>
+                      <span className="text-white/40 text-xs block mb-1">{t('sub.styleTip')}</span>
+                      <span className="text-white text-sm">{dailyStyle.tip}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            // Non-subscriber: locked preview with blur
+            <div className="relative overflow-hidden rounded-2xl border border-white/10">
+              {/* Blurred fake content */}
+              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-lg">👔</span>
+                  <span className="text-white font-bold text-sm">{t('sub.dailyStyleTitle')}</span>
+                </div>
+                <p className="text-white/60 text-sm mb-3">오늘의 에너지에 맞는 스타일을 추천해드립니다. 보라색 계열의 색상이 오늘의 기운과 잘 어울립니다.</p>
+                <div className="flex gap-2">
+                  <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">Purple</span>
+                  <span className="text-xs bg-blue-500/20 px-2 py-1 rounded text-blue-300">Navy</span>
+                  <span className="text-xs bg-gray-500/20 px-2 py-1 rounded text-gray-300">Silver</span>
+                </div>
+              </div>
+              {/* Lock overlay */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(91,19,236,0.3)]">
+                  <span className="text-xl">🔒</span>
+                </div>
+                <p className="text-white/70 text-sm font-medium mb-1">{t('sub.locked')}</p>
+                <button
+                  onClick={() => {
+                    if (!session) { onLoginRequired(); return; }
+                    subscribe();
+                  }}
+                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)]"
+                >
+                  {t('sub.unlockStyle')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

@@ -33,6 +33,10 @@ function App() {
     setActiveTab(tab);
   }, []);
 
+  const openAuthModal = useCallback(() => {
+    setAuthModalOpen(true);
+  }, []);
+
   const renderTab = () => {
     const fallback = (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -50,7 +54,7 @@ function App() {
       case 'omen':
         return (
           <Suspense fallback={fallback}>
-            <OmenTab />
+            <OmenTab onLoginRequired={openAuthModal} />
           </Suspense>
         );
       case 'face':

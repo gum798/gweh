@@ -148,5 +148,26 @@
   "saju.newReading": "새로 보기",
 
   "fashion.errorAnalysis": "AI 분석 중 오류가 발생했습니다.",
-  "fashion.errorGeneric": "분석 중 오류가 발생했습니다."
+  "fashion.errorGeneric": "분석 중 오류가 발생했습니다.",
+
+  "sub.badge": "DAILY MYSTIC",
+  "sub.headline": "매일 아침, 당신만의 운세와 스타일을 놓치고 있어요",
+  "sub.description": "오늘의 기운에 맞는 괘와 스타일 추천을 매일 받아보세요. 이미 많은 분들이 하루를 Mystic AI와 시작하고 있어요.",
+  "sub.dailyPrice": "하루 약 ₩450",
+  "sub.feature1": "매일 개인 맞춤 괘 + 스타일 추천",
+  "sub.feature2": "AI 기반 오늘의 컬러 & 아이템 가이드",
+  "sub.feature3": "프리미엄 운세 상세 분석",
+  "sub.cta": "지금 구독하고 내일부터 시작하기",
+  "sub.urgency": "오늘의 운세가 {{time}} 후 바뀝니다",
+  "sub.locked": "구독자 전용 콘텐츠",
+  "sub.unlockStyle": "구독하고 오늘의 스타일 확인하기",
+  "sub.dailyStyleTitle": "오늘의 스타일 추천",
+  "sub.loadingStyle": "스타일을 읽는 중...",
+  "sub.styleColors": "추천 컬러",
+  "sub.styleItem": "포인트 아이템",
+  "sub.styleTip": "스타일 팁",
+  "sub.subscriptionStatus": "구독 상태",
+  "sub.active": "구독 중",
+  "sub.inactive": "미구독",
+  "sub.subscribeNow": "구독하기"
 }

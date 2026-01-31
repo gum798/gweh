@@ -138,5 +138,26 @@
   "saju.newReading": "New Reading",
 
   "fashion.errorAnalysis": "An error occurred during AI analysis.",
-  "fashion.errorGeneric": "An error occurred during analysis."
+  "fashion.errorGeneric": "An error occurred during analysis.",
+
+  "sub.badge": "DAILY MYSTIC",
+  "sub.headline": "You're missing your daily fortune & style guide",
+  "sub.description": "Get personalized oracle readings and style recommendations every morning. Join the many who start their day with Mystic AI.",
+  "sub.dailyPrice": "~$0.33/day",
+  "sub.feature1": "Daily personalized oracle + style recommendation",
+  "sub.feature2": "AI-powered color & item guide for the day",
+  "sub.feature3": "Premium detailed fortune analysis",
+  "sub.cta": "Subscribe now and start tomorrow",
+  "sub.urgency": "Today's fortune changes in {{time}}",
+  "sub.locked": "Subscribers only",
+  "sub.unlockStyle": "Subscribe to unlock today's style",
+  "sub.dailyStyleTitle": "Today's Style Recommendation",
+  "sub.loadingStyle": "Reading your style...",
+  "sub.styleColors": "Recommended Colors",
+  "sub.styleItem": "Key Item",
+  "sub.styleTip": "Style Tip",
+  "sub.subscriptionStatus": "Subscription",
+  "sub.active": "Active",
+  "sub.inactive": "Inactive",
+  "sub.subscribeNow": "Subscribe"
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -9,7 +10,9 @@ interface ProfileModalProps {
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { t } = useTranslation('auth');
+  const { t: tc } = useTranslation();
   const { user, resetPassword, deleteAccount, signOut } = useAuth();
+  const { isSubscribed, subscribe } = useSubscription();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -68,6 +71,19 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <div className="flex justify-between items-center">
               <span className="text-white/50 text-sm">{t('loginMethod')}</span>
               <span className="text-white text-sm">{loginMethod}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-white/50 text-sm">{tc('sub.subscriptionStatus')}</span>
+              {isSubscribed ? (
+                <span className="text-[#5b13ec] text-sm font-medium">{tc('sub.active')}</span>
+              ) : (
+                <button
+                  onClick={() => subscribe()}
+                  className="text-[#5b13ec] text-sm font-medium hover:underline"
+                >
+                  {tc('sub.inactive')} · {tc('sub.subscribeNow')}
+                </button>
+              )}
             </div>
           </div>
         </div>
