@@ -41,6 +41,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       setLoading(true);
       setFortuneLoading(true);
 
+      let fortuneLoaded = false;
+
       // 1. daily-reading에서 캐시된 모든 데이터 가져오기 (구독자)
       if (isSubscribed) {
         try {
@@ -53,7 +55,10 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
               setDailyReading(reading);
               if (reading.style_data) setDailyStyle(reading.style_data);
               if (reading.energy_score != null) setEnergyLabel(getEnergyLabel(reading.energy_score));
-              if (reading.fortune_data) setFortune(reading.fortune_data);
+              if (reading.fortune_data) {
+                setFortune(reading.fortune_data);
+                fortuneLoaded = true;
+              }
             }
           }
         } catch {}
@@ -61,7 +66,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       setLoading(false);
 
       // 2. 운세가 아직 없으면 프로필에서 생년 가져와 fortune API 호출
-      if (!fortune) {
+      if (!fortuneLoaded) {
         try {
           const profileRes = await fetch('/api/profile', {
             headers: { Authorization: `Bearer ${session.access_token}` },
