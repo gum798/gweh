@@ -83,7 +83,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const res = await supabaseRest(
       context.env,
-      'user_profiles',
+      'user_profiles?on_conflict=user_id',
       {
         method: 'POST',
         body: JSON.stringify(profileData),
