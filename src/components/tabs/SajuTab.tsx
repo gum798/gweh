@@ -257,7 +257,7 @@ export default function SajuTab() {
       <section className="px-4">
         <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl">🐉</span>
+            <span className="text-3xl">{{ '쥐': '🐀', '소': '🐂', '호랑이': '🐅', '토끼': '🐇', '용': '🐉', '뱀': '🐍', '말': '🐎', '양': '🐏', '원숭이': '🐒', '닭': '🐓', '개': '🐕', '돼지': '🐖' }[zodiac] || '🐉'}</span>
             <div>
               <p className="text-[#5b13ec] text-xs uppercase tracking-widest">{t('zodiac')}</p>
               <p className="text-white font-bold text-lg">{tc('saju.zodiacSuffix', { zodiac })}</p>
