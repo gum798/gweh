@@ -33,66 +33,61 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const [dailyStyle, setDailyStyle] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // daily-reading에서 스타일 + 괘 데이터 가져오기 (구독자)
-  useEffect(() => {
-    if (!isSubscribed || !session?.access_token) return;
-
-    const fetchDailyReading = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/daily-reading', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-        if (res.ok) {
-          const { reading } = await res.json();
-          if (reading) {
-            setDailyReading(reading);
-            if (reading.style_data) setDailyStyle(reading.style_data);
-            if (reading.energy_score != null) {
-              setEnergyLabel(getEnergyLabel(reading.energy_score));
-            }
-          }
-        }
-      } catch {}
-      setLoading(false);
-    };
-
-    fetchDailyReading();
-  }, [isSubscribed, session?.access_token]);
-
-  // 프로필에서 생년 가져와서 운세 API 직접 호출
+  // 모든 데이터를 한 번에 가져오기
   useEffect(() => {
     if (!session?.access_token) return;
 
-    const fetchFortune = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       setFortuneLoading(true);
-      try {
-        // 프로필에서 생년 가져오기
-        const profileRes = await fetch('/api/profile', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-        const profileData = await profileRes.json();
-        const birthDate = profileData.profile?.birth_date;
-        if (!birthDate) { setFortuneLoading(false); return; }
 
-        const year = birthDate.split('-')[0];
+      // 1. daily-reading에서 캐시된 모든 데이터 가져오기 (구독자)
+      if (isSubscribed) {
+        try {
+          const res = await fetch('/api/daily-reading', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (res.ok) {
+            const { reading } = await res.json();
+            if (reading) {
+              setDailyReading(reading);
+              if (reading.style_data) setDailyStyle(reading.style_data);
+              if (reading.energy_score != null) setEnergyLabel(getEnergyLabel(reading.energy_score));
+              if (reading.fortune_data) setFortune(reading.fortune_data);
+            }
+          }
+        } catch {}
+      }
+      setLoading(false);
 
-        // 운세 API 호출
-        const fortuneRes = await fetch('/api/fortune', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ birth_date: year }),
-        });
-        const fortuneData = await fortuneRes.json();
-        if (fortuneData.success) {
-          setFortune(fortuneData.fortune);
-        }
-      } catch {}
+      // 2. 운세가 아직 없으면 프로필에서 생년 가져와 fortune API 호출
+      if (!fortune) {
+        try {
+          const profileRes = await fetch('/api/profile', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          const profileData = await profileRes.json();
+          const birthDate = profileData.profile?.birth_date;
+          if (birthDate) {
+            const year = birthDate.split('-')[0];
+            const fortuneRes = await fetch('/api/fortune', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ birth_date: year }),
+            });
+            const fortuneData = await fortuneRes.json();
+            if (fortuneData.success) setFortune(fortuneData.fortune);
+          }
+        } catch {}
+      }
       setFortuneLoading(false);
     };
 
-    fetchFortune();
-  }, [session?.access_token]);
+    fetchAllData();
+  }, [session?.access_token, isSubscribed]);
 
   const today = new Date();
   const locale = i18n.language === 'ko' ? 'ko-KR' : 'en-US';

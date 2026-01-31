@@ -38,6 +38,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!userRes.ok) {
       return Response.json({ error: 'Invalid token' }, { status: 401, headers: corsHeaders });
     }
+    const user = await userRes.json() as { id: string };
 
     const { birth_date, birth_hour, omen_message, energy_label, lang, height, weight } =
       await context.request.json() as RequestBody;
@@ -45,6 +46,36 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!birth_date || !omen_message) {
       return Response.json({ error: 'Missing required fields' }, { status: 400, headers: corsHeaders });
     }
+
+    // 사용자 위치 기반 로컬 날짜 계산
+    let localDate: string;
+    try {
+      const profileRes = await fetch(
+        `${context.env.SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${user.id}&select=last_lon`,
+        { headers: { 'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+      );
+      const profiles = await profileRes.json() as { last_lon?: number }[];
+      const lon = profiles?.[0]?.last_lon ?? 126.978;
+      const now = new Date();
+      const offsetMs = Math.round(lon / 15) * 60 * 60 * 1000;
+      localDate = new Date(now.getTime() + offsetMs).toISOString().split('T')[0];
+    } catch {
+      localDate = new Date().toISOString().split('T')[0];
+    }
+
+    // DB 캐시 확인
+    try {
+      const cacheRes = await fetch(
+        `${context.env.SUPABASE_URL}/rest/v1/daily_readings?user_id=eq.${user.id}&reading_date=eq.${localDate}&select=personal_omen_data`,
+        { headers: { 'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+      );
+      if (cacheRes.ok) {
+        const rows = await cacheRes.json() as { personal_omen_data?: any }[];
+        if (rows?.[0]?.personal_omen_data) {
+          return Response.json({ success: true, data: rows[0].personal_omen_data }, { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+      }
+    } catch {}
 
     const today = new Date();
     const todayStr = today.toLocaleDateString('ko-KR', {
@@ -166,6 +197,22 @@ JSON 형식만 반환:
     if (!height || !weight) {
       result.health_advice = '';
     }
+
+    // DB에 캐시 저장 (upsert)
+    fetch(`${context.env.SUPABASE_URL}/rest/v1/daily_readings`, {
+      method: 'POST',
+      headers: {
+        'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        reading_date: localDate,
+        personal_omen_data: result,
+      }),
+    }).catch(err => console.error('Personal omen cache save error:', err));
 
     return Response.json({ success: true, data: result }, { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (error) {

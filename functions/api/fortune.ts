@@ -1,5 +1,7 @@
 interface Env {
   GEMINI_API_KEY: string;
+  SUPABASE_URL: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
 type PagesFunction<E = unknown> = (context: {
@@ -8,11 +10,37 @@ type PagesFunction<E = unknown> = (context: {
   params: Record<string, string>;
 }) => Response | Promise<Response>;
 
+// 사용자 ID와 오늘 날짜 기준 로컬 날짜를 구하는 헬퍼
+async function getUserAndDate(env: Env, accessToken: string): Promise<{ userId: string; localDate: string } | null> {
+  try {
+    const userRes = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'apikey': env.SUPABASE_SERVICE_ROLE_KEY },
+    });
+    if (!userRes.ok) return null;
+    const user = await userRes.json() as { id: string };
+
+    // 사용자 위치 기반 로컬 날짜
+    const profileRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${user.id}&select=last_lon`,
+      { headers: { 'apikey': env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` } }
+    );
+    const profiles = await profileRes.json() as { last_lon?: number }[];
+    const lon = profiles?.[0]?.last_lon ?? 126.978;
+    const now = new Date();
+    const offsetMs = Math.round(lon / 15) * 60 * 60 * 1000;
+    const localDate = new Date(now.getTime() + offsetMs).toISOString().split('T')[0];
+
+    return { userId: user.id, localDate };
+  } catch {
+    return null;
+  }
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   try {
@@ -23,6 +51,31 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // 인증된 사용자면 DB 캐시 확인
+    const authHeader = context.request.headers.get('Authorization');
+    const accessToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    let userInfo: { userId: string; localDate: string } | null = null;
+
+    if (accessToken && context.env.SUPABASE_URL) {
+      userInfo = await getUserAndDate(context.env, accessToken);
+
+      if (userInfo) {
+        // DB에서 오늘 캐시 확인
+        const cacheRes = await fetch(
+          `${context.env.SUPABASE_URL}/rest/v1/daily_readings?user_id=eq.${userInfo.userId}&reading_date=eq.${userInfo.localDate}&select=fortune_data`,
+          { headers: { 'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+        );
+        if (cacheRes.ok) {
+          const rows = await cacheRes.json() as { fortune_data?: any }[];
+          if (rows?.[0]?.fortune_data) {
+            return new Response(JSON.stringify({ success: true, fortune: rows[0].fortune_data }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+        }
+      }
     }
 
     const today = new Date();
@@ -97,6 +150,24 @@ JSON 형식만 반환:
 
     const fortune = JSON.parse(text);
 
+    // 인증된 사용자면 DB에 캐시 저장 (upsert)
+    if (userInfo && context.env.SUPABASE_URL) {
+      fetch(`${context.env.SUPABASE_URL}/rest/v1/daily_readings`, {
+        method: 'POST',
+        headers: {
+          'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates',
+        },
+        body: JSON.stringify({
+          user_id: userInfo.userId,
+          reading_date: userInfo.localDate,
+          fortune_data: fortune,
+        }),
+      }).catch(err => console.error('Fortune cache save error:', err));
+    }
+
     return new Response(JSON.stringify({ success: true, fortune }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -115,7 +186,7 @@ export const onRequestOptions: PagesFunction = async () => {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   });
 };
