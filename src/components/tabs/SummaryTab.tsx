@@ -27,65 +27,72 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const { isSubscribed, subscribe } = useSubscription();
 
   const [fortune, setFortune] = useState<FortuneResult | null>(null);
-  const [personalOmen, setPersonalOmen] = useState<any>(null);
+  const [fortuneLoading, setFortuneLoading] = useState(false);
+  const [dailyReading, setDailyReading] = useState<any>(null);
   const [energyLabel, setEnergyLabel] = useState<{ label: string; color: string } | null>(null);
   const [dailyStyle, setDailyStyle] = useState<any>(null);
-  const [styleLoading, setStyleLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // 운세 캐시
-    try {
-      const raw = localStorage.getItem('mystic_fortune_cache');
-      if (raw) {
-        const cached = JSON.parse(raw);
-        const today = new Date().toISOString().split('T')[0];
-        if (cached.date === today && cached.fortune) {
-          setFortune(cached.fortune);
-        }
-      }
-    } catch {}
-
-    // 개인 맞춤 괘 캐시
-    try {
-      const raw = localStorage.getItem('personal_omen_cache');
-      if (raw) {
-        const cached = JSON.parse(raw);
-        const today = new Date().toISOString().split('T')[0];
-        if (cached.date === today && cached.data) {
-          setPersonalOmen(cached.data);
-          if (cached.energy_label) {
-            const labelMap: Record<string, number> = { '대길': 90, '길': 70, '평': 50, '소흉': 30, '흉': 10 };
-            const enLabelMap: Record<string, number> = { 'Excellent': 90, 'Good': 70, 'Neutral': 50, 'Caution': 30, 'Be Careful': 10 };
-            const score = labelMap[cached.energy_label] ?? enLabelMap[cached.energy_label] ?? 50;
-            setEnergyLabel(getEnergyLabel(score));
-          }
-        }
-      }
-    } catch {}
-  }, []);
-
-  // 스타일 데이터 가져오기 (구독자만)
+  // daily-reading에서 스타일 + 괘 데이터 가져오기 (구독자)
   useEffect(() => {
     if (!isSubscribed || !session?.access_token) return;
 
-    const fetchStyle = async () => {
-      setStyleLoading(true);
+    const fetchDailyReading = async () => {
+      setLoading(true);
       try {
         const res = await fetch('/api/daily-reading', {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
         if (res.ok) {
           const { reading } = await res.json();
-          if (reading?.style_data) {
-            setDailyStyle(reading.style_data);
+          if (reading) {
+            setDailyReading(reading);
+            if (reading.style_data) setDailyStyle(reading.style_data);
+            if (reading.energy_score != null) {
+              setEnergyLabel(getEnergyLabel(reading.energy_score));
+            }
           }
         }
       } catch {}
-      setStyleLoading(false);
+      setLoading(false);
     };
 
-    fetchStyle();
+    fetchDailyReading();
   }, [isSubscribed, session?.access_token]);
+
+  // 프로필에서 생년 가져와서 운세 API 직접 호출
+  useEffect(() => {
+    if (!session?.access_token) return;
+
+    const fetchFortune = async () => {
+      setFortuneLoading(true);
+      try {
+        // 프로필에서 생년 가져오기
+        const profileRes = await fetch('/api/profile', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const profileData = await profileRes.json();
+        const birthDate = profileData.profile?.birth_date;
+        if (!birthDate) { setFortuneLoading(false); return; }
+
+        const year = birthDate.split('-')[0];
+
+        // 운세 API 호출
+        const fortuneRes = await fetch('/api/fortune', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ birth_date: year }),
+        });
+        const fortuneData = await fortuneRes.json();
+        if (fortuneData.success) {
+          setFortune(fortuneData.fortune);
+        }
+      } catch {}
+      setFortuneLoading(false);
+    };
+
+    fetchFortune();
+  }, [session?.access_token]);
 
   const today = new Date();
   const locale = i18n.language === 'ko' ? 'ko-KR' : 'en-US';
@@ -96,7 +103,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     weekday: 'long',
   });
 
-  const hasAnyData = fortune || personalOmen || dailyStyle;
+  const hasAnyData = fortune || dailyReading || dailyStyle;
+  const isLoading = loading || fortuneLoading;
 
   const getLevelStyle = (level: string) => {
     const l = level.toLowerCase();
@@ -164,8 +172,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     );
   }
 
-  // 구독자: 데이터 없으면 안내 (스타일 로딩 중이면 대기)
-  if (!hasAnyData && !styleLoading) {
+  // 구독자: 데이터 없으면 안내 (로딩 중이면 대기)
+  if (!hasAnyData && !isLoading) {
     return (
       <div className="space-y-6 pb-8">
         <div className="text-center pt-4">
@@ -201,14 +209,14 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       </section>
 
       {/* 1. 스타일 추천 */}
-      {(dailyStyle || styleLoading) && (
+      {(dailyStyle || loading) && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">👔</span>
               <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
             </div>
-            {styleLoading ? (
+            {loading && !dailyStyle ? (
               <div className="text-center py-4">
                 <div className="flex gap-1 justify-center mb-2">
                   <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -246,53 +254,20 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       )}
 
       {/* 2. 에너지 + 괘 */}
-      {energyLabel && (
+      {(energyLabel || dailyReading?.omen_message) && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
             <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
-            <div className="text-center">
-              <span className={`text-3xl font-bold ${energyLabel.color}`}>{energyLabel.label}</span>
-            </div>
-            {personalOmen?.saju_reading && (
+            {energyLabel && (
+              <div className="text-center">
+                <span className={`text-3xl font-bold ${energyLabel.color}`}>{energyLabel.label}</span>
+              </div>
+            )}
+            {dailyReading?.omen_message && (
               <p className="text-white/60 text-sm leading-relaxed mt-4 text-center italic">
-                "{personalOmen.saju_reading}"
+                "{dailyReading.omen_message}"
               </p>
             )}
-          </div>
-        </section>
-      )}
-
-      {/* 2-1. 맞춤 조언 (괘) */}
-      {personalOmen && (
-        <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.personalAdvice')}</h4>
-            <div className="space-y-3">
-              {personalOmen.feng_shui_tip && (
-                <div className="bg-white/5 rounded-xl p-3">
-                  <span className="text-white text-xs font-bold">{t('omenTab.fengShuiTip')}</span>
-                  <p className="text-white/50 text-xs mt-1 leading-relaxed">{personalOmen.feng_shui_tip}</p>
-                </div>
-              )}
-              {personalOmen.health_advice && (
-                <div className="bg-white/5 rounded-xl p-3">
-                  <span className="text-white text-xs font-bold">{t('omenTab.healthAdvice')}</span>
-                  <p className="text-white/50 text-xs mt-1 leading-relaxed">{personalOmen.health_advice}</p>
-                </div>
-              )}
-              {personalOmen.lucky_item && (
-                <div className="bg-white/5 rounded-xl p-3">
-                  <span className="text-white text-xs font-bold">{t('omenTab.luckyItem')}</span>
-                  <p className="text-white/50 text-xs mt-1 leading-relaxed">{personalOmen.lucky_item}</p>
-                </div>
-              )}
-              {personalOmen.caution && (
-                <div className="bg-white/5 rounded-xl p-3">
-                  <span className="text-white text-xs font-bold">{t('omenTab.caution')}</span>
-                  <p className="text-white/50 text-xs mt-1 leading-relaxed">{personalOmen.caution}</p>
-                </div>
-              )}
-            </div>
           </div>
         </section>
       )}
