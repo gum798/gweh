@@ -56,6 +56,21 @@ export default function FortuneTab() {
       return;
     }
 
+    // 사주탭에서 저장한 생년월일의 연도 참고
+    try {
+      const sajuRaw = localStorage.getItem('mystic_saju_input');
+      if (sajuRaw) {
+        const sajuData = JSON.parse(sajuRaw);
+        if (sajuData.birthDate) {
+          const year = sajuData.birthDate.split('-')[0];
+          setBirthYear(year);
+          localStorage.setItem(BIRTH_YEAR_KEY, year);
+          setReady(true);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+
     if (!session?.access_token) {
       setReady(true);
       return;
