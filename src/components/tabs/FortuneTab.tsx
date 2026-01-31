@@ -108,30 +108,29 @@ export default function FortuneTab() {
     const cached = getCachedFortune(year);
     if (cached) {
       setResult(cached);
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
-      const res = await fetch('/api/fortune', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ birth_date: year }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setResult(data.fortune);
-        setCachedFortune(year, data.fortune);
-      } else {
-        setError(data.error || t('fortune.error'));
+    } else {
+      setLoading(true);
+      setError('');
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
+        const res = await fetch('/api/fortune', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ birth_date: year }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setResult(data.fortune);
+          setCachedFortune(year, data.fortune);
+        } else {
+          setError(data.error || t('fortune.error'));
+        }
+      } catch {
+        setError(t('fortune.error'));
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setError(t('fortune.error'));
-    } finally {
-      setLoading(false);
     }
 
     // Smart Persistence:
