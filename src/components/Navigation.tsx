@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 const tabs = [
   { id: 'omen', labelKey: 'nav.omen', icon: '☯️' },
-  { id: 'face', labelKey: 'nav.face', icon: '👁️' },
-  { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
-  { id: 'saju', labelKey: 'nav.saju', icon: '📅' },
   { id: 'fortune', labelKey: 'nav.fortune', icon: '🔮' },
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
+  { id: 'face', labelKey: 'nav.face', icon: '👁️' },
+  { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
 ];
 
 // rerender-memo: Memoize component to prevent re-renders when callback prop is stable
