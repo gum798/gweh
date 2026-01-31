@@ -8,6 +8,7 @@ interface SubscriptionContextType {
   loading: boolean;
   checkSubscription: () => Promise<void>;
   subscribe: () => Promise<void>;
+  cancelSubscription: () => Promise<boolean>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -87,8 +88,27 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.email]);
 
+  const cancelSubscription = useCallback(async () => {
+    if (!session?.access_token) return false;
+    try {
+      const res = await fetch('/api/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+      if (!res.ok) throw new Error('Failed to cancel subscription');
+      await checkSubscription(); // Refresh status
+      return true;
+    } catch (error) {
+      console.error('Cancel subscription error:', error);
+      return false;
+    }
+  }, [session?.access_token, checkSubscription]);
+
   return (
-    <SubscriptionContext.Provider value={{ isSubscribed, isTrialing, trialEndsAt, loading, checkSubscription, subscribe }}>
+    <SubscriptionContext.Provider value={{ isSubscribed, isTrialing, trialEndsAt, loading, checkSubscription, subscribe, cancelSubscription }}>
       {children}
     </SubscriptionContext.Provider>
   );

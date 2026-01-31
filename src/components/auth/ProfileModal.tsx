@@ -12,11 +12,12 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { t } = useTranslation('auth');
   const { t: tc } = useTranslation();
   const { user, resetPassword, deleteAccount, signOut } = useAuth();
-  const { isSubscribed, isTrialing, trialEndsAt, subscribe } = useSubscription();
+  const { isSubscribed, isTrialing, trialEndsAt, subscribe, cancelSubscription } = useSubscription();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number } | null>(null);
   const { session } = useAuth();
 
@@ -35,7 +36,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     })
       .then(r => r.json())
       .then(d => { if (d.profile) setProfile(d.profile); })
-      .catch(() => {});
+      .catch(() => { });
   }, [isOpen, session?.access_token]);
 
   if (!isOpen || !user) return null;
@@ -65,6 +66,20 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     } else {
       onClose();
     }
+  };
+
+  const handleCancelSubscription = async () => {
+    setError('');
+    setMessage('');
+    setSubmitting(true);
+    const success = await cancelSubscription();
+    if (success) {
+      setMessage(tc('sub.cancelSuccess')); // Assuming this key exists, or use literal
+      setShowCancelConfirm(false);
+    } else {
+      setError('Failed to cancel subscription');
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -127,6 +142,33 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                     <p className="text-white/30 text-xs mt-0.5">
                       {tc('sub.trialEnds', { date: new Date(trialEndsAt).toLocaleDateString() })}
                     </p>
+                  )}
+                  {!showCancelConfirm ? (
+                    <button
+                      onClick={() => setShowCancelConfirm(true)}
+                      className="text-white/40 hover:text-white/60 text-xs underline mt-1 block w-full text-right"
+                    >
+                      {tc('sub.cancelSubscription')}
+                    </button>
+                  ) : (
+                    <div className="mt-2 flex flex-col items-end gap-1 animate-fade-in">
+                      <p className="text-white/60 text-xs">{tc('sub.confirmCancel')}</p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowCancelConfirm(false)}
+                          className="px-2 py-1 text-xs text-white/40 hover:text-white/60"
+                        >
+                          {tc('cancel')}
+                        </button>
+                        <button
+                          onClick={handleCancelSubscription}
+                          disabled={submitting}
+                          className="px-2 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs rounded transition-colors disabled:opacity-50"
+                        >
+                          {tc('sub.confirmYes')}
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               ) : (
