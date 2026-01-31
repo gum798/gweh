@@ -164,7 +164,7 @@ function App() {
               </button>
             )}
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1">
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1 px-16">
             MYSTIC <span className="text-[#5b13ec]">AI</span>
           </h1>
           <p className="text-white/40 text-xs uppercase tracking-[0.3em]">
