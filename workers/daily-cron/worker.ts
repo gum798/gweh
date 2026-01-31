@@ -19,6 +19,7 @@ interface UserProfile {
   photo_url: string | null;
   last_lat: number | null;
   last_lon: number | null;
+  birth_date: string | null;
 }
 
 // 경도 기반 로컬 시각 계산 (경도 15° = 1시간)
@@ -237,7 +238,52 @@ async function generateStyleWithGemini(env: Env, omenMessage: string, energy: nu
   try { return JSON.parse(text); } catch { return null; }
 }
 
-async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number) {
+async function generateFortuneWithGemini(env: Env, birthYear: string): Promise<any> {
+  const yearNum = parseInt(birthYear, 10);
+  const zodiacAnimals = ['원숭이', '닭', '개', '돼지', '쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양'];
+  const zodiac = !isNaN(yearNum) ? zodiacAnimals[yearNum % 12] : '알 수 없음';
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+
+  const prompt = `당신은 동양 운세 전문가입니다. 띠별 운세를 기반으로 오늘의 운세를 작성하세요.
+
+사용자: ${birthYear}년생, ${zodiac}띠
+오늘: ${todayStr}
+
+JSON 형식만 반환:
+{
+  "level": "대길/길/평/소흉/흉 중 하나",
+  "overall": "전체 운세 (3-4문장)",
+  "love": "연애운 (1-2문장)",
+  "career": "직장/학업운 (1-2문장)",
+  "wealth": "금전운 (1-2문장)",
+  "health": "건강운 (1문장)",
+  "advice": "오늘의 조언 (1문장)",
+  "luckyColor": "행운의 색",
+  "luckyNumber": 숫자,
+  "luckyDirection": "방위"
+}`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${env.GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.9, maxOutputTokens: 1024, responseMimeType: 'application/json' },
+      }),
+    }
+  );
+
+  if (!res.ok) return null;
+  const data = await res.json() as any;
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) return null;
+  try { return JSON.parse(text); } catch { return null; }
+}
+
+async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number, fortuneData?: any) {
   const energyLabel = energy >= 80 ? '대길 ✨' : energy >= 60 ? '길 🌟' : energy >= 40 ? '평 ☯️' : energy >= 20 ? '소흉 ⚡' : '흉 🌙';
 
   const html = `
@@ -288,6 +334,23 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
           <span style="color:#fff;font-size:13px;">${styleData.tip}</span>
         </div>
       </div>
+    </div>
+    ` : ''}
+
+    ${fortuneData ? `
+    <!-- Fortune Card -->
+    <div style="background:rgba(34,25,51,0.8);border:1px solid rgba(91,19,236,0.3);border-radius:16px;padding:24px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <span style="font-size:20px;">🐲</span>
+        <span style="color:#fff;font-weight:bold;font-size:14px;">오늘의 띠별 운세</span>
+      </div>
+      <p style="color:rgba(255,255,255,0.8);font-size:15px;line-height:1.7;margin:0 0 12px;">${fortuneData.overall || ''}</p>
+      ${fortuneData.love ? `<div style="margin-top:8px;"><span style="color:#5b13ec;font-size:12px;">💕 연애:</span> <span style="color:rgba(255,255,255,0.6);font-size:13px;">${fortuneData.love}</span></div>` : ''}
+      ${fortuneData.wealth ? `<div style="margin-top:4px;"><span style="color:#5b13ec;font-size:12px;">💰 금전:</span> <span style="color:rgba(255,255,255,0.6);font-size:13px;">${fortuneData.wealth}</span></div>` : ''}
+      ${fortuneData.career ? `<div style="margin-top:4px;"><span style="color:#5b13ec;font-size:12px;">💼 직장:</span> <span style="color:rgba(255,255,255,0.6);font-size:13px;">${fortuneData.career}</span></div>` : ''}
+      ${fortuneData.health ? `<div style="margin-top:4px;"><span style="color:#5b13ec;font-size:12px;">🏥 건강:</span> <span style="color:rgba(255,255,255,0.6);font-size:13px;">${fortuneData.health}</span></div>` : ''}
+      ${fortuneData.advice ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);"><span style="color:rgba(255,255,255,0.4);font-size:11px;">💡 조언: </span><span style="color:rgba(255,255,255,0.7);font-size:13px;">${fortuneData.advice}</span></div>` : ''}
+      ${fortuneData.luckyNumber != null ? `<div style="margin-top:4px;"><span style="color:rgba(255,255,255,0.4);font-size:11px;">행운의 숫자: </span><span style="color:#5b13ec;font-size:13px;">${fortuneData.luckyNumber}</span> <span style="color:rgba(255,255,255,0.4);font-size:11px;margin-left:8px;">행운의 색: </span><span style="color:#5b13ec;font-size:13px;">${fortuneData.luckyColor || ''}</span></div>` : ''}
     </div>
     ` : ''}
 
@@ -363,7 +426,7 @@ async function runDailyCron(env: Env, forceAll = false) {
           const localDate = getLocalDate(lon, utcNow);
           const existingRes = await supabaseRest(
             env,
-            `daily_readings?user_id=eq.${userId}&reading_date=eq.${localDate}&select=id,omen_message,energy_score,style_data,email_sent`
+            `daily_readings?user_id=eq.${userId}&reading_date=eq.${localDate}&select=id,omen_message,energy_score,style_data,fortune_data,email_sent`
           );
           const existing = await existingRes.json() as any[];
           const row = existing?.[0];
@@ -386,6 +449,15 @@ async function runDailyCron(env: Env, forceAll = false) {
 
           if (!styleData) {
             styleData = await generateStyleWithGemini(env, omenMessage, energyScore ?? 50, weather, profile);
+            console.log(`Style generated for ${email}: ${styleData ? 'OK' : 'FAILED'}`);
+          }
+
+          // 8-1. Fortune 데이터
+          let fortuneData = row?.fortune_data;
+          if (!fortuneData && (profile as any)?.birth_date) {
+            const birthYear = (profile as any).birth_date.split('-')[0];
+            fortuneData = await generateFortuneWithGemini(env, birthYear);
+            console.log(`Fortune generated for ${email}: ${fortuneData ? 'OK' : 'FAILED'}`);
           }
 
           // 10. Save to daily_readings (upsert)
@@ -397,13 +469,14 @@ async function runDailyCron(env: Env, forceAll = false) {
               omen_message: omenMessage,
               energy_score: energyScore,
               style_data: styleData,
+              fortune_data: fortuneData,
               email_sent: true,
             }),
             headers: { 'Prefer': 'resolution=merge-duplicates' },
           });
 
           // 11. Send email
-          await sendEmail(env, email, omenMessage, styleData, energyScore ?? 50);
+          await sendEmail(env, email, omenMessage, styleData, energyScore ?? 50, fortuneData);
 
           processed++;
           console.log(`Sent to ${email} (local 06:00, lon=${lon})`);
