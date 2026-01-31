@@ -307,8 +307,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
   return res.ok;
 }
 
-export default {
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+async function runDailyCron(env: Env, forceAll = false) {
     const utcNow = new Date();
     console.log(`Hourly cron started: ${utcNow.toISOString()} (UTC ${utcNow.getUTCHours()}:00)`);
 
@@ -340,8 +339,8 @@ export default {
           const lat = profile?.last_lat ?? 37.5665;
           const localHour = getLocalHour(lon, utcNow);
 
-          // 로컬 시각이 6시가 아니면 스킵
-          if (localHour !== 6) {
+          // 로컬 시각이 6시가 아니면 스킵 (forceAll이면 무시)
+          if (!forceAll && localHour !== 6) {
             skipped++;
             continue;
           }
@@ -386,9 +385,30 @@ export default {
         }
       }
 
-      console.log(`Cron done: ${processed} sent, ${skipped} skipped (not 6AM local)`);
+      return `Done: ${processed} sent, ${skipped} skipped`;
     } catch (error) {
       console.error('Cron error:', error);
+      return `Error: ${error}`;
     }
+}
+
+export default {
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    await runDailyCron(env, false);
+  },
+
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const url = new URL(request.url);
+
+    // /test?force=true 로 수동 테스트 (시간 체크 무시)
+    if (url.pathname === '/test') {
+      const forceAll = url.searchParams.get('force') === 'true';
+      const result = await runDailyCron(env, forceAll);
+      return new Response(JSON.stringify({ result }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response('Mystic Daily Cron Worker', { status: 200 });
   },
 };
