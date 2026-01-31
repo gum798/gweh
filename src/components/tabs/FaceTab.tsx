@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import CameraCapture from '../camera/CameraCapture';
 import { useFaceDetection } from '../../hooks/useFaceDetection';
@@ -6,16 +6,34 @@ import { analyzeSkinTone, getPersonalColorOmen, colorTips } from '../../utils/pe
 import { analyzeFaceFeatures, interpretPhysiognomy } from '../../utils/physiognomy';
 import { useAuth } from '../../contexts/AuthContext';
 
+const R2_BASE = 'https://pub-f912e0aa955046d390bf74abcc03725b.r2.dev';
+
 export default function FaceTab() {
   const { t } = useTranslation('face');
   const { t: tc } = useTranslation();
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const [mode, setMode] = useState('select');
   const [analysisType, setAnalysisType] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
+  const [previousPhotoUrl, setPreviousPhotoUrl] = useState<string | null>(null);
+  const [loadingPrevious, setLoadingPrevious] = useState(false);
 
   const { detectFace, isLoading, error } = useFaceDetection();
+
+  // Check for previous face photo in R2
+  useEffect(() => {
+    if (!user?.id) {
+      setPreviousPhotoUrl(null);
+      return;
+    }
+    const url = `${R2_BASE}/profiles/${user.id}/face.jpg`;
+    fetch(url, { method: 'HEAD' })
+      .then(res => {
+        setPreviousPhotoUrl(res.ok ? `${url}?t=${Date.now()}` : null);
+      })
+      .catch(() => setPreviousPhotoUrl(null));
+  }, [user?.id]);
 
   const handleModeSelect = (type) => {
     setAnalysisType(type);
@@ -55,7 +73,7 @@ export default function FaceTab() {
       setMode('result');
 
       // Save face photo to R2
-      if (session?.access_token) {
+      if (session?.access_token && user?.id) {
         fetch('/api/upload-photo', {
           method: 'POST',
           headers: {
@@ -63,12 +81,34 @@ export default function FaceTab() {
             'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ image: imageSrc, type: 'face' }),
+        }).then(() => {
+          setPreviousPhotoUrl(`${R2_BASE}/profiles/${user.id}/face.jpg?t=${Date.now()}`);
         }).catch(() => {});
       }
     } else {
       setMode('capture');
     }
   }, [detectFace, analysisType, session?.access_token]);
+
+  const handleUsePreviousPhoto = useCallback(async (type: string) => {
+    if (!previousPhotoUrl) return;
+    setAnalysisType(type);
+    setLoadingPrevious(true);
+    try {
+      const res = await fetch(previousPhotoUrl);
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLoadingPrevious(false);
+        handleCapture(reader.result as string);
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      setLoadingPrevious(false);
+      setAnalysisType(type);
+      setMode('capture');
+    }
+  }, [previousPhotoUrl, handleCapture]);
 
   const handleReset = () => {
     setMode('select');
@@ -101,10 +141,49 @@ export default function FaceTab() {
           </div>
         </section>
 
+        {/* Previous Photo */}
+        {previousPhotoUrl && (
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.previousPhoto')}</span>
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src={previousPhotoUrl}
+                  alt="Previous face"
+                  className="w-20 h-20 rounded-xl object-cover border border-white/10"
+                />
+                <p className="text-white/50 text-sm flex-1">{tc('face.previousPhotoDesc')}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => handleUsePreviousPhoto('personalColor')}
+                  className="py-2.5 bg-[#5b13ec]/20 hover:bg-[#5b13ec]/40 rounded-xl text-white/80 text-xs font-medium transition-colors"
+                >
+                  🎨 {tc('face.personalColor')}
+                </button>
+                <button
+                  onClick={() => handleUsePreviousPhoto('physiognomy')}
+                  className="py-2.5 bg-[#5b13ec]/20 hover:bg-[#5b13ec]/40 rounded-xl text-white/80 text-xs font-medium transition-colors"
+                >
+                  👤 {tc('face.physiognomy')}
+                </button>
+                <button
+                  onClick={() => handleUsePreviousPhoto('both')}
+                  className="py-2.5 bg-[#5b13ec]/30 hover:bg-[#5b13ec]/50 rounded-xl text-white text-xs font-bold transition-colors"
+                >
+                  ✨ {tc('face.completeAnalysis')}
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Analysis Type Selection */}
         <section className="px-4 space-y-4">
           <div className="text-center mb-6">
-            <h3 className="text-white text-xl font-bold tracking-tight pb-1">{tc('face.chooseAnalysis')}</h3>
+            <h3 className="text-white text-xl font-bold tracking-tight pb-1">{previousPhotoUrl ? tc('face.newPhotoAnalysis') : tc('face.chooseAnalysis')}</h3>
             <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
           </div>
 
@@ -195,7 +274,7 @@ export default function FaceTab() {
   }
 
   // 분석 중 화면
-  if (mode === 'analyzing' || isLoading) {
+  if (loadingPrevious || mode === 'analyzing' || isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">

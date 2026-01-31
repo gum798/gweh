@@ -113,6 +113,9 @@
   "face.bestColors": "Best Colors",
   "face.avoidColors": "Avoid",
   "face.newAnalysis": "New Analysis",
+  "face.previousPhoto": "Previous Photo",
+  "face.previousPhotoDesc": "Re-analyze with your previously saved photo",
+  "face.newPhotoAnalysis": "Analyze with New Photo",
 
   "palm.heroTitle1": "Lines of",
   "palm.heroTitle2": "Destiny",

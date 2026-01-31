@@ -123,6 +123,9 @@
   "face.bestColors": "추천 컬러",
   "face.avoidColors": "피할 컬러",
   "face.newAnalysis": "새로 분석하기",
+  "face.previousPhoto": "이전 사진",
+  "face.previousPhotoDesc": "이전에 분석한 사진으로 다시 분석할 수 있습니다",
+  "face.newPhotoAnalysis": "새 사진으로 분석",
 
   "palm.heroTitle1": "Lines of",
   "palm.heroTitle2": "Destiny",
