@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   photo_url TEXT,
   last_lat DECIMAL,
   last_lon DECIMAL,
+  birth_date DATE,
+  birth_hour INTEGER,
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 

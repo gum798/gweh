@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ELEMENT_COLORS = {
   목: 'text-green-400',
@@ -22,6 +23,7 @@ const ELEMENT_BG = {
 export default function SajuTab() {
   const { t } = useTranslation('saju');
   const { t: tc } = useTranslation();
+  const { session } = useAuth();
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
@@ -47,7 +49,19 @@ export default function SajuTab() {
     const interpretation = interpretSaju(saju);
 
     setResult(interpretation);
-  }, [birthDate, birthHour]);
+
+    // Save birth data to profile
+    if (session?.access_token) {
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ birth_date: birthDate, birth_hour: hour }),
+      }).catch(() => {});
+    }
+  }, [birthDate, birthHour, session?.access_token]);
 
   const handleReset = useCallback(() => {
     setResult(null);

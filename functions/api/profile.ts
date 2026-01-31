@@ -68,6 +68,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       photo_url?: string;
       last_lat?: number;
       last_lon?: number;
+      birth_date?: string;
+      birth_hour?: number;
     };
 
     // Upsert profile
@@ -80,6 +82,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (body.photo_url !== undefined) profileData.photo_url = body.photo_url;
     if (body.last_lat !== undefined) profileData.last_lat = body.last_lat;
     if (body.last_lon !== undefined) profileData.last_lon = body.last_lon;
+    if (body.birth_date !== undefined) profileData.birth_date = body.birth_date;
+    if (body.birth_hour !== undefined) profileData.birth_hour = body.birth_hour;
 
     const res = await supabaseRest(
       context.env,
