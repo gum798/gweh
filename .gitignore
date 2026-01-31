@@ -30,6 +30,7 @@ dist-ssr
 
 # Wrangler (Cloudflare local dev)
 .wrangler/
+.dev.vars
 
 # Local docs & secrets
 polar.txt
