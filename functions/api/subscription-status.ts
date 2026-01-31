@@ -38,8 +38,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       ? 'https://sandbox-api.polar.sh'
       : 'https://api.polar.sh';
 
+    // Fetch subscriptions and filter by status (active or trialing)
     const subsRes = await fetch(
-      `${apiBaseUrl}/v1/subscriptions/?customer_email=${encodeURIComponent(user.email)}&active=true&limit=1`,
+      `${apiBaseUrl}/v1/subscriptions/?customer_email=${encodeURIComponent(user.email)}&limit=10`,
       {
         headers: {
           'Authorization': `Bearer ${polarToken}`,
@@ -49,13 +50,18 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     if (!subsRes.ok) {
       console.error('Polar subscription check error:', await subsRes.text());
-      return Response.json({ subscribed: false }, { status: 200 });
+      return Response.json({ subscribed: false, trialing: false }, { status: 200 });
     }
 
     const subsData = await subsRes.json() as { items: any[] };
-    const isSubscribed = subsData.items && subsData.items.length > 0;
+    const activeSub = subsData.items?.find(
+      (s: any) => s.status === 'active' || s.status === 'trialing'
+    );
+    const isSubscribed = !!activeSub;
+    const isTrialing = activeSub?.status === 'trialing';
+    const trialEndsAt = activeSub?.trial_end || null;
 
-    return Response.json({ subscribed: isSubscribed }, {
+    return Response.json({ subscribed: isSubscribed, trialing: isTrialing, trialEndsAt }, {
       headers: {
         'Access-Control-Allow-Origin': context.request.headers.get('origin') || '*',
       },

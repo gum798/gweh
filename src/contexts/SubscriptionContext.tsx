@@ -3,6 +3,8 @@ import { useAuth } from './AuthContext';
 
 interface SubscriptionContextType {
   isSubscribed: boolean;
+  isTrialing: boolean;
+  trialEndsAt: string | null;
   loading: boolean;
   checkSubscription: () => Promise<void>;
   subscribe: () => Promise<void>;
@@ -13,11 +15,15 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const { session, user } = useAuth();
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isTrialing, setIsTrialing] = useState(false);
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const checkSubscription = useCallback(async () => {
     if (!session?.access_token) {
       setIsSubscribed(false);
+      setIsTrialing(false);
+      setTrialEndsAt(null);
       return;
     }
 
@@ -28,8 +34,12 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       });
       const data = await res.json();
       setIsSubscribed(data.subscribed === true);
+      setIsTrialing(data.trialing === true);
+      setTrialEndsAt(data.trialEndsAt || null);
     } catch {
       setIsSubscribed(false);
+      setIsTrialing(false);
+      setTrialEndsAt(null);
     } finally {
       setLoading(false);
     }
@@ -72,7 +82,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   }, [user?.email]);
 
   return (
-    <SubscriptionContext.Provider value={{ isSubscribed, loading, checkSubscription, subscribe }}>
+    <SubscriptionContext.Provider value={{ isSubscribed, isTrialing, trialEndsAt, loading, checkSubscription, subscribe }}>
       {children}
     </SubscriptionContext.Provider>
   );

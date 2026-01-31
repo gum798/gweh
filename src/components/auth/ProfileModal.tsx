@@ -12,7 +12,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { t } = useTranslation('auth');
   const { t: tc } = useTranslation();
   const { user, resetPassword, deleteAccount, signOut } = useAuth();
-  const { isSubscribed, subscribe } = useSubscription();
+  const { isSubscribed, isTrialing, trialEndsAt, subscribe } = useSubscription();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -75,7 +75,16 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <div className="flex justify-between items-center">
               <span className="text-white/50 text-sm">{tc('sub.subscriptionStatus')}</span>
               {isSubscribed ? (
-                <span className="text-[#5b13ec] text-sm font-medium">{tc('sub.active')}</span>
+                <div className="text-right">
+                  <span className="text-[#5b13ec] text-sm font-medium">
+                    {isTrialing ? tc('sub.trialActive') : tc('sub.active')}
+                  </span>
+                  {isTrialing && trialEndsAt && (
+                    <p className="text-white/30 text-xs mt-0.5">
+                      {tc('sub.trialEnds', { date: new Date(trialEndsAt).toLocaleDateString() })}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <button
                   onClick={() => subscribe()}

@@ -73,12 +73,19 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
             {t('sub.description')}
           </p>
 
+          {/* Free trial badge */}
+          <div className="flex items-center gap-2 mb-3 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
+            <span className="text-green-400 text-xs font-bold">🎁</span>
+            <span className="text-green-400 text-sm font-bold">{t('sub.freeTrial')}</span>
+          </div>
+
           {/* Framing: daily price */}
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-white text-2xl font-bold">$9.99</span>
-            <span className="text-white/40 text-sm">/mo</span>
-            <span className="text-white/30 text-xs mx-1">·</span>
-            <span className="text-[#5b13ec] text-sm font-medium">{t('sub.dailyPrice')}</span>
+            <span className="text-white/40 text-sm line-through">$9.99</span>
+            <span className="text-white text-2xl font-bold">$0</span>
+            <span className="text-white/40 text-sm">{t('sub.freeTrialPeriod')}</span>
+            <span className="text-white/30 text-xs mx-1">→</span>
+            <span className="text-white/50 text-sm">$9.99/mo</span>
           </div>
 
           {/* Features */}
@@ -96,7 +103,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
             onClick={handleClick}
             className="w-full py-3.5 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-xl text-white font-bold text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(91,19,236,0.4)] hover:shadow-[0_0_30px_rgba(91,19,236,0.6)] hover:scale-[1.02] active:scale-[0.98]"
           >
-            {t('sub.cta')}
+            {t('sub.ctaTrial')}
           </button>
 
           {/* Scarcity: time-limited framing */}
