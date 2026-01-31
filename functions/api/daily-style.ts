@@ -129,6 +129,42 @@ Respond in this JSON format:
     }
 
     const styleData = JSON.parse(text);
+
+    // DB에 style_data 캐시 저장
+    try {
+      const accessToken = authHeader.slice(7);
+      const userRes2 = await fetch(`${context.env.SUPABASE_URL}/auth/v1/user`, {
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY },
+      });
+      if (userRes2.ok) {
+        const user = await userRes2.json() as { id: string };
+        const profileRes2 = await fetch(
+          `${context.env.SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${user.id}&select=last_lon`,
+          { headers: { 'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY, 'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+        );
+        const profiles2 = await profileRes2.json() as { last_lon?: number }[];
+        const lon = profiles2?.[0]?.last_lon ?? 126.978;
+        const now = new Date();
+        const offsetMs = Math.round(lon / 15) * 60 * 60 * 1000;
+        const localDate = new Date(now.getTime() + offsetMs).toISOString().split('T')[0];
+
+        fetch(`${context.env.SUPABASE_URL}/rest/v1/daily_readings`, {
+          method: 'POST',
+          headers: {
+            'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates',
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            reading_date: localDate,
+            style_data: styleData,
+          }),
+        }).catch(err => console.error('Style cache save error:', err));
+      }
+    } catch {}
+
     return Response.json({ success: true, data: styleData }, {
       headers: {
         'Access-Control-Allow-Origin': context.request.headers.get('origin') || '*',
