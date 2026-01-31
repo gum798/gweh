@@ -1,48 +1,51 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // rerender-memo: Memoize component to prevent re-renders from parent
 export default memo(function DataPanel({ weather, moon, earthquake, nasa }) {
+  const { t } = useTranslation();
+
   return (
     <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
       <div className="flex items-center gap-3 mb-6">
         <span className="text-2xl">📜</span>
-        <h2 className="text-white font-bold text-lg">천기의 원천</h2>
+        <h2 className="text-white font-bold text-lg">{t('data.source')}</h2>
       </div>
 
       <div className="space-y-6">
         {/* 날씨 데이터 */}
         {weather && (
-          <DataSection title="하늘의 숨결" icon="🌡️">
-            <DataRow label="위치" value={weather.cityName} />
-            <DataRow label="기온" value={`${weather.temperature}°C`} />
-            <DataRow label="체감" value={`${weather.feelsLike}°C`} />
-            <DataRow label="기압" value={`${weather.pressure} hPa`} />
-            <DataRow label="습도" value={`${weather.humidity}%`} />
-            <DataRow label="구름" value={`${weather.clouds}%`} />
-            <DataRow label="풍속" value={`${weather.windSpeed} m/s`} />
-            <DataRow label="상태" value={weather.description} />
+          <DataSection title={t('data.weather')} icon="🌡️">
+            <DataRow label={t('data.location')} value={weather.cityName} />
+            <DataRow label={t('data.temperature')} value={`${weather.temperature}°C`} />
+            <DataRow label={t('data.feelsLike')} value={`${weather.feelsLike}°C`} />
+            <DataRow label={t('data.pressure')} value={`${weather.pressure} hPa`} />
+            <DataRow label={t('data.humidity')} value={`${weather.humidity}%`} />
+            <DataRow label={t('data.clouds')} value={`${weather.clouds}%`} />
+            <DataRow label={t('data.windSpeed')} value={`${weather.windSpeed} m/s`} />
+            <DataRow label={t('data.condition')} value={weather.description} />
           </DataSection>
         )}
 
         {/* 달 위상 */}
         {moon && (
-          <DataSection title="달의 속삭임" icon={moon.emoji}>
-            <DataRow label="위상" value={moon.name} />
-            <DataRow label="조도" value={`${moon.illumination}%`} />
-            <DataRow label="삭 이후" value={`${moon.daysSinceNew}일`} />
+          <DataSection title={t('data.moon')} icon={moon.emoji}>
+            <DataRow label={t('data.moonPhase')} value={moon.name} />
+            <DataRow label={t('data.illumination')} value={`${moon.illumination}%`} />
+            <DataRow label={t('data.daysSinceNew')} value={`${moon.daysSinceNew}일`} />
           </DataSection>
         )}
 
         {/* 지진 데이터 */}
         {earthquake && (
-          <DataSection title="대지의 맥동" icon="🌍">
-            <DataRow label="발생 횟수" value={`${earthquake.count}회`} />
-            <DataRow label="평균 규모" value={`M ${earthquake.avgMagnitude}`} />
-            <DataRow label="최대 규모" value={`M ${earthquake.maxMagnitude}`} />
+          <DataSection title={t('data.earthquake')} icon="🌍">
+            <DataRow label={t('data.earthquakeCount')} value={`${earthquake.count}회`} />
+            <DataRow label={t('data.avgMagnitude')} value={`M ${earthquake.avgMagnitude}`} />
+            <DataRow label={t('data.maxMagnitude')} value={`M ${earthquake.maxMagnitude}`} />
             {earthquake.strongest && (
               <DataRow
-                label="최강 지점"
-                value={earthquake.strongest.place || '알 수 없음'}
+                label={t('data.strongestLocation')}
+                value={earthquake.strongest.place || t('data.unknown')}
               />
             )}
           </DataSection>
@@ -50,9 +53,9 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }) {
 
         {/* NASA APOD */}
         {nasa && (
-          <DataSection title="우주의 계시" icon="🔭">
-            <DataRow label="제목" value={nasa.title} />
-            <DataRow label="날짜" value={nasa.date} />
+          <DataSection title={t('data.nasa')} icon="🔭">
+            <DataRow label={t('data.nasaTitle')} value={nasa.title} />
+            <DataRow label={t('data.nasaDate')} value={nasa.date} />
           </DataSection>
         )}
       </div>

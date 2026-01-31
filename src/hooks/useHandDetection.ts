@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import i18next from 'i18next';
 import { detectPalmLines } from '../utils/palmLineDetector';
 import { analyzeFingerGesture } from '../utils/fingerGestureAnalyzer';
 
@@ -52,7 +53,7 @@ export function useHandDetection() {
       return model;
     } catch (err) {
       console.error('Hand detection model load error:', err);
-      throw new Error('손 감지 모델을 불러올 수 없습니다.');
+      throw new Error(i18next.t('error.handModel'));
     }
   }, []);
 
@@ -77,7 +78,7 @@ export function useHandDetection() {
       const predictions = await model.estimateHands(img);
 
       if (!predictions || predictions.length === 0) {
-        throw new Error('손을 찾을 수 없습니다. 손바닥을 펴서 다시 시도해주세요.');
+        throw new Error(i18next.t('error.handModel'));
       }
 
       const hand = predictions[0];
@@ -114,7 +115,7 @@ export function useHandDetection() {
         imageHeight: img.height,
       };
     } catch (err) {
-      setError(err.message || '손 분석 중 오류가 발생했습니다.');
+      setError(err.message || i18next.t('error.handModel'));
       setIsLoading(false);
       return null;
     }
@@ -284,10 +285,10 @@ function drawHandSkeleton(img, keypoints, palmLines) {
 
   // 손금 라인 색상 정의
   const lineColors = {
-    lifeLine: { color: '#FF4444', name: '생명선' },    // 빨간색
-    headLine: { color: '#00CED1', name: '두뇌선' },    // 청록색
-    heartLine: { color: '#FF1493', name: '감정선' },   // 핑크색
-    fateLine: { color: '#8A2BE2', name: '운명선' },    // 보라색
+    lifeLine: { color: '#FF4444', name: 'Life' },
+    headLine: { color: '#00CED1', name: 'Head' },
+    heartLine: { color: '#FF1493', name: 'Heart' },
+    fateLine: { color: '#8A2BE2', name: 'Fate' },
   };
 
   // 손금 라인 그리기

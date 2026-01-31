@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
 
@@ -19,25 +20,20 @@ const ELEMENT_BG = {
 };
 
 export default function SajuTab() {
+  const { t } = useTranslation('saju');
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
 
   const hourOptions = useMemo(() => {
     const options = [];
-    const hourLabels = [
-      '자시 (23:00-01:00)', '축시 (01:00-03:00)', '인시 (03:00-05:00)',
-      '묘시 (05:00-07:00)', '진시 (07:00-09:00)', '사시 (09:00-11:00)',
-      '오시 (11:00-13:00)', '미시 (13:00-15:00)', '신시 (15:00-17:00)',
-      '유시 (17:00-19:00)', '술시 (19:00-21:00)', '해시 (21:00-23:00)',
-    ];
     const hourValues = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
 
-    for (let i = 0; i < 12; i++) {
-      options.push({ value: hourValues[i], label: hourLabels[i] });
+    for (let i = 0; i < hourValues.length; i++) {
+      options.push({ value: hourValues[i], label: t(`hour.${hourValues[i]}`) });
     }
     return options;
-  }, []);
+  }, [t]);
 
   // rerender-functional-setstate: Wrap handlers in useCallback for stable references
   const handleSubmit = useCallback((e) => {
@@ -142,7 +138,7 @@ export default function SajuTab() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Four Pillars</span>
-              <h3 className="text-white text-xl font-bold tracking-tight">사주팔자</h3>
+              <h3 className="text-white text-xl font-bold tracking-tight">{t('title')}</h3>
             </div>
             <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
               <span className="text-xl">✨</span>
@@ -155,7 +151,7 @@ export default function SajuTab() {
 
           {/* 일간 정보 */}
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-            <p className="text-[#5b13ec] text-xs uppercase tracking-widest mb-2">Day Master (일간)</p>
+            <p className="text-[#5b13ec] text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
             <p className="text-white text-2xl font-bold">{dayMaster.name}</p>
             <p className="text-white/50 text-sm mt-1">
               {dayMaster.nature}의 기운 · {dayMaster.trait} 성정
@@ -170,7 +166,7 @@ export default function SajuTab() {
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl">🐉</span>
             <div>
-              <p className="text-[#5b13ec] text-xs uppercase tracking-widest">Zodiac</p>
+              <p className="text-[#5b13ec] text-xs uppercase tracking-widest">{t('zodiac')}</p>
               <p className="text-white font-bold text-lg">{zodiac}띠</p>
             </div>
           </div>
@@ -183,7 +179,7 @@ export default function SajuTab() {
       {/* 사주팔자 표 */}
       <section className="px-4">
         <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Four Pillars Chart</h4>
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('chart')}</h4>
           <div className="grid grid-cols-4 gap-2 text-center">
             {pillars.map((p, i) => (
               <div key={i} className="bg-white/5 rounded-xl p-3 border border-white/10">
@@ -204,7 +200,7 @@ export default function SajuTab() {
       {/* 오행 분석 */}
       <section className="px-4">
         <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Five Elements</h4>
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('fiveElements')}</h4>
           <div className="flex justify-center gap-2 mb-4">
             {Object.entries(elementAnalysis.distribution).map(([element, count]) => (
               <div
@@ -227,7 +223,7 @@ export default function SajuTab() {
       {/* 오늘의 운세 */}
       <section className="px-4">
         <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Today's Fortune</h4>
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{t('todayFortune')}</h4>
           <div className="text-center">
             <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 ${
               todayFortune.level === '대길' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
@@ -236,7 +232,11 @@ export default function SajuTab() {
               todayFortune.level === '소흉' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
               'bg-red-500/20 text-red-400 border border-red-500/30'
             }`}>
-              {todayFortune.level}
+              {todayFortune.level === '대길' ? t('fortune.great') :
+               todayFortune.level === '길' ? t('fortune.good') :
+               todayFortune.level === '평' ? t('fortune.neutral') :
+               todayFortune.level === '소흉' ? t('fortune.minor') :
+               t('fortune.poor')}
             </span>
             <p className="text-white/60 text-sm leading-relaxed">
               {todayFortune.message}

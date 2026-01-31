@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
+import { useTranslation } from 'react-i18next';
 
 // TensorFlow 모듈들을 dynamic import로 변경 (bundle-defer-third-party)
 // 2MB+ 번들을 초기 로딩에서 제외하고 필요할 때만 로드
@@ -90,6 +91,8 @@ export default function CameraCapture({
   const [mode, setMode] = useState('camera');
   const [isDetected, setIsDetected] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (mode !== 'camera' || detectType === 'none') return;
@@ -227,7 +230,7 @@ export default function CameraCapture({
               : 'text-gray-400 hover:text-cosmic-gold'
           }`}
         >
-          📷 카메라
+          📷 {t('camera.cameraMode')}
         </button>
         <button
           onClick={() => setMode('upload')}
@@ -237,7 +240,7 @@ export default function CameraCapture({
               : 'text-gray-400 hover:text-cosmic-gold'
           }`}
         >
-          📁 사진 업로드
+          📁 {t('camera.uploadMode')}
         </button>
       </div>
 
@@ -262,7 +265,7 @@ export default function CameraCapture({
             {(!isReady || isModelLoading) && (
               <div className="absolute inset-0 flex items-center justify-center bg-mystic-800/80">
                 <p className="text-gray-400">
-                  {isModelLoading ? '신비로운 눈을 뜨는 중...' : '카메라 연결 중...'}
+                  {isModelLoading ? t('camera.modelLoading') : t('camera.connecting')}
                 </p>
               </div>
             )}
@@ -273,8 +276,8 @@ export default function CameraCapture({
                   : 'bg-gray-800/50 text-gray-400'
               }`}>
                 {isDetected
-                  ? (detectType === 'face' ? '✨ 얼굴 감지됨' : '✨ 손 21개 포인트 감지')
-                  : (detectType === 'face' ? '얼굴을 보여주세요' : '손바닥을 보여주세요')
+                  ? (detectType === 'face' ? t('camera.faceDetected') : t('camera.handDetected'))
+                  : (detectType === 'face' ? t('camera.showFace') : t('camera.showPalm'))
                 }
               </div>
             )}
@@ -296,7 +299,7 @@ export default function CameraCapture({
         <div className="flex flex-col items-center gap-4">
           {hasError && (
             <p className="text-orange-400 text-sm mb-2">
-              카메라에 접근할 수 없습니다. 사진을 업로드해주세요.
+              {t('camera.noAccess')}
             </p>
           )}
 
@@ -306,7 +309,7 @@ export default function CameraCapture({
                        hover:border-cosmic-gold/50 transition-colors"
           >
             <div className="text-4xl mb-2">📷</div>
-            <p className="text-gray-400">클릭하여 사진 선택</p>
+            <p className="text-gray-400">{t('camera.clickToSelect')}</p>
           </div>
 
           <input

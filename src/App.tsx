@@ -1,5 +1,8 @@
 import { useState, useCallback, lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
+import AuthModal from './components/auth/AuthModal';
+import { useAuth } from './contexts/AuthContext';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -18,7 +21,10 @@ const getInitialTab = () => {
 };
 
 function App() {
+  const { t, i18n } = useTranslation('auth');
+  const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState(getInitialTab);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // rerender-functional-setstate: Wrap in useCallback to provide stable reference for memoized Navigation
   const handleTabChange = useCallback((tab: string) => {
@@ -79,7 +85,40 @@ function App() {
       {/* 콘텐츠 */}
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-4xl">
         {/* 헤더 */}
-        <header className="text-center mb-6">
+        <header className="relative text-center mb-6">
+          <div className="absolute left-0 top-1">
+            <button
+              onClick={() => {
+                const newLang = i18n.language === 'ko' ? 'en' : 'ko';
+                i18n.changeLanguage(newLang);
+                localStorage.setItem('mystic_language', newLang);
+                document.documentElement.lang = newLang;
+              }}
+              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[#5b13ec]/50 px-3 py-1.5 rounded-lg transition-colors font-medium"
+            >
+              {i18n.language === 'ko' ? 'EN' : 'KO'}
+            </button>
+          </div>
+          <div className="absolute right-0 top-1">
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-white/50 text-xs truncate max-w-[120px]">{user.email}</span>
+                <button
+                  onClick={() => signOut()}
+                  className="text-xs text-white/40 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  {t('logout')}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="text-xs text-[#5b13ec] hover:text-[#7b3ff5] border border-[#5b13ec]/30 hover:border-[#5b13ec]/60 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                {t('login')}
+              </button>
+            )}
+          </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1">
             MYSTIC <span className="text-[#5b13ec]">AI</span>
           </h1>
@@ -87,6 +126,9 @@ function App() {
             Unveil Your Destiny
           </p>
         </header>
+
+        {/* Auth Modal */}
+        <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
 
         {/* 네비게이션 */}
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />

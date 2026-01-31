@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 // RGB를 HSL로 변환
 function rgbToHsl(r, g, b) {
   r /= 255;
@@ -66,29 +68,29 @@ export function analyzeSkinTone(skinSamples) {
     if (brightness >= 55 && saturation >= 30) {
       // 봄 웜톤: 밝고 선명
       season = 'spring';
-      seasonKorean = '봄 웜톤';
+      seasonKorean = i18next.t('face:season.spring');
       colorPalette = ['#FF6B6B', '#FFA07A', '#FFD93D', '#6BCB77', '#4ECDC4'];
-      characteristics = '밝고 화사한 기운이 감도는 상입니다. 따스한 봄볕처럼 생기가 넘칩니다.';
+      characteristics = i18next.t('face:characteristics.spring');
     } else {
       // 가을 웜톤: 깊고 뮤트
       season = 'autumn';
-      seasonKorean = '가을 웜톤';
+      seasonKorean = i18next.t('face:season.autumn');
       colorPalette = ['#D35400', '#E67E22', '#8B4513', '#556B2F', '#704214'];
-      characteristics = '깊고 풍요로운 기운이 서린 상입니다. 가을 단풍처럼 성숙한 매력이 있습니다.';
+      characteristics = i18next.t('face:characteristics.autumn');
     }
   } else {
     if (brightness >= 55 && saturation <= 40) {
       // 여름 쿨톤: 부드럽고 뮤트
       season = 'summer';
-      seasonKorean = '여름 쿨톤';
+      seasonKorean = i18next.t('face:season.summer');
       colorPalette = ['#DDA0DD', '#B0C4DE', '#87CEEB', '#98D8C8', '#F0E6FA'];
-      characteristics = '부드럽고 우아한 기운이 흐르는 상입니다. 여름 안개처럼 은은한 매력이 있습니다.';
+      characteristics = i18next.t('face:characteristics.summer');
     } else {
       // 겨울 쿨톤: 선명하고 대비 강함
       season = 'winter';
-      seasonKorean = '겨울 쿨톤';
+      seasonKorean = i18next.t('face:season.winter');
       colorPalette = ['#E91E63', '#9C27B0', '#00BCD4', '#212121', '#FFFFFF'];
-      characteristics = '선명하고 강렬한 기운이 넘치는 상입니다. 겨울 설경처럼 또렷한 매력이 있습니다.';
+      characteristics = i18next.t('face:characteristics.winter');
     }
   }
 
@@ -101,66 +103,74 @@ export function analyzeSkinTone(skinSamples) {
     avgColor,
     hsl,
     analysis: {
-      brightness: brightness >= 55 ? '밝은' : '깊은',
-      saturation: saturation >= 40 ? '선명한' : '부드러운',
-      undertone: isWarm ? '따스한 노란 기운' : '차분한 푸른 기운',
+      brightness: brightness >= 55 ? i18next.t('face:analysis.bright') : i18next.t('face:analysis.deep'),
+      saturation: saturation >= 40 ? i18next.t('face:analysis.vivid') : i18next.t('face:analysis.soft'),
+      undertone: isWarm ? i18next.t('face:analysis.warmUndertone') : i18next.t('face:analysis.coolUndertone'),
     },
   };
 }
 
 // 퍼스널 컬러 해석 메시지
-const seasonOmens = {
-  spring: [
-    '봄날의 꽃처럼 생기 넘치는 기운이 그대에게 깃들었도다.',
-    '따스한 봄볕을 머금은 상이니, 밝은 색으로 기운을 더하라.',
-    '새싹이 움트듯 그대의 매력도 날로 피어오르리라.',
-  ],
-  summer: [
-    '여름 안개처럼 신비로운 기운이 그대를 감싸도다.',
-    '부드러운 달빛을 닮은 상이니, 은은한 색이 그대를 빛내리라.',
-    '맑은 물처럼 깨끗한 기운이 사람을 끌어당기리라.',
-  ],
-  autumn: [
-    '가을 단풍처럼 깊고 풍요로운 기운이 그대에게 있도다.',
-    '대지의 따스함을 품은 상이니, 자연의 색이 그대와 어우러지리라.',
-    '익어가는 열매처럼 성숙한 매력이 돋보이는 상이로다.',
-  ],
-  winter: [
-    '겨울 밤하늘처럼 선명하고 신비로운 기운이 그대에게 있도다.',
-    '눈처럼 맑은 상이니, 또렷한 색이 그대의 빛을 더하리라.',
-    '차가운 달빛을 품었으니, 강렬한 매력이 세상을 사로잡으리라.',
-  ],
-};
+function getSeasonOmens(season: string): string[] {
+  const seasonOmens = {
+    spring: [
+      i18next.t('face:seasonOmen.spring.0'),
+      i18next.t('face:seasonOmen.spring.1'),
+      i18next.t('face:seasonOmen.spring.2'),
+    ],
+    summer: [
+      i18next.t('face:seasonOmen.summer.0'),
+      i18next.t('face:seasonOmen.summer.1'),
+      i18next.t('face:seasonOmen.summer.2'),
+    ],
+    autumn: [
+      i18next.t('face:seasonOmen.autumn.0'),
+      i18next.t('face:seasonOmen.autumn.1'),
+      i18next.t('face:seasonOmen.autumn.2'),
+    ],
+    winter: [
+      i18next.t('face:seasonOmen.winter.0'),
+      i18next.t('face:seasonOmen.winter.1'),
+      i18next.t('face:seasonOmen.winter.2'),
+    ],
+  };
+
+  return seasonOmens[season] || [];
+}
 
 export function getPersonalColorOmen(season) {
-  const omens = seasonOmens[season];
+  const omens = getSeasonOmens(season);
   return omens[Math.floor(Math.random() * omens.length)];
 }
 
 // 추천 컬러 팁
-export const colorTips = {
-  spring: {
-    best: '코랄, 피치, 밝은 오렌지, 연두, 밝은 청록',
-    avoid: '회색, 검정, 탁한 색',
-    makeup: '복숭아빛 블러셔, 오렌지 립, 골드 하이라이터',
-    fashion: '밝고 화사한 파스텔, 비비드 컬러',
-  },
-  summer: {
-    best: '라벤더, 로즈, 소프트 핑크, 스카이 블루, 민트',
-    avoid: '오렌지, 강한 노랑, 카키',
-    makeup: '로즈 블러셔, 핑크 립, 실버 펄',
-    fashion: '부드럽고 뮤트된 파스텔, 그레이시 톤',
-  },
-  autumn: {
-    best: '테라코타, 올리브, 머스타드, 카멜, 브릭',
-    avoid: '파스텔, 밝은 핑크, 실버',
-    makeup: '브릭 블러셔, 브라운 립, 브론즈 하이라이터',
-    fashion: '자연스러운 어스 톤, 깊은 색감',
-  },
-  winter: {
-    best: '퓨시아, 로얄 블루, 에메랄드, 순백, 블랙',
-    avoid: '오렌지, 베이지, 파스텔',
-    makeup: '핑크 블러셔, 레드 립, 쿨 하이라이터',
-    fashion: '선명한 비비드, 모노톤, 강한 대비',
-  },
-};
+function getColorTips() {
+  return {
+    spring: {
+      best: i18next.t('face:colorTips.spring.best'),
+      avoid: i18next.t('face:colorTips.spring.avoid'),
+      makeup: i18next.t('face:colorTips.spring.makeup'),
+      fashion: i18next.t('face:colorTips.spring.fashion'),
+    },
+    summer: {
+      best: i18next.t('face:colorTips.summer.best'),
+      avoid: i18next.t('face:colorTips.summer.avoid'),
+      makeup: i18next.t('face:colorTips.summer.makeup'),
+      fashion: i18next.t('face:colorTips.summer.fashion'),
+    },
+    autumn: {
+      best: i18next.t('face:colorTips.autumn.best'),
+      avoid: i18next.t('face:colorTips.autumn.avoid'),
+      makeup: i18next.t('face:colorTips.autumn.makeup'),
+      fashion: i18next.t('face:colorTips.autumn.fashion'),
+    },
+    winter: {
+      best: i18next.t('face:colorTips.winter.best'),
+      avoid: i18next.t('face:colorTips.winter.avoid'),
+      makeup: i18next.t('face:colorTips.winter.makeup'),
+      fashion: i18next.t('face:colorTips.winter.fashion'),
+    },
+  };
+}
+
+export const colorTips = getColorTips();

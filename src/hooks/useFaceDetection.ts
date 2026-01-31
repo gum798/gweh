@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import i18next from 'i18next';
 
 // TensorFlow 동적 import (bundle-defer-third-party)
 type TFModule = typeof import('@tensorflow/tfjs');
@@ -50,7 +51,7 @@ export function useFaceDetection() {
       return model;
     } catch (err) {
       console.error('Face detection model load error:', err);
-      throw new Error('얼굴 감지 모델을 불러올 수 없습니다.');
+      throw new Error(i18next.t('error.faceModel'));
     }
   }, []);
 
@@ -75,7 +76,7 @@ export function useFaceDetection() {
       const predictions = await model.estimateFaces(img);
 
       if (!predictions || predictions.length === 0) {
-        throw new Error('얼굴을 찾을 수 없습니다. 다시 시도해주세요.');
+        throw new Error(i18next.t('error.faceModel'));
       }
 
       const face = predictions[0];
@@ -102,7 +103,7 @@ export function useFaceDetection() {
         imageHeight: img.height,
       };
     } catch (err) {
-      setError(err.message || '얼굴 분석 중 오류가 발생했습니다.');
+      setError(err.message || i18next.t('error.faceModel'));
       setIsLoading(false);
       return null;
     }

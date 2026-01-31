@@ -1,15 +1,18 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const tabs = [
-  { id: 'omen', label: '괘', icon: '☯️' },
-  { id: 'face', label: '관상', icon: '👁️' },
-  { id: 'palm', label: '손금', icon: '🖐️' },
-  { id: 'saju', label: '사주', icon: '📅' },
-  { id: 'fashion', label: '패션', icon: '👔' },
+  { id: 'omen', labelKey: 'nav.omen', icon: '☯️' },
+  { id: 'face', labelKey: 'nav.face', icon: '👁️' },
+  { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
+  { id: 'saju', labelKey: 'nav.saju', icon: '📅' },
+  { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
 ];
 
 // rerender-memo: Memoize component to prevent re-renders when callback prop is stable
 export default memo(function Navigation({ activeTab, onTabChange }) {
+  const { t } = useTranslation();
+
   return (
     <nav className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
       <div className="flex justify-center gap-1">
@@ -27,7 +30,7 @@ export default memo(function Navigation({ activeTab, onTabChange }) {
             `}
           >
             <span className="text-lg">{tab.icon}</span>
-            <span className="hidden sm:inline text-sm">{tab.label}</span>
+            <span className="hidden sm:inline text-sm">{t(tab.labelKey)}</span>
           </button>
         ))}
       </div>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useWeather } from '../../hooks/useWeather';
 import { useParallelData } from '../../hooks/useParallelData';
 import { useMoonPhase } from '../../hooks/useMoonPhase';
@@ -7,6 +8,7 @@ import { generateOmen, getOverallEnergy, getEnergyLabel } from '../../utils/omen
 const DataPanel = lazy(() => import('../DataPanel'));
 
 export default function OmenTab() {
+  const { t } = useTranslation();
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [showData, setShowData] = useState(false);
@@ -25,7 +27,7 @@ export default function OmenTab() {
     setLocationError(null);
 
     if (!navigator.geolocation) {
-      setLocationError('이 브라우저에서는 위치 감지가 지원되지 않습니다.');
+      setLocationError(t('location.notSupported'));
       return;
     }
 
@@ -39,16 +41,16 @@ export default function OmenTab() {
       (error) => {
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            setLocationError('위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.');
+            setLocationError(t('location.denied'));
             break;
           case error.POSITION_UNAVAILABLE:
-            setLocationError('위치 정보를 사용할 수 없습니다.');
+            setLocationError(t('location.unavailable'));
             break;
           case error.TIMEOUT:
-            setLocationError('위치 요청 시간이 초과되었습니다.');
+            setLocationError(t('location.timeout'));
             break;
           default:
-            setLocationError('위치를 가져오는 중 오류가 발생했습니다.');
+            setLocationError(t('location.unavailable'));
         }
       },
       {
@@ -108,10 +110,10 @@ export default function OmenTab() {
               <div className="h-16 w-16 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)] mx-auto mb-4">
                 <span className="text-3xl">🔮</span>
               </div>
-              <h3 className="text-white text-xl font-bold tracking-tight">위치 감응</h3>
+              <h3 className="text-white text-xl font-bold tracking-tight">{t('omenTab.locationSensing')}</h3>
               <p className="text-white/50 text-sm mt-2">
-                당신이 머무는 곳의 기운이<br />
-                오늘의 괘를 달리하리니
+                {t('omenTab.locationAffects1')}<br />
+                {t('omenTab.locationAffects2')}
               </p>
             </div>
 
@@ -126,19 +128,19 @@ export default function OmenTab() {
                 onClick={requestLocation}
                 className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
               >
-                기운 감응 시작
+                {t('location.startButton')}
               </button>
 
               <button
                 onClick={skipLocation}
                 className="w-full flex items-center justify-center rounded-full h-12 px-8 bg-transparent border border-white/20 text-white/60 text-sm font-medium tracking-widest uppercase transition-all hover:border-[#5b13ec]/50 hover:text-white"
               >
-                위치 없이 진행
+                {t('location.skipButton')}
               </button>
             </div>
 
             <p className="text-white/30 text-xs text-center mt-4">
-              위치 없이 진행하면 서울 기준으로 괘를 내립니다
+              {t('location.skipWarning')}
             </p>
           </div>
         </section>
@@ -158,7 +160,7 @@ export default function OmenTab() {
         </div>
         <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading the Signs...</h3>
         <p className="text-white/50 text-sm text-center max-w-xs">
-          천지의 기운을 살피는 중입니다
+          {t('omenTab.sensing')}
         </p>
         <div className="mt-6 flex gap-1">
           <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -184,7 +186,7 @@ export default function OmenTab() {
           <div className="h-16 w-16 rounded-full border border-red-500/50 flex items-center justify-center mx-auto mb-6">
             <span className="text-3xl">⚠️</span>
           </div>
-          <h2 className="text-white text-xl font-bold mb-2">천기를 읽을 수 없습니다</h2>
+          <h2 className="text-white text-xl font-bold mb-2">{t('omenTab.cannotRead')}</h2>
           <div className="text-white/50 text-sm mb-6 space-y-1">
             {errorMessages.map((msg, i) => (
               <p key={i}>{msg}</p>
@@ -194,7 +196,7 @@ export default function OmenTab() {
             onClick={() => window.location.reload()}
             className="px-8 py-3 bg-[#5b13ec] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)]"
           >
-            다시 점괘 보기
+            {t('omenTab.readAgain')}
           </button>
         </div>
       </div>
@@ -219,7 +221,7 @@ export default function OmenTab() {
         <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           {/* 에너지 지표 */}
           <div className="flex justify-between items-center mb-6">
-            <span className="text-white/40 text-xs uppercase tracking-widest">기의 흐름</span>
+            <span className="text-white/40 text-xs uppercase tracking-widest">{t('omenCard.energyFlow')}</span>
             <div className="flex items-center gap-2">
               <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
@@ -291,7 +293,7 @@ export default function OmenTab() {
           onClick={toggleShowData}
           className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
         >
-          {showData ? '천기 숨기기 ▲' : '천기의 원천 보기 ▼'}
+          {showData ? `${t('data.source')} ▲` : `${t('data.source')} ▼`}
         </button>
       </div>
 

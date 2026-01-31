@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 const NASA_API_KEY = import.meta.env.VITE_NASA_API_KEY || 'DEMO_KEY';
 
@@ -18,14 +20,14 @@ function getTimeRange24h() {
 export async function fetchWeather(lat, lon) {
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=kr`;
   const response = await fetch(url);
-  if (!response.ok) throw new Error('날씨 데이터를 가져올 수 없습니다');
+  if (!response.ok) throw new Error(i18next.t('error.weather'));
   return response.json();
 }
 
 export async function fetchNasaApod() {
   const url = `https://api.nasa.gov/planetary/apod?api_key=${NASA_API_KEY}`;
   const response = await fetch(url);
-  if (!response.ok) throw new Error('NASA 데이터를 가져올 수 없습니다');
+  if (!response.ok) throw new Error(i18next.t('error.nasa'));
   return response.json();
 }
 
@@ -33,7 +35,7 @@ export async function fetchEarthquakes() {
   const { startTime, endTime } = getTimeRange24h();
   const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&endtime=${endTime}&minmagnitude=4`;
   const response = await fetch(url);
-  if (!response.ok) throw new Error('지진 데이터를 가져올 수 없습니다');
+  if (!response.ok) throw new Error(i18next.t('error.earthquake'));
   return response.json();
 }
 
@@ -60,14 +62,14 @@ export function calculateMoonPhase(date = new Date()) {
   const phase = Math.round(jd * 8);
 
   const phases = [
-    { name: '새달', emoji: '🌑', value: 0 },
-    { name: '초승달', emoji: '🌒', value: 1 },
-    { name: '상현달', emoji: '🌓', value: 2 },
-    { name: '상현망간', emoji: '🌔', value: 3 },
-    { name: '보름달', emoji: '🌕', value: 4 },
-    { name: '하현망간', emoji: '🌖', value: 5 },
-    { name: '하현달', emoji: '🌗', value: 6 },
-    { name: '그믐달', emoji: '🌘', value: 7 },
+    { name: i18next.t('saju:moonPhase.newMoon'), emoji: '🌑', value: 0 },
+    { name: i18next.t('saju:moonPhase.waxingCrescent'), emoji: '🌒', value: 1 },
+    { name: i18next.t('saju:moonPhase.firstQuarter'), emoji: '🌓', value: 2 },
+    { name: i18next.t('saju:moonPhase.waxingGibbous'), emoji: '🌔', value: 3 },
+    { name: i18next.t('saju:moonPhase.fullMoon'), emoji: '🌕', value: 4 },
+    { name: i18next.t('saju:moonPhase.waningGibbous'), emoji: '🌖', value: 5 },
+    { name: i18next.t('saju:moonPhase.lastQuarter'), emoji: '🌗', value: 6 },
+    { name: i18next.t('saju:moonPhase.waningCrescent'), emoji: '🌘', value: 7 },
   ];
 
   const phaseIndex = phase % 8;

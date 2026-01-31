@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import CameraCapture from '../camera/CameraCapture';
 import { useHandDetection } from '../../hooks/useHandDetection';
 import { interpretPalm, getPalmAdvice } from '../../utils/palmReading';
 
 export default function PalmTab() {
+  const { t } = useTranslation('palm');
   const [mode, setMode] = useState('intro');
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
@@ -58,7 +60,7 @@ export default function PalmTab() {
                 <span className="text-[#5b13ec] italic font-light">Destiny</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
-                손바닥에 새겨진 운명의 선을 읽어드립니다
+                {t('subtitle')}
               </p>
             </div>
           </div>
@@ -74,7 +76,7 @@ export default function PalmTab() {
                   <span className="text-lg">✋</span>
                 </div>
                 <div>
-                  <p className="text-white/80 text-sm">손바닥을 펴고 카메라에 비춰주세요</p>
+                  <p className="text-white/80 text-sm">{t('instruction.showPalm')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -82,7 +84,7 @@ export default function PalmTab() {
                   <span className="text-lg">💡</span>
                 </div>
                 <div>
-                  <p className="text-white/80 text-sm">밝은 곳에서 손금이 잘 보이도록 해주세요</p>
+                  <p className="text-white/80 text-sm">{t('instruction.lighting')}</p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -90,7 +92,7 @@ export default function PalmTab() {
                   <span className="text-lg">📷</span>
                 </div>
                 <div>
-                  <p className="text-white/80 text-sm">손바닥 전체가 화면에 들어오도록 해주세요</p>
+                  <p className="text-white/80 text-sm">{t('instruction.fullPalm')}</p>
                 </div>
               </li>
             </ul>
@@ -117,7 +119,7 @@ export default function PalmTab() {
         <CameraCapture
           onCapture={handleCapture}
           captureLabel="Read Palm Lines"
-          instruction="손바닥을 펴서 카메라에 보여주세요"
+          instruction={t('instruction.showPalm')}
           detectType="hand"
         />
 
@@ -151,7 +153,7 @@ export default function PalmTab() {
         </div>
         <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading Your Palm...</h3>
         <p className="text-white/50 text-sm text-center max-w-xs">
-          손금에 담긴 운명을 읽는 중입니다
+          {t('analyzing')}
         </p>
         <div className="mt-6 flex gap-1">
           <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -173,7 +175,7 @@ export default function PalmTab() {
               <div className="absolute -inset-2 rounded-2xl border border-[#5b13ec]/30 shadow-[0_0_20px_rgba(91,19,236,0.3)] animate-pulse"></div>
               <img
                 src={capturedImage}
-                alt="분석된 손"
+                alt={t('result.analyzedHand')}
                 className="w-48 h-48 rounded-2xl object-cover border border-white/10 relative z-10"
               />
             </div>
@@ -187,7 +189,7 @@ export default function PalmTab() {
               <div>
                 <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Palm Reading</span>
                 <h3 className="text-white text-xl font-bold tracking-tight">
-                  {result.handedness === 'Left' ? '왼손' : '오른손'} 손금
+                  {result.handedness === 'Left' ? t('result.leftHand') : t('result.rightHand')} 손금
                 </h3>
               </div>
               <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">

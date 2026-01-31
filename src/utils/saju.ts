@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 // 천간 (10 Heavenly Stems)
 export const HEAVENLY_STEMS = ['갑', '을', '병', '정', '무', '기', '경', '신', '임', '계'];
 
@@ -188,18 +190,24 @@ export function analyzeElements(saju) {
 
 // 일간(일주 천간) 기반 성격 분석
 export function getDayMasterType(dayStem) {
-  const types = {
-    갑: { name: '갑목', nature: '큰 나무', trait: '우직하고 정의로운' },
-    을: { name: '을목', nature: '덩굴', trait: '유연하고 협력적인' },
-    병: { name: '병화', nature: '태양', trait: '밝고 열정적인' },
-    정: { name: '정화', nature: '촛불', trait: '섬세하고 따뜻한' },
-    무: { name: '무토', nature: '큰 산', trait: '신뢰감 있고 안정적인' },
-    기: { name: '기토', nature: '정원', trait: '포용력 있고 중재하는' },
-    경: { name: '경금', nature: '바위', trait: '결단력 있고 원칙적인' },
-    신: { name: '신금', nature: '보석', trait: '정교하고 예리한' },
-    임: { name: '임수', nature: '큰 강', trait: '지혜롭고 포용력 있는' },
-    계: { name: '계수', nature: '빗물', trait: '영리하고 적응력 있는' },
+  const stemKeyMap = {
+    갑: 'gap',
+    을: 'eul',
+    병: 'byeong',
+    정: 'jeong',
+    무: 'mu',
+    기: 'gi',
+    경: 'gyeong',
+    신: 'sin',
+    임: 'im',
+    계: 'gye',
   };
 
-  return types[dayStem];
+  const stemKey = stemKeyMap[dayStem];
+
+  return {
+    name: i18next.t(`saju:dayMasterType.${stemKey}.name`),
+    nature: i18next.t(`saju:dayMasterType.${stemKey}.nature`),
+    trait: i18next.t(`saju:dayMasterType.${stemKey}.trait`),
+  };
 }

@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import CameraCapture from '../camera/CameraCapture';
 import { useFaceDetection } from '../../hooks/useFaceDetection';
 import { analyzeSkinTone, getPersonalColorOmen, colorTips } from '../../utils/personalColor';
 import { analyzeFaceFeatures, interpretPhysiognomy } from '../../utils/physiognomy';
 
 export default function FaceTab() {
+  const { t } = useTranslation('face');
   const [mode, setMode] = useState('select');
   const [analysisType, setAnalysisType] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -77,7 +79,7 @@ export default function FaceTab() {
                 <span className="text-[#5b13ec] italic font-light">Inner Light</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
-                얼굴에 담긴 운명의 징표를 AI가 풀이합니다
+                {t('subtitle', 'AI interprets the signs of destiny in your face')}
               </p>
             </div>
           </div>
@@ -102,7 +104,7 @@ export default function FaceTab() {
                 <div>
                   <h3 className="text-white font-bold text-lg">Personal Color</h3>
                   <p className="text-white/50 text-sm mt-1">
-                    피부톤에 담긴 계절의 기운을 살펴 어울리는 색을 알려드립니다
+                    {t('mode.personalColor.desc')}
                   </p>
                 </div>
               </div>
@@ -119,7 +121,7 @@ export default function FaceTab() {
                 <div>
                   <h3 className="text-white font-bold text-lg">Physiognomy</h3>
                   <p className="text-white/50 text-sm mt-1">
-                    이목구비에 담긴 운명의 징표를 풀이합니다
+                    {t('mode.physiognomy.desc')}
                   </p>
                 </div>
               </div>
@@ -136,7 +138,7 @@ export default function FaceTab() {
                 <div>
                   <h3 className="text-white font-bold text-lg">Complete Analysis</h3>
                   <p className="text-white/50 text-sm mt-1">
-                    퍼스널 컬러와 관상을 함께 분석합니다
+                    {t('mode.complete.desc')}
                   </p>
                 </div>
               </div>
@@ -154,7 +156,7 @@ export default function FaceTab() {
         <CameraCapture
           onCapture={handleCapture}
           captureLabel="Analyze Face"
-          instruction="정면을 바라보고 얼굴이 잘 보이도록 해주세요"
+          instruction={t('instruction')}
           detectType="face"
         />
 
@@ -188,7 +190,7 @@ export default function FaceTab() {
         </div>
         <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading Your Face...</h3>
         <p className="text-white/50 text-sm text-center max-w-xs">
-          얼굴에 담긴 기운을 살피는 중입니다
+          {t('analyzing', 'Examining the energy in your face')}
         </p>
         <div className="mt-6 flex gap-1">
           <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -210,7 +212,7 @@ export default function FaceTab() {
               <div className="absolute -inset-2 rounded-2xl border border-[#5b13ec]/30 shadow-[0_0_20px_rgba(91,19,236,0.3)] animate-pulse"></div>
               <img
                 src={capturedImage}
-                alt="분석된 얼굴"
+                alt={t('result.analyzedFace')}
                 className="w-48 h-48 rounded-2xl object-cover border border-white/10 relative z-10"
               />
             </div>
@@ -275,7 +277,7 @@ export default function FaceTab() {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Physiognomy</span>
-                    <h3 className="text-white text-xl font-bold tracking-tight">관상 풀이</h3>
+                    <h3 className="text-white text-xl font-bold tracking-tight">{t('result.physiognomyReading')}</h3>
                   </div>
                   <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
                     <span className="text-xl">👤</span>

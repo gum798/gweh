@@ -1,4 +1,5 @@
 // 체형 분석 및 패션 스타일 추천
+import i18next from 'i18next';
 
 export interface BodyInfo {
   height: number; // cm
@@ -57,29 +58,29 @@ export function analyzeBody(info: BodyInfo): BodyAnalysis {
   if (info.height >= 175) {
     if (bmi < 22) {
       bodyType = 'tallSlim';
-      bodyTypeKorean = '키 크고 슬림한 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.tallSlim');
     } else {
       bodyType = 'tallLarge';
-      bodyTypeKorean = '키 크고 볼륨감 있는 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.tallLarge');
     }
   } else if (info.height >= 165) {
     if (bmi < 20) {
       bodyType = 'averageSlim';
-      bodyTypeKorean = '보통 키에 슬림한 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.averageSlim');
     } else if (bmi < 24) {
       bodyType = 'averageNormal';
-      bodyTypeKorean = '균형 잡힌 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.averageNormal');
     } else {
       bodyType = 'averageLarge';
-      bodyTypeKorean = '보통 키에 볼륨감 있는 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.averageLarge');
     }
   } else {
     if (bmi < 22) {
       bodyType = 'shortSlim';
-      bodyTypeKorean = '아담하고 슬림한 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.shortSlim');
     } else {
       bodyType = 'shortLarge';
-      bodyTypeKorean = '아담하고 볼륨감 있는 체형';
+      bodyTypeKorean = i18next.t('fashion:bodyType.shortLarge');
     }
   }
 
@@ -99,15 +100,7 @@ export function generateFashionRecommendation(
   const { bodyType } = bodyAnalysis;
 
   // 체형별 메인 메시지
-  const mainMessages: Record<string, string> = {
-    tallSlim: '늘씬한 비율을 살려 세련된 스타일이 어울리는 체형입니다.',
-    tallLarge: '당당한 체격을 살려 클래식한 스타일이 어울리는 체형입니다.',
-    averageSlim: '다양한 스타일을 소화할 수 있는 체형입니다.',
-    averageNormal: '어떤 스타일이든 잘 어울리는 균형 잡힌 체형입니다.',
-    averageLarge: '체형을 커버하면서 세련된 느낌을 줄 수 있는 스타일이 어울립니다.',
-    shortSlim: '깔끔하고 미니멀한 스타일로 세련된 느낌을 낼 수 있습니다.',
-    shortLarge: '세로 라인을 강조해 비율을 좋게 보이게 하는 스타일이 어울립니다.',
-  };
+  const mainMessage = getMainMessage(bodyType);
 
   // 체형별 스타일 추천
   const styleRecommendations = getStyleRecommendations(bodyType);
@@ -116,7 +109,7 @@ export function generateFashionRecommendation(
   const avoid = getAvoid(bodyType);
 
   return {
-    mainMessage: mainMessages[bodyType] || '당신만의 스타일을 찾아보세요.',
+    mainMessage,
     bodyAnalysis,
     styles: styleRecommendations,
     colors: colorRecommendation,
@@ -125,151 +118,164 @@ export function generateFashionRecommendation(
   };
 }
 
+function getMainMessage(bodyType: string): string {
+  const key = `fashion:mainMessage.${bodyType}`;
+  const message = i18next.t(key);
+
+  // If translation key doesn't exist, return default
+  if (message === key) {
+    return i18next.t('fashion:mainMessage.default');
+  }
+
+  return message;
+}
+
 function getStyleRecommendations(bodyType: string): StyleRecommendation[] {
-  const styles: Record<string, StyleRecommendation[]> = {
-    tallSlim: [
+  const styles: Record<string, () => StyleRecommendation[]> = {
+    tallSlim: () => [
       {
-        category: '상의',
-        items: ['오버사이즈 니트', '레이어드 스타일', '볼륨 있는 아우터'],
-        description: '볼륨감을 더해 균형 잡힌 실루엣을 만들어줍니다.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.tallSlim.tops.items').split(', '),
+        description: i18next.t('fashion:style.tallSlim.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['와이드 팬츠', '플레어 팬츠', 'A라인 스커트'],
-        description: '하체에 볼륨감을 더해줍니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.tallSlim.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.tallSlim.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['캐주얼 레이어드', '로맨틱', '보헤미안'],
-        description: '자유로운 실루엣이 잘 어울립니다.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.tallSlim.style.items').split(', '),
+        description: i18next.t('fashion:style.tallSlim.style.desc'),
         icon: '✨',
       },
     ],
-    tallLarge: [
+    tallLarge: () => [
       {
-        category: '상의',
-        items: ['V넥 상의', '세로 스트라이프', '롱 카디건'],
-        description: '세로 라인으로 슬림한 느낌을 강조합니다.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.tallLarge.tops.items').split(', '),
+        description: i18next.t('fashion:style.tallLarge.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['스트레이트 팬츠', '부츠컷', 'A라인 스커트'],
-        description: '깔끔한 실루엣을 유지합니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.tallLarge.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.tallLarge.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['클래식', '미니멀', '시크'],
-        description: '당당한 체격을 살리는 정제된 스타일.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.tallLarge.style.items').split(', '),
+        description: i18next.t('fashion:style.tallLarge.style.desc'),
         icon: '✨',
       },
     ],
-    averageSlim: [
+    averageSlim: () => [
       {
-        category: '상의',
-        items: ['피티드 상의', '니트', '크롭탑'],
-        description: '몸에 맞는 핏으로 깔끔하게.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.averageSlim.tops.items').split(', '),
+        description: i18next.t('fashion:style.averageSlim.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['슬림핏 팬츠', '미니 스커트', '하이웨이스트'],
-        description: '다양한 핏을 소화할 수 있습니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.averageSlim.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.averageSlim.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['캐주얼 시크', '미니멀', '모던'],
-        description: '깔끔하고 세련된 스타일이 잘 어울립니다.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.averageSlim.style.items').split(', '),
+        description: i18next.t('fashion:style.averageSlim.style.desc'),
         icon: '✨',
       },
     ],
-    averageNormal: [
+    averageNormal: () => [
       {
-        category: '상의',
-        items: ['다양한 상의', '자켓', '가디건'],
-        description: '어떤 스타일이든 잘 소화합니다.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.averageNormal.tops.items').split(', '),
+        description: i18next.t('fashion:style.averageNormal.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['청바지', '슬랙스', '스커트'],
-        description: '자유롭게 선택해도 좋습니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.averageNormal.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.averageNormal.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['올라운더', '트렌디', '믹스매치'],
-        description: '다양한 스타일을 시도해보세요.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.averageNormal.style.items').split(', '),
+        description: i18next.t('fashion:style.averageNormal.style.desc'),
         icon: '✨',
       },
     ],
-    averageLarge: [
+    averageLarge: () => [
       {
-        category: '상의',
-        items: ['V넥 상의', '랩 스타일', '세로 라인'],
-        description: '세로 라인을 강조해 슬림하게.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.averageLarge.tops.items').split(', '),
+        description: i18next.t('fashion:style.averageLarge.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['A라인', '부츠컷', '스트레이트 팬츠'],
-        description: '깔끔한 실루엣을 유지합니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.averageLarge.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.averageLarge.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['모던 클래식', '미니멀', '심플'],
-        description: '정돈된 느낌의 스타일이 좋습니다.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.averageLarge.style.items').split(', '),
+        description: i18next.t('fashion:style.averageLarge.style.desc'),
         icon: '✨',
       },
     ],
-    shortSlim: [
+    shortSlim: () => [
       {
-        category: '상의',
-        items: ['크롭 상의', '숏 자켓', '하이웨이스트 코디'],
-        description: '다리 길이를 길어 보이게 합니다.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.shortSlim.tops.items').split(', '),
+        description: i18next.t('fashion:style.shortSlim.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['하이웨이스트 팬츠', '미니 스커트', '9부 팬츠'],
-        description: '세로 라인을 강조합니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.shortSlim.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.shortSlim.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['미니멀', '프렌치 시크', '모노톤'],
-        description: '심플하고 정돈된 스타일이 좋습니다.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.shortSlim.style.items').split(', '),
+        description: i18next.t('fashion:style.shortSlim.style.desc'),
         icon: '✨',
       },
     ],
-    shortLarge: [
+    shortLarge: () => [
       {
-        category: '상의',
-        items: ['V넥', '세로 스트라이프', '단색 상의'],
-        description: '세로 라인으로 키가 커 보이게.',
+        category: i18next.t('fashion:styleCategory.tops'),
+        items: i18next.t('fashion:style.shortLarge.tops.items').split(', '),
+        description: i18next.t('fashion:style.shortLarge.tops.desc'),
         icon: '👕',
       },
       {
-        category: '하의',
-        items: ['하이웨이스트', 'A라인', '스트레이트 팬츠'],
-        description: '다리 라인을 길게 보이게 합니다.',
+        category: i18next.t('fashion:styleCategory.bottoms'),
+        items: i18next.t('fashion:style.shortLarge.bottoms.items').split(', '),
+        description: i18next.t('fashion:style.shortLarge.bottoms.desc'),
         icon: '👖',
       },
       {
-        category: '스타일',
-        items: ['모던', '심플', '원톤 코디'],
-        description: '깔끔한 통일감으로 비율을 좋게.',
+        category: i18next.t('fashion:styleCategory.style'),
+        items: i18next.t('fashion:style.shortLarge.style.items').split(', '),
+        description: i18next.t('fashion:style.shortLarge.style.desc'),
         icon: '✨',
       },
     ],
   };
 
-  return styles[bodyType] || styles.averageNormal;
+  const styleFactory = styles[bodyType] || styles.averageNormal;
+  return styleFactory();
 }
 
 function getColorRecommendation(bodyType: string): ColorRecommendation {
@@ -278,79 +284,75 @@ function getColorRecommendation(bodyType: string): ColorRecommendation {
 
   if (slimTypes.includes(bodyType)) {
     return {
-      recommended: ['밝은 색', '파스텔톤', '화이트', '베이지', '밝은 회색'],
+      recommended: i18next.t('fashion:color.slim.recommended').split(', '),
       avoid: [],
-      description: '밝은 색상으로 볼륨감을 더해보세요.',
+      description: i18next.t('fashion:color.slim.desc'),
     };
   }
 
   if (largeTypes.includes(bodyType)) {
     return {
-      recommended: ['네이비', '블랙', '차콜', '버건디', '다크 그린'],
-      avoid: ['가로 스트라이프', '밝은 원색'],
-      description: '어두운 색상으로 슬림한 느낌을 연출하세요.',
+      recommended: i18next.t('fashion:color.large.recommended').split(', '),
+      avoid: i18next.t('fashion:color.large.avoid').split(', '),
+      description: i18next.t('fashion:color.large.desc'),
     };
   }
 
   return {
-    recommended: ['다양한 색상', '시즌 컬러', '자신만의 색'],
+    recommended: i18next.t('fashion:color.normal.recommended').split(', '),
     avoid: [],
-    description: '다양한 색상을 자유롭게 시도해보세요.',
+    description: i18next.t('fashion:color.normal.desc'),
   };
 }
 
 function getTips(bodyType: string): string[] {
-  const tips: Record<string, string[]> = {
-    tallSlim: [
-      '레이어드 스타일로 볼륨감을 더해보세요.',
-      '가로 스트라이프가 잘 어울립니다.',
-      '오버사이즈 아이템을 활용해보세요.',
-    ],
-    tallLarge: [
-      '세로 라인을 강조하는 아이템을 선택하세요.',
-      '잘 맞는 핏의 옷을 선택하세요.',
-      '단색 코디로 깔끔하게 연출하세요.',
-    ],
-    averageSlim: [
-      '다양한 스타일을 시도해보세요.',
-      '액세서리로 포인트를 줘보세요.',
-      '컬러풀한 아이템도 잘 어울립니다.',
-    ],
-    averageNormal: [
-      '트렌드를 적극 활용해보세요.',
-      '자신만의 시그니처 스타일을 찾아보세요.',
-      '다양한 믹스매치를 시도해보세요.',
-    ],
-    averageLarge: [
-      'V넥이나 세로 라인을 활용하세요.',
-      '허리 라인을 강조하면 좋습니다.',
-      '단색 코디가 깔끔해 보입니다.',
-    ],
-    shortSlim: [
-      '하이웨이스트로 다리를 길어 보이게 하세요.',
-      '원톤 코디로 세로 라인을 강조하세요.',
-      '숏 아우터가 잘 어울립니다.',
-    ],
-    shortLarge: [
-      '세로 라인을 최대한 활용하세요.',
-      '하이웨이스트는 필수입니다.',
-      '발목이 보이는 기장이 좋습니다.',
-    ],
-  };
+  const tips: string[] = [];
 
-  return tips[bodyType] || tips.averageNormal;
+  // Try to get up to 3 tips for the body type
+  for (let i = 0; i < 10; i++) {
+    const key = `fashion:tips.${bodyType}.${i}`;
+    const tip = i18next.t(key);
+
+    // If translation key doesn't exist, stop
+    if (tip === key) {
+      break;
+    }
+
+    tips.push(tip);
+  }
+
+  // If no tips found, try to get averageNormal tips
+  if (tips.length === 0 && bodyType !== 'averageNormal') {
+    for (let i = 0; i < 10; i++) {
+      const key = `fashion:tips.averageNormal.${i}`;
+      const tip = i18next.t(key);
+
+      if (tip === key) {
+        break;
+      }
+
+      tips.push(tip);
+    }
+  }
+
+  return tips;
 }
 
 function getAvoid(bodyType: string): string[] {
-  const avoid: Record<string, string[]> = {
-    tallSlim: ['너무 타이트한 옷', '세로 스트라이프만 입기'],
-    tallLarge: ['가로 스트라이프', '너무 밝은 색상 전체 코디'],
-    averageSlim: ['너무 큰 오버사이즈'],
-    averageNormal: [],
-    averageLarge: ['타이트한 옷', '밝은 색 가로 스트라이프'],
-    shortSlim: ['긴 기장의 아우터', '로우웨이스트'],
-    shortLarge: ['가로 스트라이프', '로우웨이스트', '롱 아우터'],
-  };
+  const avoid: string[] = [];
 
-  return avoid[bodyType] || [];
+  // Try to get avoid items for the body type
+  for (let i = 0; i < 10; i++) {
+    const key = `fashion:avoid.${bodyType}.${i}`;
+    const item = i18next.t(key);
+
+    // If translation key doesn't exist, stop
+    if (item === key) {
+      break;
+    }
+
+    avoid.push(item);
+  }
+
+  return avoid;
 }
