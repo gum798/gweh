@@ -33,6 +33,21 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   // 서울 기본 좌표
   const DEFAULT_LOCATION = { lat: 37.5665, lon: 126.9780 };
 
+  // 이전 저장된 위치 자동 불러오기
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/profile', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.profile?.last_lat && d.profile?.last_lon) {
+          setLocation({ lat: d.profile.last_lat, lon: d.profile.last_lon });
+        }
+      })
+      .catch(() => {});
+  }, [session?.access_token]);
+
   const requestLocation = useCallback(() => {
     setLocationError(null);
 
