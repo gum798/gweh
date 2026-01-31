@@ -47,6 +47,15 @@ export default function SajuTab() {
       }
     } catch { /* ignore */ }
 
+    // 운세탭에서 저장한 생년이 있으면 날짜만 프리필 (자동 제출 안 함)
+    const fortuneYear = localStorage.getItem('mystic_birth_year');
+    if (fortuneYear) {
+      setBirthDate(`${fortuneYear}-01-01`);
+      autoSubmitted.current = true; // 자동 제출 방지
+      setReady(true);
+      return;
+    }
+
     if (!session?.access_token) {
       setReady(true);
       return;
