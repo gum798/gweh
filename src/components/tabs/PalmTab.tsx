@@ -125,6 +125,31 @@ export default function PalmTab() {
           </div>
         </section>
 
+        {/* Previous Photo */}
+        {previousPhotoUrl && (
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.previousPhoto')}</span>
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src={previousPhotoUrl}
+                  alt="Previous palm"
+                  className="w-20 h-20 rounded-xl object-cover border border-white/10"
+                />
+                <p className="text-white/50 text-sm flex-1">{tc('palm.previousPhotoDesc')}</p>
+              </div>
+              <button
+                onClick={handleUsePreviousPhoto}
+                className="w-full py-3 bg-[#5b13ec]/30 hover:bg-[#5b13ec]/50 rounded-xl text-white text-sm font-bold transition-colors"
+              >
+                ✋ {tc('palm.analyzeWithPrevious')}
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* Instructions */}
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
@@ -157,31 +182,6 @@ export default function PalmTab() {
             </ul>
           </div>
         </section>
-
-        {/* Previous Photo */}
-        {previousPhotoUrl && (
-          <section className="px-4">
-            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.previousPhoto')}</span>
-              </div>
-              <div className="flex items-center gap-4 mb-4">
-                <img
-                  src={previousPhotoUrl}
-                  alt="Previous palm"
-                  className="w-20 h-20 rounded-xl object-cover border border-white/10"
-                />
-                <p className="text-white/50 text-sm flex-1">{tc('palm.previousPhotoDesc')}</p>
-              </div>
-              <button
-                onClick={handleUsePreviousPhoto}
-                className="w-full py-3 bg-[#5b13ec]/30 hover:bg-[#5b13ec]/50 rounded-xl text-white text-sm font-bold transition-colors"
-              >
-                ✋ {tc('palm.analyzeWithPrevious')}
-              </button>
-            </div>
-          </section>
-        )}
 
         {/* Start Button */}
         <div className="px-4 pb-8">
