@@ -49,7 +49,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // Return the public URL (R2 custom domain or r2.dev)
     // The actual URL depends on R2 public access config
-    const photoUrl = `https://photos.gweh.pages.dev/${key}`;
+    const photoUrl = `https://pub-f912e0aa955046d390bf74abcc03725b.r2.dev/${key}`;
 
     return Response.json({ url: photoUrl }, {
       headers: {
