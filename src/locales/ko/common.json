@@ -138,6 +138,9 @@
   "palm.lineDetails": "선의 세부 해석",
   "palm.mysticAdvice": "신비로운 조언",
   "palm.newReading": "새로 읽기",
+  "palm.previousPhoto": "이전 사진",
+  "palm.previousPhotoDesc": "이전에 분석한 손금 사진으로 다시 분석할 수 있습니다",
+  "palm.analyzeWithPrevious": "이전 사진으로 손금 읽기",
 
   "saju.heroTitle1": "Four Pillars of",
   "saju.heroTitle2": "Destiny",

@@ -128,6 +128,9 @@
   "palm.lineDetails": "Line Details",
   "palm.mysticAdvice": "Mystic Advice",
   "palm.newReading": "New Reading",
+  "palm.previousPhoto": "Previous Photo",
+  "palm.previousPhotoDesc": "Re-analyze with your previously saved palm photo",
+  "palm.analyzeWithPrevious": "Read Palm with Previous Photo",
 
   "saju.heroTitle1": "Four Pillars of",
   "saju.heroTitle2": "Destiny",

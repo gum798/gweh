@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import CameraCapture from '../camera/CameraCapture';
 import { useHandDetection } from '../../hooks/useHandDetection';
@@ -12,8 +12,28 @@ export default function PalmTab() {
   const [mode, setMode] = useState('intro');
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
+  const [previousPhotoUrl, setPreviousPhotoUrl] = useState<string | null>(null);
+  const [loadingPrevious, setLoadingPrevious] = useState(false);
 
   const { detectHand, isLoading, error } = useHandDetection();
+
+  // Check for previous palm photo via proxy API
+  useEffect(() => {
+    if (!session?.access_token) {
+      setPreviousPhotoUrl(null);
+      return;
+    }
+    fetch('/api/palm-photo', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+    }).then(res => {
+      if (res.ok) {
+        return res.blob().then(blob => {
+          setPreviousPhotoUrl(URL.createObjectURL(blob));
+        });
+      }
+      setPreviousPhotoUrl(null);
+    }).catch(() => setPreviousPhotoUrl(null));
+  }, [session?.access_token]);
 
   const handleStart = () => {
     setMode('capture');
@@ -44,12 +64,36 @@ export default function PalmTab() {
             'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ image: imageSrc, type: 'palm' }),
+        }).then(() => {
+          fetch('/api/palm-photo', {
+            headers: { 'Authorization': `Bearer ${session.access_token}` },
+          }).then(r => r.ok ? r.blob() : null).then(blob => {
+            if (blob) setPreviousPhotoUrl(URL.createObjectURL(blob));
+          }).catch(() => {});
         }).catch(() => {});
       }
     } else {
       setMode('capture');
     }
   }, [detectHand, session?.access_token]);
+
+  const handleUsePreviousPhoto = useCallback(async () => {
+    if (!previousPhotoUrl) return;
+    setLoadingPrevious(true);
+    try {
+      const res = await fetch(previousPhotoUrl);
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLoadingPrevious(false);
+        handleCapture(reader.result as string);
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      setLoadingPrevious(false);
+      setMode('capture');
+    }
+  }, [previousPhotoUrl, handleCapture]);
 
   const handleReset = () => {
     setMode('intro');
@@ -114,13 +158,38 @@ export default function PalmTab() {
           </div>
         </section>
 
+        {/* Previous Photo */}
+        {previousPhotoUrl && (
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.previousPhoto')}</span>
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src={previousPhotoUrl}
+                  alt="Previous palm"
+                  className="w-20 h-20 rounded-xl object-cover border border-white/10"
+                />
+                <p className="text-white/50 text-sm flex-1">{tc('palm.previousPhotoDesc')}</p>
+              </div>
+              <button
+                onClick={handleUsePreviousPhoto}
+                className="w-full py-3 bg-[#5b13ec]/30 hover:bg-[#5b13ec]/50 rounded-xl text-white text-sm font-bold transition-colors"
+              >
+                ✋ {tc('palm.analyzeWithPrevious')}
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* Start Button */}
         <div className="px-4 pb-8">
           <button
             onClick={handleStart}
             className="w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
           >
-            {tc('palm.startReading')}
+            {previousPhotoUrl ? tc('palm.newReading') : tc('palm.startReading')}
           </button>
         </div>
       </div>
@@ -157,7 +226,7 @@ export default function PalmTab() {
   }
 
   // 분석 중 화면
-  if (mode === 'analyzing' || isLoading) {
+  if (loadingPrevious || mode === 'analyzing' || isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
