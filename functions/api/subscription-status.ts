@@ -38,14 +38,27 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       ? 'https://sandbox-api.polar.sh'
       : 'https://api.polar.sh';
 
-    // Fetch subscriptions and filter by status (active or trialing)
+    // 1. Find customer by email
+    const custRes = await fetch(
+      `${apiBaseUrl}/v1/customers/?email=${encodeURIComponent(user.email)}&limit=1`,
+      { headers: { 'Authorization': `Bearer ${polarToken}` } }
+    );
+
+    if (!custRes.ok) {
+      console.error('Polar customer lookup error:', await custRes.text());
+      return Response.json({ subscribed: false, trialing: false }, { status: 200 });
+    }
+
+    const custData = await custRes.json() as { items: any[] };
+    const customer = custData.items?.[0];
+    if (!customer) {
+      return Response.json({ subscribed: false, trialing: false }, { status: 200 });
+    }
+
+    // 2. Fetch subscriptions by customer_id
     const subsRes = await fetch(
-      `${apiBaseUrl}/v1/subscriptions/?customer_email=${encodeURIComponent(user.email)}&limit=10`,
-      {
-        headers: {
-          'Authorization': `Bearer ${polarToken}`,
-        },
-      }
+      `${apiBaseUrl}/v1/subscriptions/?customer_id=${customer.id}&limit=10`,
+      { headers: { 'Authorization': `Bearer ${polarToken}` } }
     );
 
     if (!subsRes.ok) {
