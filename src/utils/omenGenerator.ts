@@ -229,10 +229,10 @@ function generateSummaryOmen(weather, moon, earthquake) {
   if (weather?.pressure > 1015) factors.push(i18next.t('omen:summary.stablePressure'));
   else if (weather?.pressure < 1005) factors.push(i18next.t('omen:summary.changingPressure'));
 
-  if (moon?.illumination > 70) factors.push(i18next.t('omen:summary.brightMoon'));
-  else if (moon?.illumination < 30) factors.push(i18next.t('omen:summary.darkSky'));
+  if (moon?.illumination > 70) factors.push(i18next.t('omen:summary.brightMoonlight'));
+  else if (moon?.illumination < 30) factors.push(i18next.t('omen:summary.darkNightSky'));
 
-  if (earthquake?.count > 10) factors.push(i18next.t('omen:summary.activeEarth'));
+  if (earthquake?.count > 10) factors.push(i18next.t('omen:summary.activeTectonics'));
   else if (earthquake?.count < 3) factors.push(i18next.t('omen:summary.quietEarth'));
 
   if (factors.length === 0) {
@@ -243,25 +243,50 @@ function generateSummaryOmen(weather, moon, earthquake) {
   return i18next.t('omen:summary.template', { factors: joined });
 }
 
+// Score = (SajuBase × W_Fate) + (Weather × β) + (Earthquake × γ)
+// oracle.md 환경 보정 계수 기반 에너지 산출
 export function getOverallEnergy(weather, moon, earthquake) {
   let score = 50;
 
   if (weather) {
-    if (weather.pressure > 1015) score += 10;
-    if (weather.pressure < 1005) score -= 5;
-    if (weather.clouds < 30) score += 5;
+    // 기압: 금(金) 기운 — 안정/결실
+    if (weather.pressure > 1020) score += 12;
+    else if (weather.pressure > 1015) score += 8;
+    else if (weather.pressure < 1000) score -= 8;
+    else if (weather.pressure < 1005) score -= 4;
+
+    // 하늘상태(SKY): 화(火) — 명료함
+    if (weather.clouds < 20) score += 8;
+    else if (weather.clouds < 50) score += 3;
+    else if (weather.clouds > 80) score -= 5;
+
+    // 습도(REH): 수(水) 과다 시 심리적 위축
+    if (weather.humidity > 85) score -= 5;
+    else if (weather.humidity < 40) score += 3;
+
+    // 풍속(WSD): 변동성 계수
+    if (weather.windSpeed > 10) score -= 8;
+    else if (weather.windSpeed > 6) score -= 3;
   }
 
   if (moon) {
-    if (moon.name === '보름달') score += 15;
-    if (moon.name === '새달') score += 10;
+    // 월상: 음양(陰陽) 순환
+    if (moon.name === '보름달') score += 15;  // 양(陽) 극대
+    else if (moon.name === '새달') score += 10;  // 새로운 시작
+    else if (moon.name === '초승달' || moon.name === '상현달') score += 5;  // 양 상승
     if (moon.illumination > 80) score += 5;
   }
 
   if (earthquake) {
-    if (earthquake.count < 5) score += 10;
-    if (earthquake.count > 15) score -= 10;
-    if (earthquake.maxMagnitude > 6) score -= 15;
+    // 지진: 지지(地支) 충(冲) — 변동성 계수 (γ)
+    if (earthquake.count < 3) score += 10;
+    else if (earthquake.count < 5) score += 5;
+    else if (earthquake.count > 15) score -= 12;
+    else if (earthquake.count > 10) score -= 6;
+    // 규모별 영향: 클수록 지지 충돌 강도 증가
+    if (earthquake.maxMagnitude > 6) score -= 18;
+    else if (earthquake.maxMagnitude > 5) score -= 10;
+    else if (earthquake.maxMagnitude > 4) score -= 5;
   }
 
   return Math.max(0, Math.min(100, score));
