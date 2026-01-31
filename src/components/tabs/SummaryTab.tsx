@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
-import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
-import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
 import { getEnergyLabel } from '../../utils/omenGenerator';
 
 interface FortuneResult {
@@ -19,14 +17,6 @@ interface FortuneResult {
   luckyDirection: string;
 }
 
-const ELEMENT_COLORS: Record<string, string> = {
-  목: 'text-green-400',
-  화: 'text-red-400',
-  토: 'text-yellow-500',
-  금: 'text-gray-300',
-  수: 'text-blue-400',
-};
-
 interface SummaryTabProps {
   onLoginRequired: () => void;
 }
@@ -37,8 +27,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const { isSubscribed, subscribe } = useSubscription();
 
   const [fortune, setFortune] = useState<FortuneResult | null>(null);
-  const [sajuResult, setSajuResult] = useState<any>(null);
-  const [sajuFortune, setSajuFortune] = useState<any>(null);
   const [personalOmen, setPersonalOmen] = useState<any>(null);
   const [energyLabel, setEnergyLabel] = useState<{ label: string; color: string } | null>(null);
   const [dailyStyle, setDailyStyle] = useState<any>(null);
@@ -53,22 +41,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         const today = new Date().toISOString().split('T')[0];
         if (cached.date === today && cached.fortune) {
           setFortune(cached.fortune);
-        }
-      }
-    } catch {}
-
-    // 사주 계산
-    try {
-      const raw = localStorage.getItem('mystic_saju_input');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.birthDate) {
-          const date = new Date(parsed.birthDate);
-          const hour = parsed.birthHour ?? 12;
-          const saju = calculateSaju(date, hour);
-          const interpretation = interpretSaju(saju);
-          setSajuResult(interpretation);
-          setSajuFortune(getTodayFortune(saju));
         }
       }
     } catch {}
@@ -124,7 +96,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     weekday: 'long',
   });
 
-  const hasAnyData = fortune || sajuResult || personalOmen || dailyStyle;
+  const hasAnyData = fortune || personalOmen || dailyStyle;
 
   const getLevelStyle = (level: string) => {
     if (level === '대길') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
@@ -381,43 +353,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </section>
       )}
 
-      {/* 사주 하이라이트 */}
-      {sajuResult && (
-        <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.sajuHighlight')}</h4>
-
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">
-              <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t('summary.dayMaster')}</p>
-              <p className="text-white text-xl font-bold">{sajuResult.dayMaster.name}</p>
-              <p className="text-white/50 text-xs mt-1">
-                {t('saju.dayMasterEnergy', { nature: sajuResult.dayMaster.nature, trait: sajuResult.dayMaster.trait })}
-              </p>
-            </div>
-
-            <div className="flex justify-center gap-2 mb-4">
-              {Object.entries(sajuResult.elementAnalysis.distribution).map(([element, count]) => (
-                <div key={element} className="text-center">
-                  <span className={`text-lg font-bold ${ELEMENT_COLORS[element]}`}>{element}</span>
-                  <span className="text-white/40 text-xs block">{count as number}</span>
-                </div>
-              ))}
-            </div>
-
-            {sajuFortune && (
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/40 text-xs uppercase tracking-widest">{t('summary.sajuFortune')}</span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getLevelStyle(sajuFortune.level)}`}>
-                    {sajuFortune.level}
-                  </span>
-                </div>
-                <p className="text-white/60 text-xs leading-relaxed">{sajuFortune.message}</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
