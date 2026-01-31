@@ -46,8 +46,8 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
   };
 
   return (
-    <section className="px-4 mb-6">
-      <div className="max-w-md mx-auto relative overflow-hidden rounded-2xl border border-[#5b13ec]/40 bg-gradient-to-br from-[#1a1030] via-[#221933] to-[#2a1040]">
+    <section className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4">
+      <div className="max-w-md mx-auto relative overflow-hidden rounded-2xl border border-[#5b13ec]/40 bg-gradient-to-br from-[#1a1030] via-[#221933] to-[#2a1040] shadow-[0_-4px_30px_rgba(0,0,0,0.5)]">
         {/* Dismiss */}
         <button
           onClick={() => { setDismissed(true); localStorage.setItem('sub_banner_dismissed', Date.now().toString()); }}
