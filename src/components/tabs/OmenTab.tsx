@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWeather } from '../../hooks/useWeather';
 import { useParallelData } from '../../hooks/useParallelData';
@@ -8,6 +8,26 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 
 const DataPanel = lazy(() => import('../DataPanel'));
+
+const PERSONAL_OMEN_CACHE_KEY = 'personal_omen_cache';
+
+function getCachedPersonalOmen(birthDate: string, energyLabel: string) {
+  try {
+    const raw = localStorage.getItem(PERSONAL_OMEN_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    const today = new Date().toISOString().split('T')[0];
+    if (cached.date === today && cached.birth_date === birthDate && cached.energy_label === energyLabel) {
+      return cached.data;
+    }
+  } catch {}
+  return null;
+}
+
+function setCachedPersonalOmen(birthDate: string, energyLabel: string, data: any) {
+  const today = new Date().toISOString().split('T')[0];
+  localStorage.setItem(PERSONAL_OMEN_CACHE_KEY, JSON.stringify({ date: today, birth_date: birthDate, energy_label: energyLabel, data }));
+}
 
 interface OmenTabProps {
   onLoginRequired: () => void;
@@ -23,6 +43,10 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   const [dailyStyle, setDailyStyle] = useState<any>(null);
   const [styleLoading, setStyleLoading] = useState(false);
   const [minWait, setMinWait] = useState(false);
+  const [personalOmen, setPersonalOmen] = useState<any>(null);
+  const [personalLoading, setPersonalLoading] = useState(false);
+  const profileRef = useRef<{ birth_date?: string; birth_hour?: number; height?: number; weight?: number } | null>(null);
+  const personalFetched = useRef(false);
 
   const { data: weather, loading: weatherLoading, error: weatherError } = useWeather(
     location?.lat,
@@ -39,16 +63,25 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     let cancelled = false;
 
     const resolveLocation = async () => {
-      // 1. 로그인 사용자: 저장된 위치 확인
+      // 1. 로그인 사용자: 저장된 위치 + 프로필 데이터 확인
       if (session?.access_token) {
         try {
           const r = await fetch('/api/profile', {
             headers: { Authorization: `Bearer ${session.access_token}` },
           });
           const d = await r.json();
-          if (!cancelled && d.profile?.last_lat && d.profile?.last_lon) {
-            setLocation({ lat: d.profile.last_lat, lon: d.profile.last_lon });
-            return;
+          if (!cancelled && d.profile) {
+            const p = d.profile;
+            profileRef.current = {
+              birth_date: p.birth_date,
+              birth_hour: p.birth_hour,
+              height: p.height,
+              weight: p.weight,
+            };
+            if (p.last_lat && p.last_lon) {
+              setLocation({ lat: p.last_lat, lon: p.last_lon });
+              return;
+            }
           }
         } catch {}
       }
@@ -190,6 +223,51 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     };
     fetchDailyReading();
   }, [isSubscribed, omen, session?.access_token]);
+
+  // 맞춤 사주 조언 fetch
+  useEffect(() => {
+    if (!session?.access_token || !omen?.main?.message || personalFetched.current) return;
+    const profile = profileRef.current;
+    if (!profile?.birth_date) return;
+
+    personalFetched.current = true;
+    const energyVal = getOverallEnergy(weather!, moon!, earthquake!);
+    const eLabel = getEnergyLabel(energyVal).label;
+
+    // 캐시 확인
+    const cached = getCachedPersonalOmen(profile.birth_date, eLabel);
+    if (cached) {
+      setPersonalOmen(cached);
+      return;
+    }
+
+    setPersonalLoading(true);
+    fetch('/api/personal-omen', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        birth_date: profile.birth_date,
+        birth_hour: profile.birth_hour,
+        omen_message: omen.main.message,
+        energy_label: eLabel,
+        lang: i18n.language,
+        height: profile.height,
+        weight: profile.weight,
+      }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data) {
+          setPersonalOmen(d.data);
+          setCachedPersonalOmen(profile.birth_date!, eLabel, d.data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPersonalLoading(false));
+  }, [session?.access_token, omen]);
 
   const toggleShowData = useCallback(() => {
     setShowData(prev => !prev);
@@ -400,6 +478,68 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           ))}
         </div>
       </section>
+
+      {/* 맞춤 사주 조언 */}
+      {session && (personalOmen || personalLoading) && (
+        <section className="px-4">
+          <div className="max-w-md mx-auto">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1 mb-4">
+              {t('omenTab.personalSaju')}
+            </h4>
+            {personalLoading ? (
+              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 text-center">
+                <div className="flex gap-1 justify-center mb-2">
+                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <p className="text-white/40 text-sm">{t('omenTab.loadingPersonal')}</p>
+              </div>
+            ) : personalOmen ? (
+              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5 space-y-4">
+                <p className="text-white/80 text-base italic text-center">"{personalOmen.headline}"</p>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">🔮</span>
+                    <span className="text-white/60 text-xs font-bold uppercase tracking-widest">{t('omenTab.sajuReading')}</span>
+                  </div>
+                  <p className="text-white/70 text-sm leading-relaxed">{personalOmen.saju_reading}</p>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">🧭</span>
+                    <span className="text-white/60 text-xs font-bold uppercase tracking-widest">{t('omenTab.fengShuiTip')}</span>
+                  </div>
+                  <p className="text-white/70 text-sm leading-relaxed">{personalOmen.feng_shui_tip}</p>
+                </div>
+
+                {personalOmen.health_advice && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">💚</span>
+                      <span className="text-white/60 text-xs font-bold uppercase tracking-widest">{t('omenTab.healthAdvice')}</span>
+                    </div>
+                    <p className="text-white/70 text-sm leading-relaxed">{personalOmen.health_advice}</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
+                  <div>
+                    <span className="text-white/40 text-xs block mb-1">{t('omenTab.luckyItem')}</span>
+                    <span className="text-white text-sm">{personalOmen.lucky_item}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/40 text-xs block mb-1">{t('omenTab.caution')}</span>
+                    <span className="text-orange-400 text-sm">{personalOmen.caution}</span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      )}
 
       {/* Daily Style - Premium */}
       <section className="px-4">

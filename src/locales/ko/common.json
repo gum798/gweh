@@ -109,6 +109,13 @@
   "omenTab.underSky": "{{city}}의 하늘 아래",
   "omenTab.detailedOmens": "세부 괘",
   "omenTab.gatheringEnergy": "기운을 모으는 중...",
+  "omenTab.personalSaju": "맞춤 사주 조언",
+  "omenTab.sajuReading": "사주 풀이",
+  "omenTab.fengShuiTip": "풍수 조언",
+  "omenTab.healthAdvice": "건강 조언",
+  "omenTab.luckyItem": "행운 아이템",
+  "omenTab.caution": "주의사항",
+  "omenTab.loadingPersonal": "맞춤 조언을 읽는 중...",
 
   "face.heroTitle1": "Read Your",
   "face.heroTitle2": "Inner Light",

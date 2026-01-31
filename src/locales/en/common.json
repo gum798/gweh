@@ -99,6 +99,13 @@
   "omenTab.underSky": "Under the sky of {{city}}",
   "omenTab.detailedOmens": "Detailed Omens",
   "omenTab.gatheringEnergy": "Gathering energy...",
+  "omenTab.personalSaju": "Personal Saju Advice",
+  "omenTab.sajuReading": "Saju Reading",
+  "omenTab.fengShuiTip": "Feng Shui Tip",
+  "omenTab.healthAdvice": "Health Advice",
+  "omenTab.luckyItem": "Lucky Item",
+  "omenTab.caution": "Caution",
+  "omenTab.loadingPersonal": "Reading your personal fortune...",
 
   "face.heroTitle1": "Read Your",
   "face.heroTitle2": "Inner Light",
