@@ -36,7 +36,7 @@ function setCachedFortune(birthDate: string, fortune: FortuneResult) {
 }
 
 export default function FortuneTab() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { session } = useAuth();
   const [birthYear, setBirthYear] = useState('');
   const [loading, setLoading] = useState(false);
@@ -177,7 +177,8 @@ export default function FortuneTab() {
   // 결과 화면
   if (result) {
     const today = new Date();
-    const dateStr = today.toLocaleDateString(t('fortune.locale') || 'ko-KR', {
+    const locale = i18n.language === 'en' ? 'en-US' : 'ko-KR';
+    const dateStr = today.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
