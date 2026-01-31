@@ -41,6 +41,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const [sajuFortune, setSajuFortune] = useState<any>(null);
   const [personalOmen, setPersonalOmen] = useState<any>(null);
   const [energyLabel, setEnergyLabel] = useState<{ label: string; color: string } | null>(null);
+  const [dailyStyle, setDailyStyle] = useState<any>(null);
+  const [styleLoading, setStyleLoading] = useState(false);
 
   useEffect(() => {
     // 운세 캐시
@@ -80,8 +82,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         if (cached.date === today && cached.data) {
           setPersonalOmen(cached.data);
           if (cached.energy_label) {
-            setEnergyLabel(getEnergyLabel(0)); // placeholder
-            // energy_label from cache is text like "대길", map it
             const labelMap: Record<string, number> = { '대길': 90, '길': 70, '평': 50, '소흉': 30, '흉': 10 };
             const enLabelMap: Record<string, number> = { 'Excellent': 90, 'Good': 70, 'Neutral': 50, 'Caution': 30, 'Be Careful': 10 };
             const score = labelMap[cached.energy_label] ?? enLabelMap[cached.energy_label] ?? 50;
@@ -92,6 +92,29 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     } catch {}
   }, []);
 
+  // 스타일 데이터 가져오기 (구독자만)
+  useEffect(() => {
+    if (!isSubscribed || !session?.access_token) return;
+
+    const fetchStyle = async () => {
+      setStyleLoading(true);
+      try {
+        const res = await fetch('/api/daily-reading', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (res.ok) {
+          const { reading } = await res.json();
+          if (reading?.style_data) {
+            setDailyStyle(reading.style_data);
+          }
+        }
+      } catch {}
+      setStyleLoading(false);
+    };
+
+    fetchStyle();
+  }, [isSubscribed, session?.access_token]);
+
   const today = new Date();
   const locale = t('nav.omen') === '괘' ? 'ko-KR' : 'en-US';
   const dateStr = today.toLocaleDateString(locale, {
@@ -101,7 +124,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     weekday: 'long',
   });
 
-  const hasAnyData = fortune || sajuResult || personalOmen;
+  const hasAnyData = fortune || sajuResult || personalOmen || dailyStyle;
 
   const getLevelStyle = (level: string) => {
     if (level === '대길') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
@@ -127,7 +150,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
             </div>
 
             <div className="relative overflow-hidden rounded-2xl border border-white/10">
-              {/* Blurred fake content */}
               <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none space-y-4">
                 <div className="text-center">
                   <span className="text-4xl">📊</span>
@@ -147,7 +169,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                   </div>
                 </div>
               </div>
-              {/* Lock overlay */}
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
                 <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(91,19,236,0.3)]">
                   <span className="text-xl">🔒</span>
@@ -170,8 +191,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     );
   }
 
-  // 구독자: 데이터 없으면 안내
-  if (!hasAnyData) {
+  // 구독자: 데이터 없으면 안내 (스타일 로딩 중이면 대기)
+  if (!hasAnyData && !styleLoading) {
     return (
       <div className="space-y-6 pb-8">
         <div className="text-center pt-4">
@@ -190,7 +211,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     );
   }
 
-  // 구독자: 종합 분석
+  // 구독자: 종합 분석 — 순서: 스타일 → 괘 → 운세
   return (
     <div className="space-y-6 pb-8">
       <div className="text-center pt-4">
@@ -206,7 +227,52 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </div>
       </section>
 
-      {/* 에너지 + 괘 */}
+      {/* 1. 스타일 추천 */}
+      {(dailyStyle || styleLoading) && (
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-lg">👔</span>
+              <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
+            </div>
+            {styleLoading ? (
+              <div className="text-center py-4">
+                <div className="flex gap-1 justify-center mb-2">
+                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <p className="text-white/40 text-sm">{t('sub.loadingStyle')}</p>
+              </div>
+            ) : dailyStyle ? (
+              <div className="space-y-3">
+                <p className="text-white/80 text-sm italic">"{dailyStyle.headline}"</p>
+                <p className="text-white/60 text-xs leading-relaxed">{dailyStyle.style}</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-white/40 text-xs">{t('sub.styleColors')}:</span>
+                  {dailyStyle.colors?.map((color: string, i: number) => (
+                    <span key={i} className="text-[#5b13ec] text-xs bg-[#5b13ec]/10 px-2 py-0.5 rounded-full">
+                      {color}
+                    </span>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+                  <div>
+                    <span className="text-white/40 text-xs block mb-1">{t('sub.styleItem')}</span>
+                    <span className="text-white text-sm">{dailyStyle.item}</span>
+                  </div>
+                  <div>
+                    <span className="text-white/40 text-xs block mb-1">{t('sub.styleTip')}</span>
+                    <span className="text-white text-sm">{dailyStyle.tip}</span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      )}
+
+      {/* 2. 에너지 + 괘 */}
       {energyLabel && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
@@ -223,81 +289,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </section>
       )}
 
-      {/* 운세 요약 */}
-      {fortune && (
-        <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
-            <div className="text-center mb-4">
-              <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(fortune.level)}`}>
-                {fortune.level}
-              </span>
-            </div>
-            <p className="text-white/70 text-sm leading-relaxed text-center italic mb-4">
-              "{fortune.overall}"
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { icon: '💕', label: t('fortune.love'), text: fortune.love },
-                { icon: '💼', label: t('fortune.career'), text: fortune.career },
-                { icon: '💰', label: t('fortune.wealth'), text: fortune.wealth },
-                { icon: '🏥', label: t('fortune.health'), text: fortune.health },
-              ].map((item) => (
-                <div key={item.label} className="bg-white/5 rounded-xl p-3">
-                  <div className="flex items-center gap-1 mb-1">
-                    <span className="text-sm">{item.icon}</span>
-                    <span className="text-white text-xs font-bold">{item.label}</span>
-                  </div>
-                  <p className="text-white/50 text-xs leading-relaxed line-clamp-3">{item.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 사주 하이라이트 */}
-      {sajuResult && (
-        <section className="px-4">
-          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.sajuHighlight')}</h4>
-
-            {/* 일간 */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">
-              <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t('summary.dayMaster')}</p>
-              <p className="text-white text-xl font-bold">{sajuResult.dayMaster.name}</p>
-              <p className="text-white/50 text-xs mt-1">
-                {t('saju.dayMasterEnergy', { nature: sajuResult.dayMaster.nature, trait: sajuResult.dayMaster.trait })}
-              </p>
-            </div>
-
-            {/* 오행 분포 */}
-            <div className="flex justify-center gap-2 mb-4">
-              {Object.entries(sajuResult.elementAnalysis.distribution).map(([element, count]) => (
-                <div key={element} className="text-center">
-                  <span className={`text-lg font-bold ${ELEMENT_COLORS[element]}`}>{element}</span>
-                  <span className="text-white/40 text-xs block">{count as number}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* 오늘의 사주 운세 */}
-            {sajuFortune && (
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/40 text-xs uppercase tracking-widest">{t('summary.sajuFortune')}</span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getLevelStyle(sajuFortune.level)}`}>
-                    {sajuFortune.level}
-                  </span>
-                </div>
-                <p className="text-white/60 text-xs leading-relaxed">{sajuFortune.message}</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* 맞춤 조언 */}
+      {/* 2-1. 맞춤 조언 (괘) */}
       {personalOmen && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
@@ -332,7 +324,40 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </section>
       )}
 
-      {/* 조언 + 행운 정보 */}
+      {/* 3. 운세 요약 */}
+      {fortune && (
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
+            <div className="text-center mb-4">
+              <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(fortune.level)}`}>
+                {fortune.level}
+              </span>
+            </div>
+            <p className="text-white/70 text-sm leading-relaxed text-center italic mb-4">
+              "{fortune.overall}"
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { icon: '💕', label: t('fortune.love'), text: fortune.love },
+                { icon: '💼', label: t('fortune.career'), text: fortune.career },
+                { icon: '💰', label: t('fortune.wealth'), text: fortune.wealth },
+                { icon: '🏥', label: t('fortune.health'), text: fortune.health },
+              ].map((item) => (
+                <div key={item.label} className="bg-white/5 rounded-xl p-3">
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-sm">{item.icon}</span>
+                    <span className="text-white text-xs font-bold">{item.label}</span>
+                  </div>
+                  <p className="text-white/50 text-xs leading-relaxed line-clamp-3">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 3-1. 조언 + 행운 정보 */}
       {fortune && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6">
@@ -352,6 +377,44 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 <span className="text-white text-sm font-medium">{fortune.luckyDirection}</span>
               </div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* 사주 하이라이트 */}
+      {sajuResult && (
+        <section className="px-4">
+          <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+            <h4 className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.sajuHighlight')}</h4>
+
+            <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">
+              <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t('summary.dayMaster')}</p>
+              <p className="text-white text-xl font-bold">{sajuResult.dayMaster.name}</p>
+              <p className="text-white/50 text-xs mt-1">
+                {t('saju.dayMasterEnergy', { nature: sajuResult.dayMaster.nature, trait: sajuResult.dayMaster.trait })}
+              </p>
+            </div>
+
+            <div className="flex justify-center gap-2 mb-4">
+              {Object.entries(sajuResult.elementAnalysis.distribution).map(([element, count]) => (
+                <div key={element} className="text-center">
+                  <span className={`text-lg font-bold ${ELEMENT_COLORS[element]}`}>{element}</span>
+                  <span className="text-white/40 text-xs block">{count as number}</span>
+                </div>
+              ))}
+            </div>
+
+            {sajuFortune && (
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white/40 text-xs uppercase tracking-widest">{t('summary.sajuFortune')}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getLevelStyle(sajuFortune.level)}`}>
+                    {sajuFortune.level}
+                  </span>
+                </div>
+                <p className="text-white/60 text-xs leading-relaxed">{sajuFortune.message}</p>
+              </div>
+            )}
           </div>
         </section>
       )}
