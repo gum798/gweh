@@ -307,13 +307,17 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Mystic AI <daily@mystic-ai.com>',
+      from: 'Mystic AI <onboarding@resend.dev>',
       to: [to],
       subject: `🔮 오늘의 운세 — ${new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}`,
       html,
     }),
   });
 
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`Email send failed for ${to}:`, res.status, errText);
+  }
   return res.ok;
 }
 
