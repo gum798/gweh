@@ -45,7 +45,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     // Get origin for success/cancel URLs
-    const origin = context.request.headers.get('origin') || 'https://gweh.pages.dev';
+    const origin = context.request.headers.get('origin') || 'https://gweh-3s2.pages.dev';
     const successUrl = `${origin}?checkout_success=true&checkout_id={CHECKOUT_ID}`;
 
     // Create Checkout Session via Polar API

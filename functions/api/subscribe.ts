@@ -45,7 +45,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       // Empty body OK
     }
 
-    const origin = context.request.headers.get('origin') || 'https://gweh.pages.dev';
+    const origin = context.request.headers.get('origin') || 'https://gweh-3s2.pages.dev';
     const successUrl = `${origin}?subscription_success=true`;
 
     const response = await fetch(`${apiBaseUrl}/v1/checkouts/`, {
