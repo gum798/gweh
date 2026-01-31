@@ -38,11 +38,12 @@ function setCachedFortune(birthDate: string, fortune: FortuneResult) {
 export default function FortuneTab() {
   const { t } = useTranslation();
   const { session } = useAuth();
-  const [birthDate, setBirthDate] = useState('');
+  const [birthYear, setBirthYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<FortuneResult | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [existingProfileDate, setExistingProfileDate] = useState<string | null>(null);
   const autoSubmitted = useRef(false);
 
   // 로그인 사용자: 이전 정보 불러오기
@@ -54,24 +55,26 @@ export default function FortuneTab() {
       .then(r => r.json())
       .then(d => {
         if (d.profile?.birth_date) {
-          setBirthDate(d.profile.birth_date);
+          const year = d.profile.birth_date.split('-')[0];
+          setBirthYear(year);
+          setExistingProfileDate(d.profile.birth_date);
           setProfileLoaded(true);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [session?.access_token]);
 
   // 이전 데이터 있으면 자동 제출
   useEffect(() => {
-    if (profileLoaded && birthDate && !autoSubmitted.current) {
+    if (profileLoaded && birthYear && !autoSubmitted.current) {
       autoSubmitted.current = true;
-      submitFortune(birthDate);
+      submitFortune(birthYear);
     }
-  }, [profileLoaded, birthDate]);
+  }, [profileLoaded, birthYear]);
 
-  const submitFortune = async (date: string) => {
+  const submitFortune = async (year: string) => {
     // 캐시 확인
-    const cached = getCachedFortune(date);
+    const cached = getCachedFortune(year);
     if (cached) {
       setResult(cached);
       return;
@@ -83,12 +86,12 @@ export default function FortuneTab() {
       const res = await fetch('/api/fortune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ birth_date: date }),
+        body: JSON.stringify({ birth_date: year }),
       });
       const data = await res.json();
       if (data.success) {
         setResult(data.fortune);
-        setCachedFortune(date, data.fortune);
+        setCachedFortune(year, data.fortune);
       } else {
         setError(data.error || t('fortune.error'));
       }
@@ -98,32 +101,39 @@ export default function FortuneTab() {
       setLoading(false);
     }
 
-    // Save birth data
+    // Smart Persistence:
+    // Only update profile if the year has changed from the existing profile date.
+    // If it matches, we assume the existing full date (from SajuTab) is better and keep it.
     if (session?.access_token) {
-      fetch('/api/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ birth_date: date }),
-      }).catch(() => {});
+      const existingYear = existingProfileDate ? existingProfileDate.split('-')[0] : null;
+
+      if (year !== existingYear) {
+        // Year changed or no existing date -> Save as Year-01-01
+        fetch('/api/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ birth_date: `${year}-01-01` }),
+        })
+          .then(() => setExistingProfileDate(`${year}-01-01`))
+          .catch(() => { });
+      }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!birthDate) return;
-    const d = new Date(birthDate);
-    if (d > new Date()) return;
-    submitFortune(birthDate);
+    if (!birthYear) return;
+    submitFortune(birthYear);
   };
 
   const handleNewReading = () => {
     // 캐시 삭제 후 다시 요청
     localStorage.removeItem(CACHE_KEY);
     setResult(null);
-    if (birthDate) {
+    if (birthYear) {
       autoSubmitted.current = false;
     }
   };
@@ -286,14 +296,17 @@ export default function FortuneTab() {
             <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
               <label className="block">
                 <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('saju.birthDate')}</p>
-                <input
-                  type="date"
-                  value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
-                  className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 px-4 text-lg font-medium transition-all focus:bg-white/10"
+                <select
+                  value={birthYear}
+                  onChange={(e) => setBirthYear(e.target.value)}
+                  className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 px-4 text-lg font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
                   required
-                />
+                >
+                  <option value="" disabled className="bg-[#161022]">Select Year</option>
+                  {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                    <option key={year} value={year} className="bg-[#161022]">{year}</option>
+                  ))}
+                </select>
               </label>
             </div>
 
@@ -303,12 +316,11 @@ export default function FortuneTab() {
 
             <button
               type="submit"
-              disabled={!birthDate}
-              className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
-                birthDate
-                  ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
-                  : 'bg-white/10 text-white/30 cursor-not-allowed'
-              }`}
+              disabled={!birthYear}
+              className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${birthYear
+                ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                : 'bg-white/10 text-white/30 cursor-not-allowed'
+                }`}
             >
               {t('fortune.viewFortune')}
             </button>
