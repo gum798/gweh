@@ -22,23 +22,26 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
 
   return (
     <nav className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
-      <div className="flex overflow-x-auto gap-1 scrollbar-hide">
+      <div className="flex overflow-x-auto gap-1 scrollbar-hide scroll-snap-x" role="tablist">
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
             onClick={() => onTabChange(tab.id)}
-            aria-label={t(tab.labelKey)}
             className={`
-              flex items-center gap-2 px-3 py-2.5 rounded-xl flex-shrink-0
+              flex items-center gap-2 px-3 py-2.5 rounded-xl flex-shrink-0 snap-start
               transition-all duration-300 font-medium
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-1 focus-visible:ring-offset-[#161022]
               ${activeTab === tab.id
                 ? 'bg-[#5b13ec]/20 text-white border border-[#5b13ec]/40 shadow-[0_0_10px_rgba(91,19,236,0.2)]'
                 : 'text-white/50 hover:text-white hover:bg-white/5'
               }
             `}
           >
-            <span className="text-lg">{tab.icon}</span>
+            <span className="text-lg" aria-hidden="true">{tab.icon}</span>
             <span className="hidden sm:inline text-sm">{t(tab.labelKey)}</span>
+            <span className="sr-only sm:hidden">{t(tab.labelKey)}</span>
           </button>
         ))}
       </div>

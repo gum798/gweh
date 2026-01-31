@@ -336,7 +336,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
             <div className="space-y-3">
               <button
                 onClick={requestLocation}
-                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
+                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
               >
                 {t('location.startButton')}
               </button>
@@ -394,7 +394,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="px-8 py-3 bg-[#5b13ec] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)]"
+            className="px-8 py-3 bg-[#5b13ec] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
           >
             {t('omenTab.readAgain')}
           </button>
@@ -417,10 +417,10 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           </p>
           <button
             onClick={requestLocation}
-            className="text-[#5b13ec]/60 hover:text-[#5b13ec] text-xs transition-colors"
-            title={t('location.startButton')}
+            className="text-[#5b13ec]/60 hover:text-[#5b13ec] text-xs transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] rounded"
+            aria-label={t('location.startButton')}
           >
-            📍
+            <span aria-hidden="true">📍</span>
           </button>
         </div>
       )}
@@ -635,7 +635,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)]"
+                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
                 >
                   {t('sub.unlockStyle')}
                 </button>

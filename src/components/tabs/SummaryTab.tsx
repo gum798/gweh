@@ -22,7 +22,7 @@ interface SummaryTabProps {
 }
 
 export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { session } = useAuth();
   const { isSubscribed, subscribe } = useSubscription();
 
@@ -88,7 +88,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   }, [isSubscribed, session?.access_token]);
 
   const today = new Date();
-  const locale = t('nav.omen') === '괘' ? 'ko-KR' : 'en-US';
+  const locale = i18n.language === 'ko' ? 'ko-KR' : 'en-US';
   const dateStr = today.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
@@ -99,10 +99,11 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const hasAnyData = fortune || personalOmen || dailyStyle;
 
   const getLevelStyle = (level: string) => {
-    if (level === '대길') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    if (level === '길') return 'bg-green-500/20 text-green-400 border-green-500/30';
-    if (level === '평') return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    if (level === '소흉') return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+    const l = level.toLowerCase();
+    if (level === '대길' || l === 'excellent') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    if (level === '길' || l === 'good') return 'bg-green-500/20 text-green-400 border-green-500/30';
+    if (level === '평' || l === 'neutral') return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    if (level === '소흉' || l === 'caution') return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
 
@@ -124,11 +125,11 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
             <div className="relative overflow-hidden rounded-2xl border border-white/10">
               <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl p-5 blur-sm select-none pointer-events-none space-y-4">
                 <div className="text-center">
-                  <span className="text-4xl">📊</span>
+                  <span className="text-4xl" aria-hidden="true">📊</span>
                   <p className="text-white font-bold mt-2">{t('summary.title')}</p>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4">
-                  <p className="text-white/60 text-sm">오늘의 에너지가 길(吉)로 흐르고 있습니다. 금(金) 기운이 안정적이며, 보름달의 양(陽) 기운이 충만합니다.</p>
+                  <p className="text-white/60 text-sm">{i18n.language === 'ko' ? '오늘의 에너지가 길(吉)로 흐르고 있습니다. 금(金) 기운이 안정적이며, 보름달의 양(陽) 기운이 충만합니다.' : 'Today\'s energy flows with good fortune. Metal energy is stable, and the full moon\'s yang energy is abundant.'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white/5 rounded-xl p-3 text-center">
@@ -151,7 +152,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)]"
+                  className="mt-2 px-6 py-2 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_rgba(91,19,236,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
                 >
                   {t('summary.unlock')}
                 </button>
@@ -173,7 +174,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
             <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-8">
-              <span className="text-5xl mb-4 block">📊</span>
+              <span className="text-5xl mb-4 block" aria-hidden="true">📊</span>
               <h3 className="text-white text-lg font-bold mb-2">{t('summary.title')}</h3>
               <p className="text-white/50 text-sm leading-relaxed">{t('summary.noData')}</p>
             </div>

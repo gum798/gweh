@@ -281,7 +281,7 @@ export default function FortuneTab() {
         <div className="px-4 pt-2">
           <button
             onClick={handleNewReading}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]"
           >
             {t('fortune.newReading')}
           </button>
@@ -350,7 +350,7 @@ export default function FortuneTab() {
               type="submit"
               disabled={!birthYear}
               className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${birthYear
-                ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] focus-visible:ring-offset-2 focus-visible:ring-offset-[#161022]'
                 : 'bg-white/10 text-white/30 cursor-not-allowed'
                 }`}
             >

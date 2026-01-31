@@ -21,7 +21,11 @@ function App() {
   const { t: tc } = useTranslation();
   const { user } = useAuth();
   const { isSubscribed } = useSubscription();
-  const [activeTab, setActiveTab] = useState('omen');
+  const [activeTab, setActiveTab] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    const validTabs = ['omen', 'fortune', 'fashion', 'face', 'palm', 'saju', 'summary'];
+    return validTabs.includes(hash) ? hash : 'omen';
+  });
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -49,6 +53,7 @@ function App() {
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
+    window.location.hash = tab;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -125,7 +130,7 @@ function App() {
           <div className="bg-[#5b13ec] text-white px-6 py-3 rounded-xl shadow-[0_0_20px_rgba(91,19,236,0.5)] text-sm font-medium flex items-center gap-2">
             <span>✨</span>
             {toast}
-            <button onClick={() => setToast(null)} className="ml-2 text-white/60 hover:text-white">&times;</button>
+            <button onClick={() => setToast(null)} aria-label="Close" className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded">&times;</button>
           </div>
         </div>
       )}
@@ -142,7 +147,8 @@ function App() {
                 localStorage.setItem('mystic_language', newLang);
                 document.documentElement.lang = newLang;
               }}
-              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[#5b13ec]/50 px-3 py-1.5 rounded-lg transition-all font-medium active:scale-95"
+              aria-label={i18n.language === 'ko' ? 'Switch to English' : '한국어로 전환'}
+              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[#5b13ec]/50 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec]"
             >
               {i18n.language === 'ko' ? 'EN' : 'KO'}
             </button>
@@ -151,14 +157,15 @@ function App() {
             {user ? (
               <button
                 onClick={() => setProfileModalOpen(true)}
-                className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg transition-all truncate max-w-[150px] active:scale-95"
+                aria-label={tc('profile.birthDate') ? `Profile: ${user.email}` : user.email}
+                className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 min-h-[44px] px-3 flex items-center rounded-lg transition-all truncate max-w-[150px] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec]"
               >
                 {user.email}
               </button>
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="text-xs text-[#5b13ec] hover:text-[#7b3ff5] border border-[#5b13ec]/30 hover:border-[#5b13ec]/60 px-3 py-1.5 rounded-lg transition-all active:scale-95"
+                className="text-xs text-[#5b13ec] hover:text-[#7b3ff5] border border-[#5b13ec]/30 hover:border-[#5b13ec]/60 min-h-[44px] px-3 flex items-center rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec]"
               >
                 {t('login')}
               </button>

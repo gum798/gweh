@@ -1,8 +1,15 @@
-import { memo } from 'react';
+import { memo, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+interface DataPanelProps {
+  weather: any;
+  moon: any;
+  earthquake: any;
+  nasa: any;
+}
+
 // rerender-memo: Memoize component to prevent re-renders from parent
-export default memo(function DataPanel({ weather, moon, earthquake, nasa }) {
+export default memo(function DataPanel({ weather, moon, earthquake, nasa }: DataPanelProps) {
   const { t } = useTranslation();
 
   return (
@@ -64,7 +71,7 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }) {
 });
 
 // rerender-memo: Memoize sub-components to prevent unnecessary re-renders
-const DataSection = memo(function DataSection({ title, icon, children }) {
+const DataSection = memo(function DataSection({ title, icon, children }: { title: string; icon: string; children: ReactNode }) {
   return (
     <div className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
       <h3 className="text-[#5b13ec] text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
@@ -76,7 +83,7 @@ const DataSection = memo(function DataSection({ title, icon, children }) {
   );
 });
 
-const DataRow = memo(function DataRow({ label, value }) {
+const DataRow = memo(function DataRow({ label, value }: { label: string; value: string }) {
   return (
     <>
       <span className="text-white/40">{label}</span>
