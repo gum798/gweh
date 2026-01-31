@@ -5,6 +5,7 @@
   "nav.saju": "사주",
   "nav.fortune": "운세",
   "nav.fashion": "패션",
+  "nav.summary": "종합",
 
   "loading.message": "천기를 살피는 중...",
 
@@ -222,6 +223,16 @@
   "profile.birthDate": "생년월일",
   "profile.birthHour": "태어난 시",
   "profile.hourSuffix": "시",
+
+  "summary.title": "오늘의 종합 분석",
+  "summary.todayEnergy": "오늘의 에너지",
+  "summary.fortuneSummary": "운세 요약",
+  "summary.sajuHighlight": "사주 하이라이트",
+  "summary.dayMaster": "일간",
+  "summary.sajuFortune": "오늘의 사주운",
+  "summary.personalAdvice": "맞춤 조언",
+  "summary.noData": "아직 분석 데이터가 없습니다. 괘, 운세, 사주 탭에서 먼저 확인해주세요.",
+  "summary.unlock": "구독하고 종합 분석 보기",
 
   "toast.checkoutSuccess": "결제가 완료되었습니다!",
   "toast.subscriptionSuccess": "구독이 완료되었습니다!"

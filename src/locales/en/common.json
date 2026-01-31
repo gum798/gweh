@@ -5,6 +5,7 @@
   "nav.saju": "Saju",
   "nav.fortune": "Fortune",
   "nav.fashion": "Fashion",
+  "nav.summary": "Summary",
   "loading.message": "Reading the celestial signs...",
   "location.title": "Today's Oracle",
   "location.subtitle": "Your location's energy shapes today's reading",
@@ -212,6 +213,16 @@
   "profile.birthDate": "Birth Date",
   "profile.birthHour": "Birth Hour",
   "profile.hourSuffix": "h",
+
+  "summary.title": "Today's Summary",
+  "summary.todayEnergy": "Today's Energy",
+  "summary.fortuneSummary": "Fortune Summary",
+  "summary.sajuHighlight": "Saju Highlights",
+  "summary.dayMaster": "Day Master",
+  "summary.sajuFortune": "Today's Saju Fortune",
+  "summary.personalAdvice": "Personal Advice",
+  "summary.noData": "No analysis data yet. Please check the Oracle, Fortune, and Saju tabs first.",
+  "summary.unlock": "Subscribe to unlock Summary",
 
   "toast.checkoutSuccess": "Payment completed!",
   "toast.subscriptionSuccess": "Subscription activated!"

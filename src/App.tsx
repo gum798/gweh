@@ -14,6 +14,7 @@ const PalmTab = lazy(() => import('./components/tabs/PalmTab'));
 const SajuTab = lazy(() => import('./components/tabs/SajuTab'));
 const FortuneTab = lazy(() => import('./components/tabs/FortuneTab'));
 const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
+const SummaryTab = lazy(() => import('./components/tabs/SummaryTab'));
 
 function App() {
   const { t, i18n } = useTranslation('auth');
@@ -103,6 +104,12 @@ function App() {
         return (
           <Suspense fallback={fallback}>
             <FashionTab />
+          </Suspense>
+        );
+      case 'summary':
+        return (
+          <Suspense fallback={fallback}>
+            <SummaryTab onLoginRequired={openAuthModal} />
           </Suspense>
         );
       default:

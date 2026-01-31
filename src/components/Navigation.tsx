@@ -8,6 +8,7 @@ const tabs = [
   { id: 'face', labelKey: 'nav.face', icon: '👁️' },
   { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
   { id: 'saju', labelKey: 'nav.saju', icon: '🏛️' },
+  { id: 'summary', labelKey: 'nav.summary', icon: '📊' },
 ];
 
 // rerender-memo: Memoize component to prevent re-renders when callback prop is stable
