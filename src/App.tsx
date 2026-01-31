@@ -183,7 +183,7 @@ function App() {
         {/* Footer */}
         <footer className="mt-12 text-center pb-8">
           <p className="text-[10px] text-white/20 uppercase tracking-[0.4em]">
-            © 2024 MYSTIC AI
+            © 2026 MYSTIC AI
           </p>
         </footer>
       </div>
