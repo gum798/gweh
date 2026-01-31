@@ -5,12 +5,14 @@ import AuthModal from './components/auth/AuthModal';
 import ProfileModal from './components/auth/ProfileModal';
 import { useAuth } from './contexts/AuthContext';
 import { useSubscription } from './contexts/SubscriptionContext';
+import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
 const FaceTab = lazy(() => import('./components/tabs/FaceTab'));
 const PalmTab = lazy(() => import('./components/tabs/PalmTab'));
 const SajuTab = lazy(() => import('./components/tabs/SajuTab'));
+const FortuneTab = lazy(() => import('./components/tabs/FortuneTab'));
 const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 
 function App() {
@@ -91,6 +93,12 @@ function App() {
             <SajuTab />
           </Suspense>
         );
+      case 'fortune':
+        return (
+          <Suspense fallback={fallback}>
+            <FortuneTab />
+          </Suspense>
+        );
       case 'fashion':
         return (
           <Suspense fallback={fallback}>
@@ -119,7 +127,7 @@ function App() {
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-4xl">
         {/* 헤더 */}
         <header className="relative text-center mb-6">
-          <div className="absolute left-0 top-1">
+          <div className="absolute left-0 top-4">
             <button
               onClick={() => {
                 const newLang = i18n.language === 'ko' ? 'en' : 'ko';
@@ -127,23 +135,23 @@ function App() {
                 localStorage.setItem('mystic_language', newLang);
                 document.documentElement.lang = newLang;
               }}
-              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[#5b13ec]/50 px-3 py-1.5 rounded-lg transition-colors font-medium"
+              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[#5b13ec]/50 px-3 py-1.5 rounded-lg transition-all font-medium active:scale-95"
             >
               {i18n.language === 'ko' ? 'EN' : 'KO'}
             </button>
           </div>
-          <div className="absolute right-0 top-1">
+          <div className="absolute right-0 top-4">
             {user ? (
               <button
                 onClick={() => setProfileModalOpen(true)}
-                className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg transition-colors truncate max-w-[150px]"
+                className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg transition-all truncate max-w-[150px] active:scale-95"
               >
                 {user.email}
               </button>
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="text-xs text-[#5b13ec] hover:text-[#7b3ff5] border border-[#5b13ec]/30 hover:border-[#5b13ec]/60 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-[#5b13ec] hover:text-[#7b3ff5] border border-[#5b13ec]/30 hover:border-[#5b13ec]/60 px-3 py-1.5 rounded-lg transition-all active:scale-95"
               >
                 {t('login')}
               </button>
@@ -163,6 +171,9 @@ function App() {
 
         {/* 네비게이션 */}
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
+
+        {/* 구독 배너 */}
+        <SubscriptionBanner onLoginRequired={openAuthModal} />
 
         {/* 탭 콘텐츠 */}
         <main>

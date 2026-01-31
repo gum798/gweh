@@ -6,11 +6,17 @@ const tabs = [
   { id: 'face', labelKey: 'nav.face', icon: '👁️' },
   { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
   { id: 'saju', labelKey: 'nav.saju', icon: '📅' },
+  { id: 'fortune', labelKey: 'nav.fortune', icon: '🔮' },
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
 ];
 
 // rerender-memo: Memoize component to prevent re-renders when callback prop is stable
-export default memo(function Navigation({ activeTab, onTabChange }) {
+interface NavigationProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+export default memo(function Navigation({ activeTab, onTabChange }: NavigationProps) {
   const { t } = useTranslation();
 
   return (

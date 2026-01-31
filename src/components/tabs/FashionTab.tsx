@@ -53,6 +53,18 @@ export default function FashionTab() {
   const [isPaid, setIsPaid] = useState(false);
   const [usedToday, setUsedToday] = useState(false);
 
+  // 이전 정보 불러오기 (height, weight)
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } })
+      .then(r => r.json())
+      .then(d => {
+        if (d.profile?.height && !height) setHeight(String(d.profile.height));
+        if (d.profile?.weight && !weight) setWeight(String(d.profile.weight));
+      })
+      .catch(() => {});
+  }, [session?.access_token]);
+
   // 구독자 하루 1회 사용 체크
   useEffect(() => {
     if (!isSubscribed || !session?.access_token) return;

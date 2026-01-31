@@ -6,7 +6,6 @@ import { useMoonPhase } from '../../hooks/useMoonPhase';
 import { generateOmen, getOverallEnergy, getEnergyLabel } from '../../utils/omenGenerator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
-import SubscriptionBanner from '../subscription/SubscriptionBanner';
 
 const DataPanel = lazy(() => import('../DataPanel'));
 
@@ -156,7 +155,6 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   if (!location) {
     return (
       <div className="space-y-8">
-        <SubscriptionBanner onLoginRequired={onLoginRequired} />
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-2xl">
           <div

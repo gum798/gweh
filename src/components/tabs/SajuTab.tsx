@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
@@ -27,6 +27,18 @@ export default function SajuTab() {
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
+
+  // 이전 정보 불러오기
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } })
+      .then(r => r.json())
+      .then(d => {
+        if (d.profile?.birth_date) setBirthDate(d.profile.birth_date);
+        if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
+      })
+      .catch(() => {});
+  }, [session?.access_token]);
 
   const hourOptions = useMemo(() => {
     const options = [];
