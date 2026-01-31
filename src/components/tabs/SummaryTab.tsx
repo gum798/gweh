@@ -42,6 +42,9 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       setFortuneLoading(true);
 
       let fortuneLoaded = false;
+      let dailyStyleLoaded = false;
+      let omenMsg = '';
+      let energyLbl = '';
 
       // 1. daily-reading에서 캐시된 모든 데이터 가져오기 (구독자)
       if (isSubscribed) {
@@ -53,8 +56,16 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
             const { reading } = await res.json();
             if (reading) {
               setDailyReading(reading);
-              if (reading.style_data) setDailyStyle(reading.style_data);
-              if (reading.energy_score != null) setEnergyLabel(getEnergyLabel(reading.energy_score));
+              if (reading.omen_message) omenMsg = reading.omen_message;
+              if (reading.style_data) {
+                setDailyStyle(reading.style_data);
+                dailyStyleLoaded = true;
+              }
+              if (reading.energy_score != null) {
+                const el = getEnergyLabel(reading.energy_score);
+                setEnergyLabel(el);
+                energyLbl = el.label;
+              }
               if (reading.fortune_data) {
                 setFortune(reading.fortune_data);
                 fortuneLoaded = true;
@@ -63,6 +74,29 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
           }
         } catch {}
       }
+
+      // 1-1. style_data가 없고 omen_message가 있으면 직접 daily-style 호출
+      if (isSubscribed && !dailyStyleLoaded && omenMsg) {
+        try {
+          const styleRes = await fetch('/api/daily-style', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              omenMessage: omenMsg,
+              energy: energyLbl || '',
+              lang: i18n.language,
+            }),
+          });
+          if (styleRes.ok) {
+            const styleData = await styleRes.json();
+            if (styleData.success) setDailyStyle(styleData.data);
+          }
+        } catch {}
+      }
+
       setLoading(false);
 
       // 2. 운세가 아직 없으면 프로필에서 생년 가져와 fortune API 호출
