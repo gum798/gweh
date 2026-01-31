@@ -45,6 +45,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   const [minWait, setMinWait] = useState(false);
   const [personalOmen, setPersonalOmen] = useState<any>(null);
   const [personalLoading, setPersonalLoading] = useState(false);
+  const [personalError, setPersonalError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<{ birth_date?: string; birth_hour?: number; height?: number; weight?: number } | null>(null);
   const personalFetched = useRef(false);
 
@@ -226,6 +227,12 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
   // 맞춤 사주 조언 fetch
   useEffect(() => {
+    console.log('[PersonalOmen] Effect check:', {
+      hasSession: !!session?.access_token,
+      hasOmen: !!omen?.main?.message,
+      fetched: personalFetched.current,
+      profile: userProfile,
+    });
     if (!session?.access_token || !omen?.main?.message || personalFetched.current) return;
     const profile = userProfile;
     if (!profile?.birth_date) return;
@@ -242,6 +249,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     }
 
     setPersonalLoading(true);
+    setPersonalError(null);
     fetch('/api/personal-omen', {
       method: 'POST',
       headers: {
@@ -263,9 +271,17 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
         if (d.success && d.data) {
           setPersonalOmen(d.data);
           setCachedPersonalOmen(profile.birth_date!, eLabel, d.data);
+        } else {
+          console.error('Personal omen API error:', d);
+          setPersonalError(d.error || 'Unknown error');
+          personalFetched.current = false;
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error('Personal omen fetch failed:', err);
+        setPersonalError('Network error');
+        personalFetched.current = false;
+      })
       .finally(() => setPersonalLoading(false));
   }, [session?.access_token, omen, userProfile]);
 
@@ -480,7 +496,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       </section>
 
       {/* 맞춤 사주 조언 */}
-      {session && (personalOmen || personalLoading) && (
+      {session && (personalOmen || personalLoading || personalError) && (
         <section className="px-4">
           <div className="max-w-md mx-auto">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1 mb-4">
@@ -494,6 +510,10 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   <div className="w-2 h-2 bg-[#5b13ec] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-white/40 text-sm">{t('omenTab.loadingPersonal')}</p>
+              </div>
+            ) : personalError ? (
+              <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-red-500/30 p-6 text-center">
+                <p className="text-red-400 text-sm">{personalError}</p>
               </div>
             ) : personalOmen ? (
               <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-5 space-y-4">
