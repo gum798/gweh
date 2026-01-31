@@ -149,6 +149,9 @@
 
   "fashion.errorAnalysis": "AI 분석 중 오류가 발생했습니다.",
   "fashion.errorGeneric": "분석 중 오류가 발생했습니다.",
+  "fashion.freeAnalysis": "무료 분석 (오늘 1회)",
+  "fashion.usedToday": "오늘 이미 사용했습니다",
+  "fashion.subscribeButton": "무료체험 및 구독",
 
   "sub.badge": "DAILY MYSTIC",
   "sub.headline": "매일 아침, 당신만의 운세와 스타일을 놓치고 있어요",

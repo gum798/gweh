@@ -139,6 +139,9 @@
 
   "fashion.errorAnalysis": "An error occurred during AI analysis.",
   "fashion.errorGeneric": "An error occurred during analysis.",
+  "fashion.freeAnalysis": "Free Analysis (1/day)",
+  "fashion.usedToday": "Already used today",
+  "fashion.subscribeButton": "Free Trial & Subscribe",
 
   "sub.badge": "DAILY MYSTIC",
   "sub.headline": "You're missing your daily fortune & style guide",

@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { storeFashionData, getFashionData, deleteFashionData } from '../../utils/imageStorage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 
 const FASHION_DATA_KEY = 'mystic_fashion_data';
 
@@ -41,6 +42,7 @@ export default function FashionTab() {
   const { t } = useTranslation('fashion');
   const { t: tc } = useTranslation();
   const { session } = useAuth();
+  const { isSubscribed, subscribe } = useSubscription();
   const [mode, setMode] = useState<Mode>('input');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
@@ -49,6 +51,18 @@ export default function FashionTab() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPaid, setIsPaid] = useState(false);
+  const [usedToday, setUsedToday] = useState(false);
+
+  // 구독자 하루 1회 사용 체크
+  useEffect(() => {
+    if (!isSubscribed || !session?.access_token) return;
+    fetch('/api/fashion-usage', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then(r => r.json())
+      .then(d => { if (d.usedToday) setUsedToday(true); })
+      .catch(() => {});
+  }, [isSubscribed, session?.access_token]);
 
   // 결제 완료 후 자동 분석
   useEffect(() => {
@@ -118,10 +132,30 @@ export default function FashionTab() {
     }
   };
 
-  // 결제 후 분석 실행
-  const handleAnalyzeAfterPayment = async () => {
+  // 날씨 정보 가져오기
+  const fetchWeather = async (): Promise<{ temperature: number; description: string } | undefined> => {
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+      );
+      const { latitude, longitude } = pos.coords;
+      const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+      if (!apiKey) return undefined;
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`);
+      if (!res.ok) return undefined;
+      const data = await res.json();
+      return { temperature: Math.round(data.main.temp), description: data.weather?.[0]?.description || '' };
+    } catch {
+      return undefined;
+    }
+  };
+
+  // 구독자 무료 분석
+  const handleFreeAnalysis = async () => {
+    if (!capturedImage || !height || !weight) return;
     setMode('analyzing');
     try {
+      const weather = await fetchWeather();
       const response = await fetch('/api/fashion-consult', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -129,6 +163,42 @@ export default function FashionTab() {
           image: capturedImage,
           height: parseFloat(height),
           weight: parseFloat(weight),
+          weather,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || tc('fashion.errorAnalysis'));
+      setResult(data.data);
+      setMode('result');
+      setUsedToday(true);
+      // 사용 기록
+      if (session?.access_token) {
+        fetch('/api/fashion-usage', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }).catch(() => {});
+      }
+      saveProfileData();
+    } catch (err) {
+      console.error('Fashion consult error:', err);
+      setErrorMessage(err instanceof Error ? err.message : tc('fashion.errorGeneric'));
+      setMode('error');
+    }
+  };
+
+  // 결제 후 분석 실행
+  const handleAnalyzeAfterPayment = async () => {
+    setMode('analyzing');
+    try {
+      const weather = await fetchWeather();
+      const response = await fetch('/api/fashion-consult', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: capturedImage,
+          height: parseFloat(height),
+          weight: parseFloat(weight),
+          weather,
         }),
       });
 
@@ -258,6 +328,7 @@ export default function FashionTab() {
     setErrorMessage('');
 
     try {
+      const weather = await fetchWeather();
       const response = await fetch('/api/fashion-consult', {
         method: 'POST',
         headers: {
@@ -267,6 +338,7 @@ export default function FashionTab() {
           image: capturedImage,
           height: heightNum,
           weight: weightNum,
+          weather,
         }),
       });
 
@@ -398,19 +470,44 @@ export default function FashionTab() {
           </div>
         </section>
 
-        {/* Action Button - 결제 후 분석 */}
-        <div className="px-4 pb-8">
-          <button
-            onClick={goToCheckout}
-            disabled={!capturedImage || !height || !weight}
-            className={`w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
-              capturedImage && height && weight
-                ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
-                : 'bg-white/10 text-white/30 cursor-not-allowed'
-            }`}
-          >
-            {capturedImage && height && weight ? t('button.startAnalysis') : t('button.fillAll')}
-          </button>
+        {/* Action Buttons */}
+        <div className="px-4 pb-8 space-y-3 max-w-md mx-auto">
+          {isSubscribed ? (
+            /* 구독자: 무료 분석 (하루 1회) */
+            <button
+              onClick={handleFreeAnalysis}
+              disabled={!capturedImage || !height || !weight || usedToday}
+              className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                capturedImage && height && weight && !usedToday
+                  ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                  : 'bg-white/10 text-white/30 cursor-not-allowed'
+              }`}
+            >
+              {usedToday ? tc('fashion.usedToday') : tc('fashion.freeAnalysis')}
+            </button>
+          ) : (
+            <>
+              {/* 비구독자: 결제 분석 */}
+              <button
+                onClick={goToCheckout}
+                disabled={!capturedImage || !height || !weight}
+                className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                  capturedImage && height && weight
+                    ? 'bg-[#5b13ec] text-white shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95'
+                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                }`}
+              >
+                {capturedImage && height && weight ? t('button.startAnalysis') : t('button.fillAll')}
+              </button>
+              {/* 무료체험 및 구독 */}
+              <button
+                onClick={() => subscribe()}
+                className="w-full flex items-center justify-center rounded-full h-12 px-8 text-sm font-bold tracking-widest uppercase transition-all bg-white/5 text-[#5b13ec] border border-[#5b13ec]/30 hover:bg-[#5b13ec]/10 hover:border-[#5b13ec]/50"
+              >
+                {tc('fashion.subscribeButton')}
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

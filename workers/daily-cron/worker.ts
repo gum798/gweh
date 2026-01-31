@@ -190,13 +190,23 @@ function generateSimpleOmen(weather: any, moon: any, earthquake: any): { message
   return { message, energy: score };
 }
 
-async function generateStyleWithGemini(env: Env, omenMessage: string, energy: number): Promise<any> {
+async function generateStyleWithGemini(env: Env, omenMessage: string, energy: number, weather?: any, profile?: any): Promise<any> {
   const energyLabel = energy >= 80 ? '대길' : energy >= 60 ? '길' : energy >= 40 ? '평' : energy >= 20 ? '소흉' : '흉';
+
+  let weatherInfo = '';
+  if (weather) {
+    weatherInfo = `\n\n오늘 날씨: ${weather.temperature}°C, ${weather.description}\n날씨에 맞는 옷차림도 함께 고려해주세요.`;
+  }
+
+  let bodyInfo = '';
+  if (profile?.height && profile?.weight) {
+    bodyInfo = `\n\n사용자 체형: 키 ${profile.height}cm, 몸무게 ${profile.weight}kg\n체형에 맞는 스타일도 고려해주세요.`;
+  }
 
   const prompt = `당신은 신비로운 패션 스타일리스트입니다. 오늘의 운세와 에너지를 기반으로 스타일을 추천해주세요.
 
 오늘의 괘: "${omenMessage}"
-에너지: ${energyLabel} (${energy}/100)
+에너지: ${energyLabel} (${energy}/100)${weatherInfo}${bodyInfo}
 
 다음 JSON 형식으로 응답:
 {
@@ -360,8 +370,8 @@ async function runDailyCron(env: Env, forceAll = false) {
           // 8. Generate omen
           const omen = generateSimpleOmen(weather, moon, earthquake);
 
-          // 9. Generate style recommendation
-          const styleData = await generateStyleWithGemini(env, omen.message, omen.energy);
+          // 9. Generate style recommendation (with weather + body info)
+          const styleData = await generateStyleWithGemini(env, omen.message, omen.energy, weather, profile);
 
           // 10. Save to daily_readings
           await supabaseRest(env, 'daily_readings', {

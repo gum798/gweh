@@ -6,6 +6,7 @@ interface RequestBody {
   image: string; // base64 encoded image
   height: number;
   weight: number;
+  weather?: { temperature: number; description: string };
 }
 
 type PagesFunction<E = unknown> = (context: {
@@ -23,7 +24,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     const body: RequestBody = await context.request.json();
-    const { image, height, weight } = body;
+    const { image, height, weight, weather } = body;
 
     if (!image || !height || !weight) {
       return new Response(
@@ -45,7 +46,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 사용자 정보:
 - 키: ${height}cm
 - 몸무게: ${weight}kg
-- BMI: ${bmi}
+- BMI: ${bmi}${weather ? `\n\n오늘 날씨:\n- 기온: ${weather.temperature}°C\n- 상태: ${weather.description}\n\n날씨에 맞는 옷차림도 함께 고려해주세요.` : ''}
 
 다음 형식으로 JSON 응답을 작성해주세요:
 
