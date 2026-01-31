@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { themes, ThemeKey } from '../../lib/themes';
+import { applyTheme } from '../../lib/applyTheme';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -18,7 +20,8 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number } | null>(null);
+  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number; theme?: string } | null>(null);
+  const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => (localStorage.getItem('theme') as ThemeKey) || 'cosmic');
   const { session } = useAuth();
 
   // ESC 키로 모달 닫기
@@ -35,7 +38,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       headers: { 'Authorization': `Bearer ${session.access_token}` },
     })
       .then(r => r.json())
-      .then(d => { if (d.profile) setProfile(d.profile); })
+      .then(d => { if (d.profile) { setProfile(d.profile); if (d.profile.theme) setCurrentTheme(d.profile.theme); } })
       .catch(() => { });
   }, [isOpen, session?.access_token]);
 
@@ -65,6 +68,22 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       setSubmitting(false);
     } else {
       onClose();
+    }
+  };
+
+  const handleThemeChange = async (key: ThemeKey) => {
+    setCurrentTheme(key);
+    applyTheme(key);
+    localStorage.setItem('theme', key);
+    if (session?.access_token) {
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ theme: key }),
+      }).catch(() => {});
     }
   };
 
@@ -180,6 +199,36 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </button>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Theme Selector */}
+        <div className="space-y-3 mb-6">
+          <h3 className="text-sm text-white/50 uppercase tracking-wider">{tc('theme.title', 'Theme')}</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {(Object.keys(themes) as ThemeKey[]).map((key) => {
+              const th = themes[key];
+              const isActive = currentTheme === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleThemeChange(key)}
+                  className={`relative flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
+                    isActive
+                      ? 'border-[var(--accent)] bg-[var(--accent-10)] ring-1 ring-[var(--accent-30)]'
+                      : 'border-white/10 bg-white/5 hover:bg-white/10'
+                  }`}
+                >
+                  <span
+                    className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0"
+                    style={{ background: th['--accent'] }}
+                  />
+                  <span className={`text-xs font-medium ${isActive ? 'text-white' : 'text-white/60'}`}>
+                    {th.nameKo}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

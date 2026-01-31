@@ -1,0 +1,1 @@
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS theme VARCHAR(20) DEFAULT 'cosmic';

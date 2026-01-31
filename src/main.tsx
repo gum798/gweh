@@ -7,9 +7,8 @@ import { SubscriptionProvider } from './contexts/SubscriptionContext'
 import { applyTheme } from './lib/applyTheme'
 import App from './App.jsx'
 
-// ✨ Apply theme — change the argument to switch skins:
-// 'cosmic' | 'celestial' | 'ember' | 'jade'
-applyTheme('cosmic')
+// ✨ Apply saved theme (falls back to 'cosmic')
+applyTheme((localStorage.getItem('theme') as any) || 'cosmic')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
