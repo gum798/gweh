@@ -7,10 +7,12 @@
     <meta name="theme-color" content="#161022" />
     <meta name="description" content="오늘의 괘, 관상, 손금, 사주팔자 - 천기와 운명의 신비로운 해석" />
     <title>오늘의 괘</title>
-    <!-- 신비로운 한글 폰트 -->
+    <!-- 폰트: 비차단 로딩 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet"></noscript>
     <!-- Microsoft Clarity -->
     <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
@@ -19,9 +21,17 @@
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
       })(window,document,"clarity","script","va1jf5d4x4");
     </script>
+    <!-- Critical CSS -->
+    <style>
+      body{margin:0;background:#0a0a1a;color:#f3f4f6;min-height:100vh;font-family:'Gowun Batang',serif}
+      #root{min-height:100vh}
+      .init-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+      .init-loader span{font-size:2rem;animation:pulse 1.5s ease-in-out infinite}
+      @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="init-loader"><span>✨</span></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
