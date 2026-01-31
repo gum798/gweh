@@ -230,7 +230,11 @@ async function generateStyleWithGemini(env: Env, omenMessage: string, energy: nu
     }
   );
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('Style Gemini error:', res.status, errText);
+    return null;
+  }
   const data = await res.json() as any;
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) return null;
@@ -276,7 +280,11 @@ JSON 형식만 반환:
     }
   );
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('Fortune Gemini error:', res.status, errText);
+    return null;
+  }
   const data = await res.json() as any;
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) return null;
