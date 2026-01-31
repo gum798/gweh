@@ -183,7 +183,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     omenSaved.current = true;
 
     const energy = getOverallEnergy(weather, moon, earthquake);
-    fetch('/api/daily-reading-save', {
+    fetch('/api/save-reading', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
