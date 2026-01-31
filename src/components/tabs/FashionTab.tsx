@@ -52,6 +52,8 @@ export default function FashionTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPaid, setIsPaid] = useState(false);
   const [usedToday, setUsedToday] = useState(false);
+  const [previousPhotoUrl, setPreviousPhotoUrl] = useState<string | null>(null);
+  const [loadingPrevious, setLoadingPrevious] = useState(false);
 
   // 이전 정보 불러오기 (height, weight)
   useEffect(() => {
@@ -61,6 +63,22 @@ export default function FashionTab() {
       .then(d => {
         if (d.profile?.height && !height) setHeight(String(d.profile.height));
         if (d.profile?.weight && !weight) setWeight(String(d.profile.weight));
+      })
+      .catch(() => {});
+  }, [session?.access_token]);
+
+  // 이전 사진 불러오기
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/fashion-photo', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then(r => {
+        if (r.ok) return r.blob();
+        return null;
+      })
+      .then(blob => {
+        if (blob) setPreviousPhotoUrl(URL.createObjectURL(blob));
       })
       .catch(() => {});
   }, [session?.access_token]);
@@ -276,6 +294,23 @@ export default function FashionTab() {
     }
   };
 
+  const handleUsePreviousPhoto = useCallback(async () => {
+    if (!previousPhotoUrl) return;
+    setLoadingPrevious(true);
+    try {
+      const res = await fetch(previousPhotoUrl);
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCapturedImage(reader.result as string);
+        setLoadingPrevious(false);
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      setLoadingPrevious(false);
+    }
+  }, [previousPhotoUrl]);
+
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -432,6 +467,32 @@ export default function FashionTab() {
             </label>
           </div>
         </section>
+
+        {/* 이전 사진 */}
+        {previousPhotoUrl && !capturedImage && (
+          <section className="px-4">
+            <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-4">
+              <div className="flex items-center gap-4">
+                <img
+                  src={previousPhotoUrl}
+                  alt="Previous"
+                  className="w-20 h-20 rounded-xl object-cover border border-white/10"
+                />
+                <div className="flex-1">
+                  <p className="text-white text-sm font-bold mb-1">{tc('face.previousPhoto')}</p>
+                  <p className="text-white/50 text-xs mb-3">{tc('face.previousPhotoDesc')}</p>
+                  <button
+                    onClick={handleUsePreviousPhoto}
+                    disabled={loadingPrevious}
+                    className="px-4 py-2 bg-[#5b13ec]/20 text-[#5b13ec] rounded-full text-xs font-bold border border-[#5b13ec]/30 hover:bg-[#5b13ec]/30 transition-colors"
+                  >
+                    {loadingPrevious ? '...' : tc('face.previousPhotoDesc')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Upload Section: The Portal */}
         <section className="py-6 px-4">

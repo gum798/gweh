@@ -16,7 +16,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   };
 
   try {
-    const { birth_date, birth_hour } = await context.request.json() as { birth_date: string; birth_hour: number };
+    const { birth_date, birth_hour } = await context.request.json() as { birth_date: string; birth_hour?: number };
 
     if (!birth_date) {
       return new Response(JSON.stringify({ error: '생년월일이 필요합니다.' }), {
@@ -32,7 +32,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 사용자 정보:
 - 생년월일: ${birth_date}
-- 태어난 시: ${birth_hour}시
+- 태어난 시: ${birth_hour != null ? `${birth_hour}시` : '모름'}
 - 오늘 날짜: ${todayStr}
 
 오늘의 운세를 다음 JSON 형식으로 작성해주세요:

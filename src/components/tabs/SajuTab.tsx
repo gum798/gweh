@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
@@ -27,6 +27,8 @@ export default function SajuTab() {
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const autoSubmitted = useRef(false);
 
   // 이전 정보 불러오기
   useEffect(() => {
@@ -34,8 +36,11 @@ export default function SajuTab() {
     fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } })
       .then(r => r.json())
       .then(d => {
-        if (d.profile?.birth_date) setBirthDate(d.profile.birth_date);
-        if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
+        if (d.profile?.birth_date) {
+          setBirthDate(d.profile.birth_date);
+          if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
+          setProfileLoaded(true);
+        }
       })
       .catch(() => {});
   }, [session?.access_token]);
@@ -49,6 +54,30 @@ export default function SajuTab() {
     }
     return options;
   }, [t]);
+
+  // 이전 데이터 있으면 자동 제출
+  useEffect(() => {
+    if (profileLoaded && birthDate && !autoSubmitted.current) {
+      autoSubmitted.current = true;
+      const date = new Date(birthDate);
+      if (date > new Date()) return;
+      const hour = parseInt(birthHour, 10);
+      const saju = calculateSaju(date, hour);
+      const interpretation = interpretSaju(saju);
+      setResult(interpretation);
+
+      if (session?.access_token) {
+        fetch('/api/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ birth_date: birthDate, birth_hour: hour }),
+        }).catch(() => {});
+      }
+    }
+  }, [profileLoaded, birthDate, birthHour]);
 
   // rerender-functional-setstate: Wrap handlers in useCallback for stable references
   const handleSubmit = useCallback((e) => {

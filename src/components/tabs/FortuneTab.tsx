@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -17,13 +17,12 @@ interface FortuneResult {
 
 export default function FortuneTab() {
   const { t } = useTranslation();
-  const { t: ts } = useTranslation('saju');
   const { session } = useAuth();
   const [birthDate, setBirthDate] = useState('');
-  const [birthHour, setBirthHour] = useState('12');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FortuneResult | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const autoSubmitted = useRef(false);
 
   // 로그인 사용자: 이전 정보 불러오기
   useEffect(() => {
@@ -37,30 +36,25 @@ export default function FortuneTab() {
           setBirthDate(d.profile.birth_date);
           setProfileLoaded(true);
         }
-        if (d.profile?.birth_hour != null) {
-          setBirthHour(String(d.profile.birth_hour));
-        }
       })
       .catch(() => {});
   }, [session?.access_token]);
 
-  const hourOptions = useMemo(() => {
-    const hourValues = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
-    return hourValues.map(v => ({ value: v, label: ts(`hour.${v}`) }));
-  }, [ts]);
+  // 이전 데이터 있으면 자동 제출
+  useEffect(() => {
+    if (profileLoaded && birthDate && !autoSubmitted.current) {
+      autoSubmitted.current = true;
+      submitFortune(birthDate);
+    }
+  }, [profileLoaded, birthDate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!birthDate) return;
-    const date = new Date(birthDate);
-    if (date > new Date()) return;
-
+  const submitFortune = async (date: string) => {
     setLoading(true);
     try {
       const res = await fetch('/api/fortune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ birth_date: birthDate, birth_hour: parseInt(birthHour, 10) }),
+        body: JSON.stringify({ birth_date: date }),
       });
       const data = await res.json();
       if (data.success) {
@@ -80,9 +74,17 @@ export default function FortuneTab() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ birth_date: birthDate, birth_hour: parseInt(birthHour, 10) }),
+        body: JSON.stringify({ birth_date: date }),
       }).catch(() => {});
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!birthDate) return;
+    const d = new Date(birthDate);
+    if (d > new Date()) return;
+    submitFortune(birthDate);
   };
 
   const getLevelStyle = (level: string) => {
@@ -238,20 +240,6 @@ export default function FortuneTab() {
                 />
               </label>
 
-              <label className="block">
-                <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('saju.birthHour')}</p>
-                <select
-                  value={birthHour}
-                  onChange={(e) => setBirthHour(e.target.value)}
-                  className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 px-4 text-base font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
-                >
-                  {hourOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value} className="bg-[#161022]">
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
             </div>
 
             <button
