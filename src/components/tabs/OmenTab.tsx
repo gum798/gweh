@@ -8,7 +8,7 @@ import { generateOmen, getOverallEnergy, getEnergyLabel } from '../../utils/omen
 const DataPanel = lazy(() => import('../DataPanel'));
 
 export default function OmenTab() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [showData, setShowData] = useState(false);
@@ -97,7 +97,7 @@ export default function OmenTab() {
                 <span className="text-[#5b13ec] italic font-light">Omen</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
-                천지의 기운을 읽어 오늘의 괘를 알려드립니다
+                {t('omenTab.heroDesc')}
               </p>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function OmenTab() {
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
-        <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading the Signs...</h3>
+        <h3 className="text-white text-xl font-bold mt-8 mb-2">{t('omenTab.readingSigns')}</h3>
         <p className="text-white/50 text-sm text-center max-w-xs">
           {t('omenTab.sensing')}
         </p>
@@ -212,7 +212,7 @@ export default function OmenTab() {
       {/* 위치 표시 */}
       {weather?.cityName && (
         <p className="text-white/40 text-sm text-center">
-          {weather.cityName}의 하늘 아래
+          {t('omenTab.underSky', { city: weather.cityName })}
         </p>
       )}
 
@@ -254,13 +254,13 @@ export default function OmenTab() {
           {/* 타임스탬프 */}
           <div className="pt-4 border-t border-white/10 text-center">
             <p className="text-white/30 text-xs">
-              {omen?.timestamp?.toLocaleString('ko-KR', {
+              {omen?.timestamp?.toLocaleString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-              })} 천기
+              })} {t('omenCard.celestialSign')}
             </p>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function OmenTab() {
       {/* 세부 괘 */}
       <section className="px-4">
         <div className="max-w-md mx-auto space-y-4">
-          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">Detailed Omens</h4>
+          <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">{t('omenTab.detailedOmens')}</h4>
           {omen?.details?.map((detail, index) => (
             <div
               key={index}
@@ -301,7 +301,7 @@ export default function OmenTab() {
         <div className="px-4 animate-fade-in">
           <Suspense fallback={
             <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 text-center text-white/50">
-              기운을 모으는 중...
+              {t('omenTab.gatheringEnergy')}
             </div>
           }>
             <DataPanel

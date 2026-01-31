@@ -1,4 +1,8 @@
-export default function LoadingScreen({ message = "천기를 살피는 중..." }) {
+import { useTranslation } from 'react-i18next';
+
+export default function LoadingScreen({ message }: { message?: string }) {
+  const { t } = useTranslation();
+  const displayMessage = message || t('loading.message');
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-mystic-900">
       {/* 로딩 애니메이션 - 동심원 */}
@@ -13,7 +17,7 @@ export default function LoadingScreen({ message = "천기를 살피는 중..." }
 
       {/* 로딩 메시지 */}
       <p className="text-cosmic-gold text-lg font-mystic animate-pulse text-shadow-glow">
-        {message}
+        {displayMessage}
       </p>
 
       {/* 장식적 요소 */}

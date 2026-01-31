@@ -1,8 +1,10 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getOverallEnergy, getEnergyLabel } from '../utils/omenGenerator';
 
 // rerender-memo: Memoize component to prevent re-renders with complex object props
 export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
+  const { t, i18n } = useTranslation();
   const energy = getOverallEnergy(weather, moon, earthquake);
   const energyInfo = getEnergyLabel(energy);
 
@@ -12,7 +14,7 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
     <div className="glass-panel p-6 md:p-8 animate-float">
       {/* 에너지 지표 */}
       <div className="flex justify-between items-center mb-6">
-        <span className="data-label">기의 흐름</span>
+        <span className="data-label">{t('omenCard.energyFlow')}</span>
         <div className="flex items-center gap-2">
           <div className="w-24 h-2 bg-mystic-700 rounded-full overflow-hidden">
             <div
@@ -56,13 +58,13 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
       {/* 타임스탬프 */}
       <div className="mt-6 pt-4 border-t border-cosmic-gold/10 text-center">
         <p className="text-gray-500 text-xs">
-          {omen.timestamp.toLocaleString('ko-KR', {
+          {omen.timestamp.toLocaleString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-          })} 천기
+          })} {t('omenCard.celestialSign')}
         </p>
       </div>
     </div>

@@ -21,6 +21,7 @@ const ELEMENT_BG = {
 
 export default function SajuTab() {
   const { t } = useTranslation('saju');
+  const { t: tc } = useTranslation();
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
@@ -67,11 +68,11 @@ export default function SajuTab() {
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-                Four Pillars of <br />
-                <span className="text-[#5b13ec] italic font-light">Destiny</span>
+                {tc('saju.heroTitle1')} <br />
+                <span className="text-[#5b13ec] italic font-light">{tc('saju.heroTitle2')}</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
-                태어난 날과 시를 알려주시면, 천명을 살펴드립니다
+                {tc('saju.heroDesc')}
               </p>
             </div>
           </div>
@@ -81,14 +82,14 @@ export default function SajuTab() {
         <section className="px-4">
           <div className="max-w-md mx-auto">
             <div className="text-center mb-6">
-              <h3 className="text-white text-xl font-bold tracking-tight pb-1">Birth Information</h3>
+              <h3 className="text-white text-xl font-bold tracking-tight pb-1">{tc('saju.birthInfo')}</h3>
               <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
                 <label className="block">
-                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">Birth Date</p>
+                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{tc('saju.birthDate')}</p>
                   <input
                     type="date"
                     value={birthDate}
@@ -99,7 +100,7 @@ export default function SajuTab() {
                 </label>
 
                 <label className="block">
-                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">Birth Hour</p>
+                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{tc('saju.birthHour')}</p>
                   <select
                     value={birthHour}
                     onChange={(e) => setBirthHour(e.target.value)}
@@ -118,7 +119,7 @@ export default function SajuTab() {
                 type="submit"
                 className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
               >
-                Reveal Destiny
+                {tc('saju.revealDestiny')}
               </button>
             </form>
           </div>
@@ -137,7 +138,7 @@ export default function SajuTab() {
         <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Four Pillars</span>
+              <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('saju.fourPillars')}</span>
               <h3 className="text-white text-xl font-bold tracking-tight">{t('title')}</h3>
             </div>
             <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
@@ -154,7 +155,7 @@ export default function SajuTab() {
             <p className="text-[#5b13ec] text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
             <p className="text-white text-2xl font-bold">{dayMaster.name}</p>
             <p className="text-white/50 text-sm mt-1">
-              {dayMaster.nature}의 기운 · {dayMaster.trait} 성정
+              {tc('saju.dayMasterEnergy', { nature: dayMaster.nature, trait: dayMaster.trait })}
             </p>
           </div>
         </div>
@@ -167,7 +168,7 @@ export default function SajuTab() {
             <span className="text-3xl">🐉</span>
             <div>
               <p className="text-[#5b13ec] text-xs uppercase tracking-widest">{t('zodiac')}</p>
-              <p className="text-white font-bold text-lg">{zodiac}띠</p>
+              <p className="text-white font-bold text-lg">{tc('saju.zodiacSuffix', { zodiac })}</p>
             </div>
           </div>
           <p className="text-white/60 text-sm leading-relaxed">
@@ -251,7 +252,7 @@ export default function SajuTab() {
           onClick={handleReset}
           className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
         >
-          New Reading
+          {tc('saju.newReading')}
         </button>
       </div>
     </div>

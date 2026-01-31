@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next';
+
 export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-center p-4">
       <div className="glass-panel p-8 max-w-md text-center animate-float">
@@ -7,13 +10,13 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
 
         {/* 제목 */}
         <h1 className="text-3xl font-mystic mystic-text mb-4 text-shadow-glow">
-          오늘의 괘
+          {t('location.title')}
         </h1>
 
         {/* 설명 */}
         <p className="text-gray-300 mb-6 leading-relaxed font-mystic">
-          당신이 머무는 곳의 기운이<br />
-          오늘의 괘를 달리하리니
+          {t('omenTab.locationAffects1')}<br />
+          {t('omenTab.locationAffects2')}
         </p>
 
         {/* 에러 메시지 */}
@@ -34,7 +37,7 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
                        shadow-lg hover:shadow-cosmic-gold/50
                        animate-glow"
           >
-            기운 감응 시작
+            {t('location.startButton')}
           </button>
 
           <button
@@ -44,13 +47,13 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
                        hover:border-cosmic-gold/50 hover:text-cosmic-gold/70
                        transition-all duration-300"
           >
-            위치 없이 진행
+            {t('location.skipButton')}
           </button>
         </div>
 
         {/* 부연 설명 */}
         <p className="text-gray-500 text-sm mt-4">
-          위치 없이 진행하면 서울 기준으로 괘를 내립니다
+          {t('location.skipWarning')}
         </p>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { interpretPalm, getPalmAdvice } from '../../utils/palmReading';
 
 export default function PalmTab() {
   const { t } = useTranslation('palm');
+  const { t: tc } = useTranslation();
   const [mode, setMode] = useState('intro');
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
@@ -69,7 +70,7 @@ export default function PalmTab() {
         {/* Instructions */}
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h3 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Before Reading</h3>
+            <h3 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{tc('palm.beforeReading')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-4">
                 <div className="bg-[#5b13ec]/20 p-2 rounded-full">
@@ -105,7 +106,7 @@ export default function PalmTab() {
             onClick={handleStart}
             className="w-full max-w-md mx-auto flex items-center justify-center rounded-full h-14 px-8 bg-[#5b13ec] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(91,19,236,0.3)] border border-[#5b13ec]/50 hover:scale-105 active:scale-95"
           >
-            Start Palm Reading
+            {tc('palm.startReading')}
           </button>
         </div>
       </div>
@@ -118,7 +119,7 @@ export default function PalmTab() {
       <div className="space-y-6">
         <CameraCapture
           onCapture={handleCapture}
-          captureLabel="Read Palm Lines"
+          captureLabel={tc('palm.readPalmLines')}
           instruction={t('instruction.showPalm')}
           detectType="hand"
         />
@@ -134,7 +135,7 @@ export default function PalmTab() {
             onClick={handleReset}
             className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
           >
-            ← Back
+            {tc('palm.back')}
           </button>
         </div>
       </div>
@@ -151,7 +152,7 @@ export default function PalmTab() {
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
-        <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading Your Palm...</h3>
+        <h3 className="text-white text-xl font-bold mt-8 mb-2">{tc('palm.readingPalm')}</h3>
         <p className="text-white/50 text-sm text-center max-w-xs">
           {t('analyzing')}
         </p>
@@ -187,9 +188,9 @@ export default function PalmTab() {
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Palm Reading</span>
+                <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('palm.palmReading')}</span>
                 <h3 className="text-white text-xl font-bold tracking-tight">
-                  {result.handedness === 'Left' ? t('result.leftHand') : t('result.rightHand')} 손금
+                  {result.handedness === 'Left' ? t('result.leftHand') : t('result.rightHand')}
                 </h3>
               </div>
               <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
@@ -206,7 +207,7 @@ export default function PalmTab() {
         {/* 세부 해석 */}
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">Line Details</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] px-1">{tc('palm.lineDetails')}</h4>
             {result.details.map((detail, i) => (
               <div
                 key={i}
@@ -230,7 +231,7 @@ export default function PalmTab() {
         {/* 조언 */}
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-[#5b13ec]/30 p-6 shadow-[0_0_15px_rgba(91,19,236,0.2)]">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">Mystic Advice</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[#5b13ec] mb-4">{tc('palm.mysticAdvice')}</h4>
             <p className="text-white/70 text-sm leading-relaxed text-center">
               💫 {result.advice}
             </p>
@@ -243,7 +244,7 @@ export default function PalmTab() {
             onClick={handleReset}
             className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
           >
-            New Reading
+            {tc('palm.newReading')}
           </button>
         </div>
       </div>

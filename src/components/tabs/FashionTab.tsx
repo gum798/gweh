@@ -38,6 +38,7 @@ interface FashionResult {
 
 export default function FashionTab() {
   const { t } = useTranslation('fashion');
+  const { t: tc } = useTranslation();
   const [mode, setMode] = useState<Mode>('input');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
@@ -132,14 +133,14 @@ export default function FashionTab() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.');
+        throw new Error(data.error || tc('fashion.errorAnalysis'));
       }
 
       setResult(data.data);
       setMode('result');
     } catch (err) {
       console.error('Fashion consult error:', err);
-      setErrorMessage(err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.');
+      setErrorMessage(err instanceof Error ? err.message : tc('fashion.errorGeneric'));
       setMode('error');
     }
   };
@@ -223,14 +224,14 @@ export default function FashionTab() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'AI 분석에 실패했습니다.');
+        throw new Error(data.error || tc('fashion.errorAnalysis'));
       }
 
       setResult(data.data);
       setMode('result');
     } catch (error) {
       console.error('Fashion consult error:', error);
-      setErrorMessage(error instanceof Error ? error.message : '분석 중 오류가 발생했습니다.');
+      setErrorMessage(error instanceof Error ? error.message : tc('fashion.errorGeneric'));
       setMode('error');
     }
   }, [height, weight, capturedImage]);

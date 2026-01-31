@@ -7,6 +7,7 @@ import { analyzeFaceFeatures, interpretPhysiognomy } from '../../utils/physiogno
 
 export default function FaceTab() {
   const { t } = useTranslation('face');
+  const { t: tc } = useTranslation();
   const [mode, setMode] = useState('select');
   const [analysisType, setAnalysisType] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -75,8 +76,8 @@ export default function FaceTab() {
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-                Read Your <br />
-                <span className="text-[#5b13ec] italic font-light">Inner Light</span>
+                {tc('face.heroTitle1')} <br />
+                <span className="text-[#5b13ec] italic font-light">{tc('face.heroTitle2')}</span>
               </h1>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('subtitle', 'AI interprets the signs of destiny in your face')}
@@ -88,7 +89,7 @@ export default function FaceTab() {
         {/* Analysis Type Selection */}
         <section className="px-4 space-y-4">
           <div className="text-center mb-6">
-            <h3 className="text-white text-xl font-bold tracking-tight pb-1">Choose Analysis</h3>
+            <h3 className="text-white text-xl font-bold tracking-tight pb-1">{tc('face.chooseAnalysis')}</h3>
             <div className="h-1 w-12 bg-[#5b13ec] mx-auto rounded-full"></div>
           </div>
 
@@ -102,7 +103,7 @@ export default function FaceTab() {
                   <span className="text-3xl">🎨</span>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg">Personal Color</h3>
+                  <h3 className="text-white font-bold text-lg">{tc('face.personalColor')}</h3>
                   <p className="text-white/50 text-sm mt-1">
                     {t('mode.personalColor.desc')}
                   </p>
@@ -119,7 +120,7 @@ export default function FaceTab() {
                   <span className="text-3xl">👤</span>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg">Physiognomy</h3>
+                  <h3 className="text-white font-bold text-lg">{tc('face.physiognomy')}</h3>
                   <p className="text-white/50 text-sm mt-1">
                     {t('mode.physiognomy.desc')}
                   </p>
@@ -136,7 +137,7 @@ export default function FaceTab() {
                   <span className="text-3xl">✨</span>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg">Complete Analysis</h3>
+                  <h3 className="text-white font-bold text-lg">{tc('face.completeAnalysis')}</h3>
                   <p className="text-white/50 text-sm mt-1">
                     {t('mode.complete.desc')}
                   </p>
@@ -155,7 +156,7 @@ export default function FaceTab() {
       <div className="space-y-6">
         <CameraCapture
           onCapture={handleCapture}
-          captureLabel="Analyze Face"
+          captureLabel={tc('face.analyzeButton')}
           instruction={t('instruction')}
           detectType="face"
         />
@@ -171,7 +172,7 @@ export default function FaceTab() {
             onClick={handleReset}
             className="px-6 py-2 text-[#5b13ec] text-sm hover:text-white transition-colors"
           >
-            ← Back to Selection
+            {tc('face.backToSelection')}
           </button>
         </div>
       </div>
@@ -188,7 +189,7 @@ export default function FaceTab() {
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
-        <h3 className="text-white text-xl font-bold mt-8 mb-2">Reading Your Face...</h3>
+        <h3 className="text-white text-xl font-bold mt-8 mb-2">{tc('face.readingFace')}</h3>
         <p className="text-white/50 text-sm text-center max-w-xs">
           {t('analyzing', 'Examining the energy in your face')}
         </p>
@@ -225,7 +226,7 @@ export default function FaceTab() {
             <div className="max-w-md mx-auto bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Personal Color</span>
+                  <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.personalColor')}</span>
                   <h3 className="text-white text-2xl font-bold tracking-tight">{result.personalColor.seasonKorean}</h3>
                 </div>
                 <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
@@ -239,7 +240,7 @@ export default function FaceTab() {
 
               {/* 색상 팔레트 */}
               <div className="mb-6">
-                <p className="text-white/40 text-xs uppercase tracking-widest mb-3">Color Palette</p>
+                <p className="text-white/40 text-xs uppercase tracking-widest mb-3">{tc('face.colorPalette')}</p>
                 <div className="flex justify-center gap-3">
                   {result.personalColor.colorPalette.map((color, i) => (
                     <div
@@ -257,11 +258,11 @@ export default function FaceTab() {
 
               <div className="pt-4 border-t border-white/10 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-[#5b13ec] text-xs uppercase tracking-widest">Best Colors</span>
+                  <span className="text-[#5b13ec] text-xs uppercase tracking-widest">{tc('face.bestColors')}</span>
                   <p className="text-white/70 mt-1">{result.personalColor.tips.best}</p>
                 </div>
                 <div>
-                  <span className="text-red-400 text-xs uppercase tracking-widest">Avoid</span>
+                  <span className="text-red-400 text-xs uppercase tracking-widest">{tc('face.avoidColors')}</span>
                   <p className="text-white/50 mt-1">{result.personalColor.tips.avoid}</p>
                 </div>
               </div>
@@ -276,7 +277,7 @@ export default function FaceTab() {
               <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">Physiognomy</span>
+                    <span className="text-[#5b13ec] text-[10px] font-bold uppercase tracking-[0.3em]">{tc('face.physiognomy')}</span>
                     <h3 className="text-white text-xl font-bold tracking-tight">{t('result.physiognomyReading')}</h3>
                   </div>
                   <div className="h-12 w-12 rounded-full border border-[#5b13ec]/50 flex items-center justify-center shadow-[0_0_15px_rgba(91,19,236,0.3)]">
@@ -315,7 +316,7 @@ export default function FaceTab() {
             onClick={handleReset}
             className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#5b13ec] hover:text-white transition-colors"
           >
-            New Analysis
+            {tc('face.newAnalysis')}
           </button>
         </div>
       </div>

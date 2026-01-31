@@ -65,18 +65,18 @@ const HAND_CONNECTIONS = [
   [5, 9], [9, 13], [13, 17],             // 손바닥 가로 연결
 ];
 
-// 키포인트 이름
-const KEYPOINT_NAMES = [
-  '손목', '엄지1', '엄지2', '엄지3', '엄지끝',
-  '검지1', '검지2', '검지3', '검지끝',
-  '중지1', '중지2', '중지3', '중지끝',
-  '약지1', '약지2', '약지3', '약지끝',
-  '소지1', '소지2', '소지3', '소지끝'
+// 키포인트 이름 키 (i18n)
+const KEYPOINT_KEYS = [
+  'keypoint.wrist', 'keypoint.thumb1', 'keypoint.thumb2', 'keypoint.thumb3', 'keypoint.thumbTip',
+  'keypoint.index1', 'keypoint.index2', 'keypoint.index3', 'keypoint.indexTip',
+  'keypoint.middle1', 'keypoint.middle2', 'keypoint.middle3', 'keypoint.middleTip',
+  'keypoint.ring1', 'keypoint.ring2', 'keypoint.ring3', 'keypoint.ringTip',
+  'keypoint.pinky1', 'keypoint.pinky2', 'keypoint.pinky3', 'keypoint.pinkyTip'
 ];
 
 export default function CameraCapture({
   onCapture,
-  captureLabel = '촬영하기',
+  captureLabel,
   instruction,
   detectType = 'none'
 }) {
@@ -93,6 +93,7 @@ export default function CameraCapture({
   const [isModelLoading, setIsModelLoading] = useState(false);
 
   const { t } = useTranslation();
+  const displayCaptureLabel = captureLabel || t('camera.capture');
 
   useEffect(() => {
     if (mode !== 'camera' || detectType === 'none') return;
@@ -292,7 +293,7 @@ export default function CameraCapture({
                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
             }`}
           >
-            {captureLabel}
+            {displayCaptureLabel}
           </button>
         </div>
       ) : (
