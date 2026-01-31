@@ -14,9 +14,9 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
   const [dismissed, setDismissed] = useState(() => {
     const ts = localStorage.getItem('sub_banner_dismissed');
     if (!ts) return false;
-    // 24시간 후 다시 표시
     return Date.now() - parseInt(ts) < 24 * 60 * 60 * 1000;
   });
+  const [expanded, setExpanded] = useState(false);
 
   // Scarcity: countdown timer (resets daily)
   const [timeLeft, setTimeLeft] = useState('');
@@ -45,15 +45,67 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
     subscribe();
   };
 
+  const handleDismiss = () => {
+    setDismissed(true);
+    localStorage.setItem('sub_banner_dismissed', Date.now().toString());
+  };
+
+  // Collapsed: 1-line compact banner
+  if (!expanded) {
+    return (
+      <section className="px-4 mb-6">
+        <div className="max-w-md mx-auto rounded-xl border border-[#5b13ec]/30 bg-gradient-to-r from-[#1a1030] to-[#221933] px-4 py-2.5 flex items-center gap-3">
+          <span className="text-sm flex-shrink-0">✨</span>
+          <span className="text-[#5b13ec] text-xs font-bold uppercase tracking-wider flex-shrink-0">{t('sub.badge')}</span>
+          <span className="text-green-400 text-xs font-bold flex-shrink-0">{t('sub.freeTrial')}</span>
+          <div className="flex-1" />
+          <button
+            onClick={() => setExpanded(true)}
+            aria-label="Expand"
+            className="text-white/40 hover:text-white/70 transition-colors p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] rounded"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6L8 11L13 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <button
+            onClick={handleDismiss}
+            aria-label="Close"
+            className="text-white/20 hover:text-white/50 transition-colors p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] rounded"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3L11 11M11 3L3 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  // Expanded: full banner
   return (
     <section className="px-4 mb-6">
       <div className="max-w-md mx-auto relative overflow-hidden rounded-2xl border border-[#5b13ec]/40 bg-gradient-to-br from-[#1a1030] via-[#221933] to-[#2a1040]">
+        {/* Collapse */}
+        <button
+          onClick={() => setExpanded(false)}
+          aria-label="Collapse"
+          className="absolute top-3 right-10 text-white/20 hover:text-white/50 z-10 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] rounded"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 11L8 6L13 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
         {/* Dismiss */}
         <button
-          onClick={() => { setDismissed(true); localStorage.setItem('sub_banner_dismissed', Date.now().toString()); }}
-          className="absolute top-3 right-3 text-white/20 hover:text-white/50 text-sm z-10"
+          onClick={handleDismiss}
+          aria-label="Close"
+          className="absolute top-3 right-3 text-white/20 hover:text-white/50 z-10 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b13ec] rounded"
         >
-          &times;
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3L11 11M11 3L3 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
         </button>
 
         {/* Glow effect */}
@@ -61,7 +113,6 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
 
         <div className="relative p-5">
-          {/* Loss aversion: "You're missing out" */}
           <div className="flex items-center gap-2 mb-3">
             <span className="text-lg">✨</span>
             <span className="text-[#5b13ec] text-xs font-bold uppercase tracking-widest">
@@ -73,7 +124,6 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
             {t('sub.headline')}
           </h3>
 
-          {/* Social proof */}
           <p className="text-white/50 text-sm mb-4 leading-relaxed">
             {t('sub.description')}
           </p>
@@ -89,7 +139,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
             <span className="text-white/40 text-sm line-through">$9.99</span>
             <span className="text-white text-2xl font-bold">$0</span>
             <span className="text-white/40 text-sm">{t('sub.freeTrialPeriod')}</span>
-            <span className="text-white/30 text-xs mx-1">→</span>
+            <span className="text-white/30 text-xs mx-1">&rarr;</span>
             <span className="text-white/50 text-sm">$9.99/mo</span>
           </div>
 
@@ -106,12 +156,12 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
           {/* CTA Button */}
           <button
             onClick={handleClick}
-            className="w-full py-3.5 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-xl text-white font-bold text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(91,19,236,0.4)] hover:shadow-[0_0_30px_rgba(91,19,236,0.6)] hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full py-3.5 bg-[#5b13ec] hover:bg-[#4a0fd0] rounded-xl text-white font-bold text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(91,19,236,0.4)] hover:shadow-[0_0_30px_rgba(91,19,236,0.6)] hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1030]"
           >
             {t('sub.ctaTrial')}
           </button>
 
-          {/* Scarcity: time-limited framing */}
+          {/* Scarcity */}
           <p className="text-center text-white/30 text-xs mt-3">
             {t('sub.urgency', { time: timeLeft })}
           </p>
