@@ -56,7 +56,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 - JSON 형식만 반환 (마크다운 없이)`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${context.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${context.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +68,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
 
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: 'AI 운세 생성 실패' }), {
+      const errText = await response.text();
+      console.error('Gemini API error:', response.status, errText);
+      return new Response(JSON.stringify({ error: 'AI 운세 생성 실패', detail: errText }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
