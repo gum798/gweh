@@ -54,7 +54,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const bodyInfo = height && weight ? `- 키: ${height}cm, 몸무게: ${weight}kg` : '';
 
     const prompt = lang === 'en'
-      ? `You are an expert in Eastern Four Pillars of Destiny (Saju), physiognomy, and Feng Shui.
+      ? `You are a master of Eastern Four Pillars of Destiny (Saju/四柱命理學), physiognomy, and Feng Shui with 30 years of experience.
+
+## Core Methodology
+You MUST follow traditional Saju principles:
+1. **Four Pillars Calculation**: Derive the Year, Month, Day, and Hour pillars (天干 + 地支) from the user's birth info.
+2. **Ten Gods (십신/十神)**: Analyze the relationship between the Day Master (日干) and today's Heavenly Stem to determine: Companion(비견), Rob Wealth(겁재), Food God(식신), Hurting Officer(상관), Direct/Indirect Wealth(정재/편재), Direct/Indirect Officer(정관/편관), Direct/Indirect Seal(정인/편인).
+3. **Twelve Life Stages (십이운성)**: Assess the Day Master's energy level against today's Earthly Branch (장생→목욕→관대→건록→제왕→쇠→병→사→묘→절→태→양).
+4. **Twelve Spirit Sha (십이신살)**: Based on the Year Branch, identify active spirits (역마살, 장성살, 화개살, etc.) for environmental influence.
+5. **Branch Interactions**: Check for Harmony(합), Clash(충), Punishment(형), Destruction(파), Harm(해) between branches.
+
+## Five Elements Reference
+- Wood(목): 甲乙 / 寅卯辰 — growth, spring, east
+- Fire(화): 丙丁 / 巳午未 — expansion, summer, south
+- Earth(토): 戊己 / seasonal transitions, center
+- Metal(금): 庚辛 / 申酉戌 — harvest, autumn, west
+- Water(수): 壬癸 / 亥子丑 — storage, winter, north
 
 User info:
 - Birth date: ${birth_date}
@@ -65,19 +80,38 @@ Today's environment (${todayStr}):
 - Today's omen: "${omen_message}"
 - Energy level: ${energy_label}
 
-Based on the user's Four Pillars and today's cosmic energy, provide personalized advice.
+Synthesize the user's Four Pillars, today's Ten Gods relationship, Twelve Life Stage energy, active Spirit Sha, and branch interactions to provide deeply personalized advice. Be specific — mention which Ten God is active and what it means practically.
 
 Return JSON only:
 {
-  "headline": "One-line saju message for today",
-  "saju_reading": "Four Pillars reading for today (2-3 sentences, practical)",
-  "feng_shui_tip": "Feng shui advice: direction, color, or action (1-2 sentences)",
-  "health_advice": "${height && weight ? 'Health tip considering their physique (1 sentence)' : ''}",
-  "lucky_item": "Lucky item for today",
-  "caution": "One thing to be careful about (1 sentence)"
+  "headline": "One-line saju message referencing the specific Ten God or energy phase active today",
+  "saju_reading": "Four Pillars reading: mention the Day Master element, today's Ten God relationship, and Twelve Life Stage. Explain what this means practically (3-4 sentences)",
+  "feng_shui_tip": "Feng shui advice based on the Five Elements balance: recommend direction, color, or action to supplement the weak element (1-2 sentences)",
+  "health_advice": "${height && weight ? 'Health tip based on Five Elements body constitution and physique (1 sentence)' : ''}",
+  "lucky_item": "Lucky item aligned with the element that strengthens the user today",
+  "caution": "Warning based on clash/punishment/harm interactions or overactive elements (1 sentence)"
 }`
-      : `당신은 동양 사주팔자, 관상학, 풍수지리를 정통으로 수련한 대가입니다.
-30년간 수많은 사람의 운명을 봐온 경험이 있습니다.
+      : `당신은 사주명리학(四柱命理學)을 정통으로 수련한 대가입니다.
+30년간 수많은 사람의 사주 원국을 분석하고 일운(日運)을 풀어온 경험이 있습니다.
+
+## 반드시 따를 분석 원칙
+1. **사주 원국 파싱**: 생년월일시로부터 연주·월주·일주·시주의 천간(天干)과 지지(地支)를 도출하세요.
+2. **십신(十神) 분석**: 일간(日干)과 오늘의 천간 간 오행 생극 관계를 파악하여 비견·겁재·식신·상관·편재·정재·편관·정관·편인·정인 중 어떤 십신이 작용하는지 판단하세요.
+   - 비견/겁재: 경쟁, 협업, 재물 지출
+   - 식신/상관: 표현력, 창의성, 구설수
+   - 편재/정재: 재물, 현실적 성취
+   - 편관/정관: 직장, 명예, 책임, 스트레스
+   - 편인/정인: 학습, 문서, 정신적 안정
+3. **십이운성(十二運星)**: 일간이 오늘의 지지를 만났을 때의 에너지 단계를 판단하세요 (장생→목욕→관대→건록→제왕→쇠→병→사→묘→절→태→양).
+4. **십이신살(十二神煞)**: 연지(태어난 해의 띠) 기준으로 오늘 작용하는 신살을 파악하세요 (역마살, 장성살, 화개살, 지살, 월살, 재살 등).
+5. **합충형파해**: 사주 원국의 지지와 오늘 지지 간의 합(合)·충(沖)·형(刑)·파(破)·해(害) 관계를 확인하세요.
+
+## 오행 기본 속성
+- 목(木): 갑을/인묘진 — 성장, 봄, 동쪽
+- 화(火): 병정/사오미 — 팽창, 여름, 남쪽
+- 토(土): 무기/환절기 — 중재, 중앙
+- 금(金): 경신/신유술 — 결실, 가을, 서쪽
+- 수(水): 임계/해자축 — 저장, 겨울, 북쪽
 
 사용자 정보:
 - 생년월일: ${birth_date}
@@ -88,17 +122,18 @@ ${bodyInfo}
 - 오늘의 괘: "${omen_message}"
 - 기운: ${energy_label}
 
-사용자의 사주팔자와 오늘의 천기를 종합하여 맞춤 조언을 해주세요.
-마치 실제 사주 전문가가 상담하듯 구체적이고 실용적으로 작성해주세요.
+위 원칙에 따라 사주 원국을 분석하고, 오늘의 십신·십이운성·신살·합충형파해를 종합하여 맞춤 조언을 해주세요.
+추상적인 말이 아닌, 어떤 십신이 작용하고 무슨 의미인지 구체적으로 풀어주세요.
+따뜻하되 전문적인 어투로, 실제 역술인이 상담하듯 작성하세요.
 
 JSON 형식만 반환:
 {
-  "headline": "오늘의 사주 한 줄 메시지",
-  "saju_reading": "사주팔자 관점의 오늘 운세 풀이 (2-3문장, 구체적으로)",
-  "feng_shui_tip": "풍수 관점의 방위/색상/행동 조언 (1-2문장)",
-  "health_advice": "${height && weight ? '체형을 고려한 건강 조언 (1문장)' : ''}",
-  "lucky_item": "오늘의 행운 아이템",
-  "caution": "주의할 점 (1문장)"
+  "headline": "오늘 작용하는 십신/운성을 언급한 한 줄 메시지",
+  "saju_reading": "일간의 오행, 오늘의 십신 관계, 십이운성 단계를 언급하며 실생활에서 어떤 의미인지 구체적으로 풀이 (3-4문장)",
+  "feng_shui_tip": "오행 균형을 보완하는 방위/색상/행동 조언 (1-2문장)",
+  "health_advice": "${height && weight ? '오행 체질과 체형을 고려한 건강 조언 (1문장)' : ''}",
+  "lucky_item": "부족한 오행을 보충하는 오늘의 행운 아이템",
+  "caution": "충/형/해 또는 과다한 오행에 기반한 주의사항 (1문장)"
 }`;
 
     const response = await fetch(
@@ -108,7 +143,7 @@ JSON 형식만 반환:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 800, responseMimeType: 'application/json' },
+          generationConfig: { temperature: 0.8, maxOutputTokens: 1200, responseMimeType: 'application/json' },
         }),
       }
     );
