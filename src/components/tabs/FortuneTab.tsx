@@ -16,6 +16,7 @@ interface FortuneResult {
 }
 
 const CACHE_KEY = 'mystic_fortune_cache';
+const BIRTH_YEAR_KEY = 'mystic_birth_year';
 
 function getCachedFortune(birthDate: string): FortuneResult | null {
   try {
@@ -42,13 +43,24 @@ export default function FortuneTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<FortuneResult | null>(null);
-  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [ready, setReady] = useState(false);
   const [existingProfileDate, setExistingProfileDate] = useState<string | null>(null);
   const autoSubmitted = useRef(false);
 
-  // 로그인 사용자: 이전 정보 불러오기
+  // 우선순위: 1) localStorage → 2) DB 프로필 → 3) 사용자 입력
   useEffect(() => {
-    if (!session?.access_token) return;
+    const saved = localStorage.getItem(BIRTH_YEAR_KEY);
+    if (saved) {
+      setBirthYear(saved);
+      setReady(true);
+      return;
+    }
+
+    if (!session?.access_token) {
+      setReady(true);
+      return;
+    }
+
     fetch('/api/profile', {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
@@ -58,19 +70,20 @@ export default function FortuneTab() {
           const year = d.profile.birth_date.split('-')[0];
           setBirthYear(year);
           setExistingProfileDate(d.profile.birth_date);
-          setProfileLoaded(true);
+          localStorage.setItem(BIRTH_YEAR_KEY, year);
         }
       })
-      .catch(() => { });
+      .catch(() => { })
+      .finally(() => setReady(true));
   }, [session?.access_token]);
 
-  // 이전 데이터 있으면 자동 제출
+  // 데이터 준비되면 자동 제출
   useEffect(() => {
-    if (profileLoaded && birthYear && !autoSubmitted.current) {
+    if (ready && birthYear && !autoSubmitted.current) {
       autoSubmitted.current = true;
       submitFortune(birthYear);
     }
-  }, [profileLoaded, birthYear]);
+  }, [ready, birthYear]);
 
   const submitFortune = async (year: string) => {
     // 캐시 확인
@@ -296,10 +309,13 @@ export default function FortuneTab() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
               <label className="block">
-                <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('saju.birthDate')}</p>
+                <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('fortune.birthYear')}</p>
                 <select
                   value={birthYear}
-                  onChange={(e) => setBirthYear(e.target.value)}
+                  onChange={(e) => {
+                    setBirthYear(e.target.value);
+                    if (e.target.value) localStorage.setItem(BIRTH_YEAR_KEY, e.target.value);
+                  }}
                   className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 px-4 text-lg font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
                   required
                 >

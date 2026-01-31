@@ -165,6 +165,7 @@
   "fortune.luckyColor": "Lucky Color",
   "fortune.luckyNumber": "Lucky Number",
   "fortune.luckyDirection": "Lucky Direction",
+  "fortune.birthYear": "Birth Year",
   "fortune.newReading": "New Reading",
   "fortune.loadedPrevious": "Loaded your previous data",
   "fortune.error": "Failed to load fortune. Please try again.",
