@@ -22,14 +22,14 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
 
   return (
     <nav className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
-      <div className="flex justify-center gap-1">
+      <div className="flex overflow-x-auto gap-1 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             aria-label={t(tab.labelKey)}
             className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-xl
+              flex items-center gap-2 px-3 py-2.5 rounded-xl flex-shrink-0
               transition-all duration-300 font-medium
               ${activeTab === tab.id
                 ? 'bg-[#5b13ec]/20 text-white border border-[#5b13ec]/40 shadow-[0_0_10px_rgba(91,19,236,0.2)]'
