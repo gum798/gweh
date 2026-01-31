@@ -22,6 +22,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   const [showData, setShowData] = useState(false);
   const [dailyStyle, setDailyStyle] = useState<any>(null);
   const [styleLoading, setStyleLoading] = useState(false);
+  const [minWait, setMinWait] = useState(false);
 
   const { data: weather, loading: weatherLoading, error: weatherError } = useWeather(
     location?.lat,
@@ -33,35 +34,51 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   // 서울 기본 좌표
   const DEFAULT_LOCATION = { lat: 37.5665, lon: 126.9780 };
 
-  // 3단계 위치 감지: 서울 기본값 → IP 위치 감지 → GPS 버튼
+  // 위치 감지: 프로필 > IP > 서울 기본값 (한 번만 설정)
   useEffect(() => {
-    // 1단계: 즉시 서울 기본값 설정
-    if (!location) setLocation(DEFAULT_LOCATION);
+    let cancelled = false;
 
-    // 2단계: IP 기반 위치 감지
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(d => {
-        if (d.latitude && d.longitude) {
-          setLocation({ lat: d.latitude, lon: d.longitude });
-        }
-      })
-      .catch(() => {});
-
-    // 로그인 사용자: 저장된 위치가 있으면 그걸 사용
-    if (session?.access_token) {
-      fetch('/api/profile', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-        .then(r => r.json())
-        .then(d => {
-          if (d.profile?.last_lat && d.profile?.last_lon) {
+    const resolveLocation = async () => {
+      // 1. 로그인 사용자: 저장된 위치 확인
+      if (session?.access_token) {
+        try {
+          const r = await fetch('/api/profile', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          const d = await r.json();
+          if (!cancelled && d.profile?.last_lat && d.profile?.last_lon) {
             setLocation({ lat: d.profile.last_lat, lon: d.profile.last_lon });
+            return;
           }
-        })
-        .catch(() => {});
-    }
+        } catch {}
+      }
+
+      // 2. IP 기반 위치 감지
+      try {
+        const r = await fetch('https://ipapi.co/json/');
+        const d = await r.json();
+        if (!cancelled && d.latitude && d.longitude) {
+          setLocation({ lat: d.latitude, lon: d.longitude });
+          return;
+        }
+      } catch {}
+
+      // 3. 서울 기본값
+      if (!cancelled) setLocation(DEFAULT_LOCATION);
+    };
+
+    resolveLocation();
+    return () => { cancelled = true; };
   }, [session?.access_token]);
+
+  // location 변경 시 최소 2초간 로딩 유지
+  useEffect(() => {
+    if (location) {
+      setMinWait(true);
+      const timer = setTimeout(() => setMinWait(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [location]);
 
   const requestLocation = useCallback(() => {
     setLocationError(null);
@@ -87,7 +104,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               'Authorization': `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({ last_lat: loc.lat, last_lon: loc.lon }),
-          }).catch(() => {});
+          }).catch(() => { });
         }
       },
       (error) => {
@@ -115,8 +132,8 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
 
   const isLoading = useMemo(
-    () => location && (weatherLoading || parallelLoading),
-    [location, weatherLoading, parallelLoading]
+    () => location && (weatherLoading || parallelLoading || minWait),
+    [location, weatherLoading, parallelLoading, minWait]
   );
 
   const omen = useMemo(() => {
@@ -327,13 +344,12 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   style={{ width: `${energy}%` }}
                 />
               </div>
-              <span className={`text-sm font-medium ${
-                energyInfo.label === '대길' ? 'text-yellow-400' :
+              <span className={`text-sm font-medium ${energyInfo.label === '대길' ? 'text-yellow-400' :
                 energyInfo.label === '길' ? 'text-green-400' :
-                energyInfo.label === '평' ? 'text-white/60' :
-                energyInfo.label === '소흉' ? 'text-orange-400' :
-                'text-red-400'
-              }`}>
+                  energyInfo.label === '평' ? 'text-white/60' :
+                    energyInfo.label === '소흉' ? 'text-orange-400' :
+                      'text-red-400'
+                }`}>
                 {energyInfo.label}
               </span>
             </div>
