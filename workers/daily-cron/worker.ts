@@ -355,38 +355,51 @@ async function runDailyCron(env: Env, forceAll = false) {
             continue;
           }
 
-          // 6. 사용자 로컬 날짜 기준으로 중복 체크
+          // 6. 사용자 로컬 날짜 기준으로 이메일 발송 여부 체크
           const localDate = getLocalDate(lon, utcNow);
           const existingRes = await supabaseRest(
             env,
-            `daily_readings?user_id=eq.${userId}&reading_date=eq.${localDate}&select=id`
+            `daily_readings?user_id=eq.${userId}&reading_date=eq.${localDate}&select=id,omen_message,energy_score,style_data,email_sent`
           );
           const existing = await existingRes.json() as any[];
-          if (existing?.length > 0) { skipped++; continue; }
+          const row = existing?.[0];
+
+          if (row?.email_sent) { skipped++; continue; }
 
           // 7. Fetch weather
           const weather = await fetchWeather(lat, lon, env.VITE_OPENWEATHER_API_KEY);
 
-          // 8. Generate omen
-          const omen = generateSimpleOmen(weather, moon, earthquake);
+          // 8. 기존 데이터 있으면 사용, 없으면 생성
+          let omenMessage = row?.omen_message;
+          let energyScore = row?.energy_score;
+          let styleData = row?.style_data;
 
-          // 9. Generate style recommendation (with weather + body info)
-          const styleData = await generateStyleWithGemini(env, omen.message, omen.energy, weather, profile);
+          if (!omenMessage) {
+            const omen = generateSimpleOmen(weather, moon, earthquake);
+            omenMessage = omen.message;
+            energyScore = omen.energy;
+          }
 
-          // 10. Save to daily_readings
+          if (!styleData) {
+            styleData = await generateStyleWithGemini(env, omenMessage, energyScore ?? 50, weather, profile);
+          }
+
+          // 10. Save to daily_readings (upsert)
           await supabaseRest(env, 'daily_readings', {
             method: 'POST',
             body: JSON.stringify({
               user_id: userId,
               reading_date: localDate,
-              omen_message: omen.message,
-              energy_score: omen.energy,
+              omen_message: omenMessage,
+              energy_score: energyScore,
               style_data: styleData,
+              email_sent: true,
             }),
+            headers: { 'Prefer': 'resolution=merge-duplicates' },
           });
 
           // 11. Send email
-          await sendEmail(env, email, omen.message, styleData, omen.energy);
+          await sendEmail(env, email, omenMessage, styleData, energyScore ?? 50);
 
           processed++;
           console.log(`Sent to ${email} (local 06:00, lon=${lon})`);
