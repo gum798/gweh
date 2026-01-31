@@ -6,8 +6,6 @@ import { analyzeSkinTone, getPersonalColorOmen, colorTips } from '../../utils/pe
 import { analyzeFaceFeatures, interpretPhysiognomy } from '../../utils/physiognomy';
 import { useAuth } from '../../contexts/AuthContext';
 
-const R2_BASE = 'https://pub-f912e0aa955046d390bf74abcc03725b.r2.dev';
-
 export default function FaceTab() {
   const { t } = useTranslation('face');
   const { t: tc } = useTranslation();
@@ -21,19 +19,23 @@ export default function FaceTab() {
 
   const { detectFace, isLoading, error } = useFaceDetection();
 
-  // Check for previous face photo in R2
+  // Check for previous face photo via proxy API
   useEffect(() => {
-    if (!user?.id) {
+    if (!session?.access_token) {
       setPreviousPhotoUrl(null);
       return;
     }
-    const url = `${R2_BASE}/profiles/${user.id}/face.jpg`;
-    fetch(url, { method: 'HEAD' })
-      .then(res => {
-        setPreviousPhotoUrl(res.ok ? `${url}?t=${Date.now()}` : null);
-      })
-      .catch(() => setPreviousPhotoUrl(null));
-  }, [user?.id]);
+    fetch('/api/face-photo', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+    }).then(res => {
+      if (res.ok) {
+        return res.blob().then(blob => {
+          setPreviousPhotoUrl(URL.createObjectURL(blob));
+        });
+      }
+      setPreviousPhotoUrl(null);
+    }).catch(() => setPreviousPhotoUrl(null));
+  }, [session?.access_token]);
 
   const handleModeSelect = (type) => {
     setAnalysisType(type);
@@ -82,7 +84,12 @@ export default function FaceTab() {
           },
           body: JSON.stringify({ image: imageSrc, type: 'face' }),
         }).then(() => {
-          setPreviousPhotoUrl(`${R2_BASE}/profiles/${user.id}/face.jpg?t=${Date.now()}`);
+          // Refresh previous photo via proxy
+          fetch('/api/face-photo', {
+            headers: { 'Authorization': `Bearer ${session.access_token}` },
+          }).then(r => r.ok ? r.blob() : null).then(blob => {
+            if (blob) setPreviousPhotoUrl(URL.createObjectURL(blob));
+          }).catch(() => {});
         }).catch(() => {});
       }
     } else {
