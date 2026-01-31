@@ -38,7 +38,7 @@ function setCachedFortune(birthDate: string, fortune: FortuneResult) {
 
 export default function FortuneTab() {
   const { t, i18n } = useTranslation();
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const [birthYear, setBirthYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,6 +49,9 @@ export default function FortuneTab() {
 
   // 우선순위: 1) localStorage → 2) DB 프로필 → 3) 사용자 입력
   useEffect(() => {
+    // 인증 로딩 중이면 대기 (세션 확인 후 DB 조회를 위해)
+    if (authLoading) return;
+
     const saved = localStorage.getItem(BIRTH_YEAR_KEY);
     if (saved) {
       setBirthYear(saved);
@@ -90,7 +93,7 @@ export default function FortuneTab() {
       })
       .catch(() => { })
       .finally(() => setReady(true));
-  }, [session?.access_token]);
+  }, [authLoading, session?.access_token]);
 
   // 데이터 준비되면 자동 제출
   useEffect(() => {
