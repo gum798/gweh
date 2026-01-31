@@ -22,7 +22,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
 
   return (
     <nav className="bg-[rgba(34,25,51,0.6)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
-      <div className="flex overflow-x-auto gap-1 scrollbar-hide scroll-snap-x" role="tablist">
+      <div className="flex justify-center overflow-x-auto gap-1 scrollbar-hide scroll-snap-x" role="tablist">
         {tabs.map((tab) => (
           <button
             key={tab.id}
