@@ -45,7 +45,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   const [minWait, setMinWait] = useState(false);
   const [personalOmen, setPersonalOmen] = useState<any>(null);
   const [personalLoading, setPersonalLoading] = useState(false);
-  const profileRef = useRef<{ birth_date?: string; birth_hour?: number; height?: number; weight?: number } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ birth_date?: string; birth_hour?: number; height?: number; weight?: number } | null>(null);
   const personalFetched = useRef(false);
 
   const { data: weather, loading: weatherLoading, error: weatherError } = useWeather(
@@ -72,12 +72,12 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           const d = await r.json();
           if (!cancelled && d.profile) {
             const p = d.profile;
-            profileRef.current = {
+            setUserProfile({
               birth_date: p.birth_date,
               birth_hour: p.birth_hour,
               height: p.height,
               weight: p.weight,
-            };
+            });
             if (p.last_lat && p.last_lon) {
               setLocation({ lat: p.last_lat, lon: p.last_lon });
               return;
@@ -227,7 +227,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   // 맞춤 사주 조언 fetch
   useEffect(() => {
     if (!session?.access_token || !omen?.main?.message || personalFetched.current) return;
-    const profile = profileRef.current;
+    const profile = userProfile;
     if (!profile?.birth_date) return;
 
     personalFetched.current = true;
@@ -267,7 +267,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       })
       .catch(() => {})
       .finally(() => setPersonalLoading(false));
-  }, [session?.access_token, omen]);
+  }, [session?.access_token, omen, userProfile]);
 
   const toggleShowData = useCallback(() => {
     setShowData(prev => !prev);

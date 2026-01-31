@@ -7,6 +7,7 @@ const tabs = [
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
   { id: 'face', labelKey: 'nav.face', icon: '👁️' },
   { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
+  { id: 'saju', labelKey: 'nav.saju', icon: '🏛️' },
 ];
 
 // rerender-memo: Memoize component to prevent re-renders when callback prop is stable
