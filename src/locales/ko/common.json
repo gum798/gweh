@@ -174,5 +174,8 @@
   "sub.subscriptionStatus": "구독 상태",
   "sub.active": "구독 중",
   "sub.inactive": "미구독",
-  "sub.subscribeNow": "구독하기"
+  "sub.subscribeNow": "구독하기",
+
+  "profile.height": "키",
+  "profile.weight": "몸무게"
 }

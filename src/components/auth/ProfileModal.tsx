@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
@@ -17,6 +17,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string } | null>(null);
+  const { session } = useAuth();
+
+  useEffect(() => {
+    if (!isOpen || !session?.access_token) return;
+    fetch('/api/profile', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+    })
+      .then(r => r.json())
+      .then(d => { if (d.profile) setProfile(d.profile); })
+      .catch(() => {});
+  }, [isOpen, session?.access_token]);
 
   if (!isOpen || !user) return null;
 
@@ -72,6 +84,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <span className="text-white/50 text-sm">{t('loginMethod')}</span>
               <span className="text-white text-sm">{loginMethod}</span>
             </div>
+            {profile?.height && (
+              <div className="flex justify-between items-center">
+                <span className="text-white/50 text-sm">{tc('profile.height')}</span>
+                <span className="text-white text-sm">{profile.height} cm</span>
+              </div>
+            )}
+            {profile?.weight && (
+              <div className="flex justify-between items-center">
+                <span className="text-white/50 text-sm">{tc('profile.weight')}</span>
+                <span className="text-white text-sm">{profile.weight} kg</span>
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <span className="text-white/50 text-sm">{tc('sub.subscriptionStatus')}</span>
               {isSubscribed ? (

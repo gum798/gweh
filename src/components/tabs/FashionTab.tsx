@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { storeFashionData, getFashionData, deleteFashionData } from '../../utils/imageStorage';
+import { useAuth } from '../../contexts/AuthContext';
 
 const FASHION_DATA_KEY = 'mystic_fashion_data';
 
@@ -39,6 +40,7 @@ interface FashionResult {
 export default function FashionTab() {
   const { t } = useTranslation('fashion');
   const { t: tc } = useTranslation();
+  const { session } = useAuth();
   const [mode, setMode] = useState<Mode>('input');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
@@ -138,10 +140,57 @@ export default function FashionTab() {
 
       setResult(data.data);
       setMode('result');
+      // Save profile data to Supabase
+      saveProfileData();
     } catch (err) {
       console.error('Fashion consult error:', err);
       setErrorMessage(err instanceof Error ? err.message : tc('fashion.errorGeneric'));
       setMode('error');
+    }
+  };
+
+  const saveProfileData = async () => {
+    if (!session?.access_token) return;
+    try {
+      const profilePayload: any = {};
+      const h = parseFloat(height);
+      const w = parseFloat(weight);
+      if (h) profilePayload.height = h;
+      if (w) profilePayload.weight = w;
+
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(profilePayload),
+      });
+
+      // Upload photo to R2
+      if (capturedImage) {
+        const uploadRes = await fetch('/api/upload-photo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ image: capturedImage }),
+        });
+        if (uploadRes.ok) {
+          const { url } = await uploadRes.json();
+          await fetch('/api/profile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ photo_url: url }),
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Save profile error:', err);
     }
   };
 
@@ -229,6 +278,7 @@ export default function FashionTab() {
 
       setResult(data.data);
       setMode('result');
+      saveProfileData();
     } catch (error) {
       console.error('Fashion consult error:', error);
       setErrorMessage(error instanceof Error ? error.message : tc('fashion.errorGeneric'));

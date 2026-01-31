@@ -1,0 +1,9 @@
+name = "mystic-daily-cron"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+[triggers]
+crons = ["0 21 * * *"]  # UTC 21:00 = KST 06:00
+
+[vars]
+POLAR_SANDBOX = "false"

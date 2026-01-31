@@ -164,5 +164,8 @@
   "sub.subscriptionStatus": "Subscription",
   "sub.active": "Active",
   "sub.inactive": "Inactive",
-  "sub.subscribeNow": "Subscribe"
+  "sub.subscribeNow": "Subscribe",
+
+  "profile.height": "Height",
+  "profile.weight": "Weight"
 }
