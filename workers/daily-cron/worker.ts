@@ -364,7 +364,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
 
     <!-- Footer -->
     <div style="text-align:center;padding-top:20px;">
-      <a href="https://gweh.pages.dev" style="display:inline-block;background:#5b13ec;color:#fff;text-decoration:none;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:bold;">앱에서 자세히 보기</a>
+      <a href="https://gweh-3s2.pages.dev" style="display:inline-block;background:#5b13ec;color:#fff;text-decoration:none;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:bold;">앱에서 자세히 보기</a>
       <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:20px;text-transform:uppercase;letter-spacing:3px;">© MYSTIC AI</p>
     </div>
   </div>
