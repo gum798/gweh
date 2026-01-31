@@ -1,5 +1,5 @@
-// Daily Cron Worker - 매일 아침 6시 KST (UTC 21:00) 실행
-// wrangler.toml에서 [triggers] crons = ["0 21 * * *"] 설정
+// Daily Cron Worker - 매시간 실행, 사용자 위치 기반 로컬 06시에 발송
+// wrangler.toml에서 [triggers] crons = ["0 * * * *"] 설정
 
 interface Env {
   SUPABASE_URL: string;
@@ -19,6 +19,19 @@ interface UserProfile {
   photo_url: string | null;
   last_lat: number | null;
   last_lon: number | null;
+}
+
+// 경도 기반 로컬 시각 계산 (경도 15° = 1시간)
+function getLocalHour(lon: number, utcNow: Date): number {
+  const offsetHours = Math.round(lon / 15);
+  const localHour = (utcNow.getUTCHours() + offsetHours + 24) % 24;
+  return localHour;
+}
+
+// 경도 기반 로컬 날짜 계산
+function getLocalDate(lon: number, utcNow: Date): string {
+  const offsetMs = Math.round(lon / 15) * 60 * 60 * 1000;
+  return new Date(utcNow.getTime() + offsetMs).toISOString().split('T')[0];
 }
 
 function supabaseRest(env: Env, path: string, options: RequestInit = {}) {
@@ -296,7 +309,8 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
 
 export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    console.log('Daily cron started:', new Date().toISOString());
+    const utcNow = new Date();
+    console.log(`Hourly cron started: ${utcNow.toISOString()} (UTC ${utcNow.getUTCHours()}:00)`);
 
     try {
       // 1. Get subscribed customer emails
@@ -307,7 +321,8 @@ export default {
       const moon = calculateMoonPhase();
       const earthquake = await fetchEarthquakes();
 
-      const kstDate = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split('T')[0];
+      let processed = 0;
+      let skipped = 0;
 
       for (const email of emails) {
         try {
@@ -315,52 +330,63 @@ export default {
           const userId = await getUserIdByEmail(env, email);
           if (!userId) continue;
 
-          // 4. Check if reading already exists for today
-          const existingRes = await supabaseRest(
-            env,
-            `daily_readings?user_id=eq.${userId}&reading_date=eq.${kstDate}&select=id`
-          );
-          const existing = await existingRes.json() as any[];
-          if (existing?.length > 0) continue;
-
-          // 5. Get user profile
+          // 4. Get user profile (need location to determine timezone)
           const profileRes = await supabaseRest(env, `user_profiles?user_id=eq.${userId}&select=*`);
           const profiles = await profileRes.json() as UserProfile[];
           const profile = profiles?.[0];
 
-          // 6. Fetch weather (use saved location or default Seoul)
-          const lat = profile?.last_lat || 37.5665;
-          const lon = profile?.last_lon || 126.9780;
+          // 5. 사용자 위치 기반 로컬 시각 확인 (위치 없으면 서울 기준)
+          const lon = profile?.last_lon ?? 126.978; // 서울 기본값
+          const lat = profile?.last_lat ?? 37.5665;
+          const localHour = getLocalHour(lon, utcNow);
+
+          // 로컬 시각이 6시가 아니면 스킵
+          if (localHour !== 6) {
+            skipped++;
+            continue;
+          }
+
+          // 6. 사용자 로컬 날짜 기준으로 중복 체크
+          const localDate = getLocalDate(lon, utcNow);
+          const existingRes = await supabaseRest(
+            env,
+            `daily_readings?user_id=eq.${userId}&reading_date=eq.${localDate}&select=id`
+          );
+          const existing = await existingRes.json() as any[];
+          if (existing?.length > 0) { skipped++; continue; }
+
+          // 7. Fetch weather
           const weather = await fetchWeather(lat, lon, env.VITE_OPENWEATHER_API_KEY);
 
-          // 7. Generate omen
+          // 8. Generate omen
           const omen = generateSimpleOmen(weather, moon, earthquake);
 
-          // 8. Generate style recommendation
+          // 9. Generate style recommendation
           const styleData = await generateStyleWithGemini(env, omen.message, omen.energy);
 
-          // 9. Save to daily_readings
+          // 10. Save to daily_readings
           await supabaseRest(env, 'daily_readings', {
             method: 'POST',
             body: JSON.stringify({
               user_id: userId,
-              reading_date: kstDate,
+              reading_date: localDate,
               omen_message: omen.message,
               energy_score: omen.energy,
               style_data: styleData,
             }),
           });
 
-          // 10. Send email
+          // 11. Send email
           await sendEmail(env, email, omen.message, styleData, omen.energy);
 
-          console.log(`Processed user: ${email}`);
+          processed++;
+          console.log(`Sent to ${email} (local 06:00, lon=${lon})`);
         } catch (err) {
           console.error(`Error processing ${email}:`, err);
         }
       }
 
-      console.log('Daily cron completed');
+      console.log(`Cron done: ${processed} sent, ${skipped} skipped (not 6AM local)`);
     } catch (error) {
       console.error('Cron error:', error);
     }

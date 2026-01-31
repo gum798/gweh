@@ -20,13 +20,26 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     if (!userRes.ok) return Response.json({ error: 'Invalid token' }, { status: 401 });
     const user = await userRes.json() as { id: string };
 
-    // Get today's reading (KST)
+    // Get user profile for timezone (longitude)
+    const profileRes = await fetch(
+      `${context.env.SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${user.id}&select=last_lon`,
+      {
+        headers: {
+          'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${context.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+    const profiles = await profileRes.json() as { last_lon?: number }[];
+    const lon = profiles?.[0]?.last_lon ?? 126.978; // 기본값: 서울
+
+    // 사용자 위치 기반 로컬 날짜 계산
     const now = new Date();
-    const kstOffset = 9 * 60 * 60 * 1000;
-    const kstDate = new Date(now.getTime() + kstOffset).toISOString().split('T')[0];
+    const offsetMs = Math.round(lon / 15) * 60 * 60 * 1000;
+    const localDate = new Date(now.getTime() + offsetMs).toISOString().split('T')[0];
 
     const res = await fetch(
-      `${context.env.SUPABASE_URL}/rest/v1/daily_readings?user_id=eq.${user.id}&reading_date=eq.${kstDate}&select=*`,
+      `${context.env.SUPABASE_URL}/rest/v1/daily_readings?user_id=eq.${user.id}&reading_date=eq.${localDate}&select=*`,
       {
         headers: {
           'apikey': context.env.SUPABASE_SERVICE_ROLE_KEY,

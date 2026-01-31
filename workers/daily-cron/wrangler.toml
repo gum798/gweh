@@ -3,7 +3,7 @@ main = "worker.ts"
 compatibility_date = "2024-01-01"
 
 [triggers]
-crons = ["0 21 * * *"]  # UTC 21:00 = KST 06:00
+crons = ["0 * * * *"]  # 매시간 실행, 사용자 위치 기준 로컬 06시에 발송
 
 [vars]
 POLAR_SANDBOX = "false"
