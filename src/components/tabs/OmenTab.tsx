@@ -82,7 +82,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
         maximumAge: 300000,
       }
     );
-  }, []);
+  }, [session?.access_token]);
 
   const skipLocation = useCallback(() => {
     setLocation(DEFAULT_LOCATION);
