@@ -4,10 +4,12 @@ import CameraCapture from '../camera/CameraCapture';
 import { useFaceDetection } from '../../hooks/useFaceDetection';
 import { analyzeSkinTone, getPersonalColorOmen, colorTips } from '../../utils/personalColor';
 import { analyzeFaceFeatures, interpretPhysiognomy } from '../../utils/physiognomy';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function FaceTab() {
   const { t } = useTranslation('face');
   const { t: tc } = useTranslation();
+  const { session } = useAuth();
   const [mode, setMode] = useState('select');
   const [analysisType, setAnalysisType] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -47,13 +49,26 @@ export default function FaceTab() {
         }
       }
 
-      setCapturedImage(faceData.annotatedImage || imageSrc);
+      const finalImage = faceData.annotatedImage || imageSrc;
+      setCapturedImage(finalImage);
       setResult(results);
       setMode('result');
+
+      // Save face photo to R2
+      if (session?.access_token) {
+        fetch('/api/upload-photo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ image: imageSrc, type: 'face' }),
+        }).catch(() => {});
+      }
     } else {
       setMode('capture');
     }
-  }, [detectFace, analysisType]);
+  }, [detectFace, analysisType, session?.access_token]);
 
   const handleReset = () => {
     setMode('select');

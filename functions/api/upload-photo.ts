@@ -28,7 +28,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return Response.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const body = await context.request.json() as { image: string };
+    const body = await context.request.json() as { image: string; type?: string };
     if (!body.image) {
       return Response.json({ error: 'Image required' }, { status: 400 });
     }
@@ -42,7 +42,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const ext = contentType === 'image/png' ? 'png' : 'jpg';
 
     // Upload to R2
-    const key = `profiles/${userId}/photo.${ext}`;
+    const photoType = body.type || 'fashion';
+    const key = `profiles/${userId}/${photoType}.${ext}`;
     await context.env.R2_BUCKET.put(key, binaryData, {
       httpMetadata: { contentType },
     });

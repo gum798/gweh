@@ -175,7 +175,7 @@ export default function FashionTab() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ image: capturedImage }),
+          body: JSON.stringify({ image: capturedImage, type: 'fashion' }),
         });
         if (uploadRes.ok) {
           const { url } = await uploadRes.json();

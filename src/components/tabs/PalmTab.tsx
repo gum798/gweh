@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import CameraCapture from '../camera/CameraCapture';
 import { useHandDetection } from '../../hooks/useHandDetection';
 import { interpretPalm, getPalmAdvice } from '../../utils/palmReading';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function PalmTab() {
   const { t } = useTranslation('palm');
   const { t: tc } = useTranslation();
+  const { session } = useAuth();
   const [mode, setMode] = useState('intro');
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
@@ -32,10 +34,22 @@ export default function PalmTab() {
         advice: getPalmAdvice(interpretation),
       });
       setMode('result');
+
+      // Save palm photo to R2
+      if (session?.access_token) {
+        fetch('/api/upload-photo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ image: imageSrc, type: 'palm' }),
+        }).catch(() => {});
+      }
     } else {
       setMode('capture');
     }
-  }, [detectHand]);
+  }, [detectHand, session?.access_token]);
 
   const handleReset = () => {
     setMode('intro');
