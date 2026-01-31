@@ -7,6 +7,12 @@
     @apply bg-mystic-900 text-gray-100 min-h-screen;
     font-family: 'Gowun Batang', serif;
   }
+
+  /* English Optical Adjustment: Increase base size to match Hangeul visual weight */
+  html[lang="en"] {
+    font-size: 17px;
+    /* Slight bump from default ~16px */
+  }
 }
 
 @layer components {
