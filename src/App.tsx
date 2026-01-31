@@ -2,6 +2,7 @@ import { useState, useCallback, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
 import AuthModal from './components/auth/AuthModal';
+import ProfileModal from './components/auth/ProfileModal';
 import { useAuth } from './contexts/AuthContext';
 
 // 탭 컴포넌트 동적 로딩
@@ -22,9 +23,10 @@ const getInitialTab = () => {
 
 function App() {
   const { t, i18n } = useTranslation('auth');
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(getInitialTab);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // rerender-functional-setstate: Wrap in useCallback to provide stable reference for memoized Navigation
   const handleTabChange = useCallback((tab: string) => {
@@ -101,15 +103,12 @@ function App() {
           </div>
           <div className="absolute right-0 top-1">
             {user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-white/50 text-xs truncate max-w-[120px]">{user.email}</span>
-                <button
-                  onClick={() => signOut()}
-                  className="text-xs text-white/40 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg transition-colors"
-                >
-                  {t('logout')}
-                </button>
-              </div>
+              <button
+                onClick={() => setProfileModalOpen(true)}
+                className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg transition-colors truncate max-w-[150px]"
+              >
+                {user.email}
+              </button>
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
@@ -129,6 +128,7 @@ function App() {
 
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+        <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
 
         {/* 네비게이션 */}
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
