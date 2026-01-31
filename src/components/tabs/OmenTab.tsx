@@ -33,27 +33,34 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   // 서울 기본 좌표
   const DEFAULT_LOCATION = { lat: 37.5665, lon: 126.9780 };
 
-  // 이전 저장된 위치 자동 불러오기, 없으면 서울 기본값
+  // 3단계 위치 감지: 서울 기본값 → IP 위치 감지 → GPS 버튼
   useEffect(() => {
-    if (!session?.access_token) {
-      // 비로그인: 서울 기본값
-      if (!location) setLocation(DEFAULT_LOCATION);
-      return;
-    }
-    fetch('/api/profile', {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    })
+    // 1단계: 즉시 서울 기본값 설정
+    if (!location) setLocation(DEFAULT_LOCATION);
+
+    // 2단계: IP 기반 위치 감지
+    fetch('https://ipapi.co/json/')
       .then(r => r.json())
       .then(d => {
-        if (d.profile?.last_lat && d.profile?.last_lon) {
-          setLocation({ lat: d.profile.last_lat, lon: d.profile.last_lon });
-        } else {
-          setLocation(DEFAULT_LOCATION);
+        if (d.latitude && d.longitude) {
+          setLocation({ lat: d.latitude, lon: d.longitude });
         }
       })
-      .catch(() => {
-        if (!location) setLocation(DEFAULT_LOCATION);
-      });
+      .catch(() => {});
+
+    // 로그인 사용자: 저장된 위치가 있으면 그걸 사용
+    if (session?.access_token) {
+      fetch('/api/profile', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then(r => r.json())
+        .then(d => {
+          if (d.profile?.last_lat && d.profile?.last_lon) {
+            setLocation({ lat: d.profile.last_lat, lon: d.profile.last_lon });
+          }
+        })
+        .catch(() => {});
+    }
   }, [session?.access_token]);
 
   const requestLocation = useCallback(() => {
@@ -291,11 +298,20 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
   return (
     <div className="space-y-8 pb-8">
-      {/* 위치 표시 */}
+      {/* 위치 표시 + GPS 정밀 위치 버튼 */}
       {weather?.cityName && (
-        <p className="text-white/40 text-sm text-center">
-          {t('omenTab.underSky', { city: weather.cityName })}
-        </p>
+        <div className="flex items-center justify-center gap-2 pt-2">
+          <p className="text-white/40 text-sm">
+            {t('omenTab.underSky', { city: weather.cityName })}
+          </p>
+          <button
+            onClick={requestLocation}
+            className="text-[#5b13ec]/60 hover:text-[#5b13ec] text-xs transition-colors"
+            title={t('location.startButton')}
+          >
+            📍
+          </button>
+        </div>
       )}
 
       {/* 메인 괘 카드 */}

@@ -40,6 +40,7 @@ export default function FortuneTab() {
   const { session } = useAuth();
   const [birthDate, setBirthDate] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [result, setResult] = useState<FortuneResult | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const autoSubmitted = useRef(false);
@@ -77,6 +78,7 @@ export default function FortuneTab() {
     }
 
     setLoading(true);
+    setError('');
     try {
       const res = await fetch('/api/fortune', {
         method: 'POST',
@@ -87,9 +89,11 @@ export default function FortuneTab() {
       if (data.success) {
         setResult(data.fortune);
         setCachedFortune(date, data.fortune);
+      } else {
+        setError(data.error || t('fortune.error'));
       }
     } catch {
-      // ignore
+      setError(t('fortune.error'));
     } finally {
       setLoading(false);
     }
@@ -292,6 +296,10 @@ export default function FortuneTab() {
                 />
               </label>
             </div>
+
+            {error && (
+              <p className="text-red-400 text-sm text-center">{error}</p>
+            )}
 
             <button
               type="submit"

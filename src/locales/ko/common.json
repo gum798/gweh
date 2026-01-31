@@ -170,6 +170,7 @@
   "fortune.luckyDirection": "행운의 방위",
   "fortune.newReading": "다시 보기",
   "fortune.loadedPrevious": "이전에 저장된 정보를 불러왔습니다",
+  "fortune.error": "운세를 불러오지 못했습니다. 다시 시도해주세요.",
 
   "fashion.errorAnalysis": "AI 분석 중 오류가 발생했습니다.",
   "fashion.errorGeneric": "분석 중 오류가 발생했습니다.",
