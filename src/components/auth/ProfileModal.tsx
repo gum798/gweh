@@ -17,8 +17,16 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string } | null>(null);
+  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number } | null>(null);
   const { session } = useAuth();
+
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen || !session?.access_token) return;
@@ -94,6 +102,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <div className="flex justify-between items-center">
                 <span className="text-white/50 text-sm">{tc('profile.weight')}</span>
                 <span className="text-white text-sm">{profile.weight} kg</span>
+              </div>
+            )}
+            {profile?.birth_date && (
+              <div className="flex justify-between items-center">
+                <span className="text-white/50 text-sm">{tc('profile.birthDate')}</span>
+                <span className="text-white text-sm">{profile.birth_date}</span>
+              </div>
+            )}
+            {profile?.birth_hour != null && (
+              <div className="flex justify-between items-center">
+                <span className="text-white/50 text-sm">{tc('profile.birthHour')}</span>
+                <span className="text-white text-sm">{profile.birth_hour}{tc('profile.hourSuffix')}</span>
               </div>
             )}
             <div className="flex justify-between items-center">

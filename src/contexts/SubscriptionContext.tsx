@@ -58,10 +58,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscription_success') === 'true') {
-      window.history.replaceState({}, '', window.location.pathname);
       if (session?.access_token) {
-        // Delay to allow webhook processing
-        setTimeout(() => checkSubscription(), 2000);
+        // Retry with increasing delay for webhook processing
+        const tryCheck = async (attempt = 0) => {
+          await checkSubscription();
+          // If not subscribed yet and attempts remain, retry
+          if (attempt < 3) {
+            setTimeout(() => tryCheck(attempt + 1), 2000 * (attempt + 1));
+          }
+        };
+        tryCheck();
       }
     }
   }, [session?.access_token]);

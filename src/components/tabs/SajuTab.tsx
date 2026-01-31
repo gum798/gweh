@@ -44,6 +44,7 @@ export default function SajuTab() {
     if (!birthDate) return;
 
     const date = new Date(birthDate);
+    if (date > new Date()) return;
     const hour = parseInt(birthHour, 10);
     const saju = calculateSaju(date, hour);
     const interpretation = interpretSaju(saju);
@@ -108,6 +109,7 @@ export default function SajuTab() {
                     type="date"
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
                     className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#5b13ec] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 px-4 text-lg font-medium transition-all focus:bg-white/10"
                     required
                   />

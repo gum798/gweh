@@ -1,9 +1,10 @@
-import { useState, useCallback, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
 import AuthModal from './components/auth/AuthModal';
 import ProfileModal from './components/auth/ProfileModal';
 import { useAuth } from './contexts/AuthContext';
+import { useSubscription } from './contexts/SubscriptionContext';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -12,25 +13,40 @@ const PalmTab = lazy(() => import('./components/tabs/PalmTab'));
 const SajuTab = lazy(() => import('./components/tabs/SajuTab'));
 const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 
-// 결제 완료 후 fashion 탭으로 시작하는지 확인
-const getInitialTab = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('checkout_success') === 'true') {
-    return 'fashion';
-  }
-  return 'omen';
-};
-
 function App() {
   const { t, i18n } = useTranslation('auth');
+  const { t: tc } = useTranslation();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState(getInitialTab);
+  const { isSubscribed } = useSubscription();
+  const [activeTab, setActiveTab] = useState('omen');
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
-  // rerender-functional-setstate: Wrap in useCallback to provide stable reference for memoized Navigation
+  // 결제 완료 후 토스트 표시 (탭 이동 없음)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout_success') === 'true') {
+      setToast(tc('toast.checkoutSuccess'));
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (params.get('subscription_success') === 'true') {
+      setToast(tc('toast.subscriptionSuccess'));
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const openAuthModal = useCallback(() => {
@@ -88,6 +104,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#161022]">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] animate-fade-in">
+          <div className="bg-[#5b13ec] text-white px-6 py-3 rounded-xl shadow-[0_0_20px_rgba(91,19,236,0.5)] text-sm font-medium flex items-center gap-2">
+            <span>✨</span>
+            {toast}
+            <button onClick={() => setToast(null)} className="ml-2 text-white/60 hover:text-white">&times;</button>
+          </div>
+        </div>
+      )}
+
       {/* 콘텐츠 */}
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-4xl">
         {/* 헤더 */}

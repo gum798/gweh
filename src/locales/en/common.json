@@ -167,5 +167,11 @@
   "sub.subscribeNow": "Subscribe",
 
   "profile.height": "Height",
-  "profile.weight": "Weight"
+  "profile.weight": "Weight",
+  "profile.birthDate": "Birth Date",
+  "profile.birthHour": "Birth Hour",
+  "profile.hourSuffix": "h",
+
+  "toast.checkoutSuccess": "Payment completed!",
+  "toast.subscriptionSuccess": "Subscription activated!"
 }

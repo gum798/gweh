@@ -20,6 +20,7 @@ export default memo(function Navigation({ activeTab, onTabChange }) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
+            aria-label={t(tab.labelKey)}
             className={`
               flex items-center gap-2 px-4 py-2.5 rounded-xl
               transition-all duration-300 font-medium

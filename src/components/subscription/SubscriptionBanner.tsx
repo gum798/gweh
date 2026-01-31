@@ -11,7 +11,12 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
   const { t } = useTranslation();
   const { user } = useAuth();
   const { isSubscribed, subscribe, loading } = useSubscription();
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    const ts = localStorage.getItem('sub_banner_dismissed');
+    if (!ts) return false;
+    // 24시간 후 다시 표시
+    return Date.now() - parseInt(ts) < 24 * 60 * 60 * 1000;
+  });
 
   // Scarcity: countdown timer (resets daily)
   const [timeLeft, setTimeLeft] = useState('');
@@ -45,7 +50,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
       <div className="max-w-md mx-auto relative overflow-hidden rounded-2xl border border-[#5b13ec]/40 bg-gradient-to-br from-[#1a1030] via-[#221933] to-[#2a1040]">
         {/* Dismiss */}
         <button
-          onClick={() => setDismissed(true)}
+          onClick={() => { setDismissed(true); localStorage.setItem('sub_banner_dismissed', Date.now().toString()); }}
           className="absolute top-3 right-3 text-white/20 hover:text-white/50 text-sm z-10"
         >
           &times;

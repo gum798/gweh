@@ -177,5 +177,11 @@
   "sub.subscribeNow": "구독하기",
 
   "profile.height": "키",
-  "profile.weight": "몸무게"
+  "profile.weight": "몸무게",
+  "profile.birthDate": "생년월일",
+  "profile.birthHour": "태어난 시",
+  "profile.hourSuffix": "시",
+
+  "toast.checkoutSuccess": "결제가 완료되었습니다!",
+  "toast.subscriptionSuccess": "구독이 완료되었습니다!"
 }
