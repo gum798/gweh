@@ -42,7 +42,8 @@ export default function FaceTab() {
     setMode('capture');
   };
 
-  const handleCapture = useCallback(async (imageSrc) => {
+  const handleCapture = useCallback(async (imageSrc, overrideType?: string) => {
+    const type = overrideType || analysisType;
     setCapturedImage(imageSrc);
     setMode('analyzing');
 
@@ -51,7 +52,7 @@ export default function FaceTab() {
     if (faceData) {
       const results = {};
 
-      if (analysisType === 'personalColor' || analysisType === 'both') {
+      if (type === 'personalColor' || type === 'both') {
         const skinTone = analyzeSkinTone(faceData.skinSamples);
         if (skinTone) {
           results.personalColor = {
@@ -62,7 +63,7 @@ export default function FaceTab() {
         }
       }
 
-      if (analysisType === 'physiognomy' || analysisType === 'both') {
+      if (type === 'physiognomy' || type === 'both') {
         const features = analyzeFaceFeatures(faceData.landmarks);
         if (features) {
           results.physiognomy = interpretPhysiognomy(features);
@@ -107,7 +108,7 @@ export default function FaceTab() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setLoadingPrevious(false);
-        handleCapture(reader.result as string);
+        handleCapture(reader.result as string, type);
       };
       reader.readAsDataURL(blob);
     } catch {
