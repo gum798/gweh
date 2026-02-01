@@ -319,7 +319,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
       </div>
     </div>
 
-    ${styleData ? `
+    ${styleData?.headline ? `
     <!-- Style Card -->
     <div style="background:rgba(34,25,51,0.8);border:1px solid rgba(91,19,236,0.3);border-radius:16px;padding:24px;margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -327,25 +327,27 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
         <span style="color:#fff;font-weight:bold;font-size:14px;">오늘의 스타일</span>
       </div>
       <p style="color:rgba(255,255,255,0.8);font-size:15px;font-style:italic;margin:0 0 12px;">"${styleData.headline}"</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;margin:0 0 16px;">${styleData.style}</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;margin:0 0 16px;">${styleData.style || ''}</p>
+      ${Array.isArray(styleData.colors) && styleData.colors.length > 0 ? `
       <div style="margin-bottom:12px;">
         <span style="color:rgba(255,255,255,0.4);font-size:11px;">추천 컬러: </span>
-        ${(styleData.colors || []).map((c: string) => `<span style="color:#5b13ec;font-size:12px;background:rgba(91,19,236,0.1);padding:2px 8px;border-radius:12px;margin-right:4px;">${c}</span>`).join('')}
+        ${styleData.colors.map((c: string) => `<span style="color:#5b13ec;font-size:12px;background:rgba(91,19,236,0.1);padding:2px 8px;border-radius:12px;margin-right:4px;">${c}</span>`).join('')}
       </div>
+      ` : ''}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);">
-        <div>
+        ${styleData.item ? `<div>
           <span style="color:rgba(255,255,255,0.4);font-size:11px;display:block;">포인트 아이템</span>
           <span style="color:#fff;font-size:13px;">${styleData.item}</span>
-        </div>
-        <div>
+        </div>` : ''}
+        ${styleData.tip ? `<div>
           <span style="color:rgba(255,255,255,0.4);font-size:11px;display:block;">스타일 팁</span>
           <span style="color:#fff;font-size:13px;">${styleData.tip}</span>
-        </div>
+        </div>` : ''}
       </div>
     </div>
     ` : ''}
 
-    ${fortuneData ? `
+    ${fortuneData?.overall ? `
     <!-- Fortune Card -->
     <div style="background:rgba(34,25,51,0.8);border:1px solid rgba(91,19,236,0.3);border-radius:16px;padding:24px;margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -455,14 +457,14 @@ async function runDailyCron(env: Env, forceAll = false) {
             energyScore = omen.energy;
           }
 
-          if (!styleData) {
+          if (!styleData?.headline) {
             styleData = await generateStyleWithGemini(env, omenMessage, energyScore ?? 50, weather, profile);
             console.log(`Style generated for ${email}: ${styleData ? 'OK' : 'FAILED'}`);
           }
 
           // 8-1. Fortune 데이터
           let fortuneData = row?.fortune_data;
-          if (!fortuneData && (profile as any)?.birth_date) {
+          if (!fortuneData?.overall && (profile as any)?.birth_date) {
             const birthYear = (profile as any).birth_date.split('-')[0];
             fortuneData = await generateFortuneWithGemini(env, birthYear);
             console.log(`Fortune generated for ${email}: ${fortuneData ? 'OK' : 'FAILED'}`);
