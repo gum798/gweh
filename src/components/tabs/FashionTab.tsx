@@ -150,7 +150,7 @@ export default function FashionTab() {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}) },
         body: JSON.stringify({}),
       });
       if (!response.ok) throw new Error('Checkout failed');
@@ -188,7 +188,7 @@ export default function FashionTab() {
       const weather = await fetchWeather();
       const response = await fetch('/api/fashion-consult', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}) },
         body: JSON.stringify({
           image: capturedImage,
           height: parseFloat(height),
@@ -223,7 +223,7 @@ export default function FashionTab() {
       const weather = await fetchWeather();
       const response = await fetch('/api/fashion-consult', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}) },
         body: JSON.stringify({
           image: capturedImage,
           height: parseFloat(height),
@@ -380,6 +380,7 @@ export default function FashionTab() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
         },
         body: JSON.stringify({
           image: capturedImage,
