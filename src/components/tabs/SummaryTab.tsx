@@ -58,8 +58,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
               setDailyReading(reading);
               if (reading.omen_message) omenMsg = reading.omen_message;
               if (reading.style_data) {
-                setDailyStyle(reading.style_data);
-                dailyStyleLoaded = true;
+                const sd = Array.isArray(reading.style_data) ? reading.style_data[0] : reading.style_data;
+                if (sd?.headline) { setDailyStyle(sd); dailyStyleLoaded = true; }
               }
               if (reading.energy_score != null) {
                 const el = getEnergyLabel(reading.energy_score);
@@ -67,8 +67,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 energyLbl = el.label;
               }
               if (reading.fortune_data) {
-                setFortune(reading.fortune_data);
-                fortuneLoaded = true;
+                const fd = Array.isArray(reading.fortune_data) ? reading.fortune_data[0] : reading.fortune_data;
+                if (fd?.overall) { setFortune(fd); fortuneLoaded = true; }
               }
             }
           }
@@ -118,7 +118,10 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
               body: JSON.stringify({ birth_date: year }),
             });
             const fortuneData = await fortuneRes.json();
-            if (fortuneData.success) setFortune(fortuneData.fortune);
+            if (fortuneData.success) {
+              const fd = Array.isArray(fortuneData.fortune) ? fortuneData.fortune[0] : fortuneData.fortune;
+              if (fd?.overall) setFortune(fd);
+            }
           }
         } catch {}
       }
@@ -141,6 +144,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const isLoading = loading || fortuneLoading;
 
   const getLevelStyle = (level: string) => {
+    if (!level) return 'bg-white/10 text-white/60 border-white/20';
     const l = level.toLowerCase();
     if (level === '대길' || l === 'excellent') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
     if (level === '길' || l === 'good') return 'bg-green-500/20 text-green-400 border-green-500/30';
