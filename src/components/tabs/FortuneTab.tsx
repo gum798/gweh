@@ -247,7 +247,7 @@ export default function FortuneTab() {
               { icon: '💼', label: t('fortune.career'), text: result.career },
               { icon: '💰', label: t('fortune.wealth'), text: result.wealth },
               { icon: '🏥', label: t('fortune.health'), text: result.health },
-            ].map((item) => (
+            ].filter((item) => item.text).map((item) => (
               <div key={item.label} className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">{item.icon}</span>
@@ -263,20 +263,20 @@ export default function FortuneTab() {
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6">
             <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
-            <p className="text-white/80 text-sm leading-relaxed mb-5">"{result.advice}"</p>
+            {result.advice && <p className="text-white/80 text-sm leading-relaxed mb-5">"{result.advice}"</p>}
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
-              <div className="text-center">
+              {result.luckyColor && <div className="text-center">
                 <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
                 <span className="text-white text-sm font-medium">{result.luckyColor}</span>
-              </div>
-              <div className="text-center">
+              </div>}
+              {result.luckyNumber != null && <div className="text-center">
                 <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
                 <span className="text-white text-sm font-medium">{result.luckyNumber}</span>
-              </div>
-              <div className="text-center">
+              </div>}
+              {result.luckyDirection && <div className="text-center">
                 <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
                 <span className="text-white text-sm font-medium">{result.luckyDirection}</span>
-              </div>
+              </div>}
             </div>
           </div>
         </section>

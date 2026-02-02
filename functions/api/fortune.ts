@@ -148,7 +148,9 @@ JSON 형식만 반환:
       });
     }
 
-    const fortune = JSON.parse(text);
+    let fortune;
+    try { const parsed = JSON.parse(text); fortune = Array.isArray(parsed) ? parsed[0] : parsed; }
+    catch { return new Response(JSON.stringify({ error: 'AI 응답 파싱 실패' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }); }
 
     // 인증된 사용자면 DB에 캐시 저장 (upsert)
     if (userInfo && context.env.SUPABASE_URL) {

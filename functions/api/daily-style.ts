@@ -128,7 +128,9 @@ Respond in this JSON format:
       return Response.json({ error: 'Empty AI response' }, { status: 500 });
     }
 
-    const styleData = JSON.parse(text);
+    let styleData;
+    try { const parsed = JSON.parse(text); styleData = Array.isArray(parsed) ? parsed[0] : parsed; }
+    catch { return Response.json({ error: 'Failed to parse AI response' }, { status: 500 }); }
 
     // DB에 style_data 캐시 저장
     try {

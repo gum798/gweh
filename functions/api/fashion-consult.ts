@@ -23,6 +23,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   };
 
   try {
+    const authHeader = context.request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const body: RequestBody = await context.request.json();
     const { image, height, weight, weather } = body;
 
@@ -164,7 +169,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
       // 마크다운 코드블록 제거
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      parsedContent = JSON.parse(cleanContent);
+      const parsed = JSON.parse(cleanContent);
+      parsedContent = Array.isArray(parsed) ? parsed[0] : parsed;
     } catch {
       console.error('JSON parse error:', content);
       return new Response(

@@ -174,7 +174,7 @@ function generateSimpleOmen(weather: any, moon: any, earthquake: any): { message
     if (weather.pressure > 1020) { score += 12; messages.push('높은 기압이 맑은 기운을 불러옵니다'); }
     else if (weather.pressure > 1015) { score += 5; messages.push('안정된 기압이 평온한 기운을 가져옵니다'); }
     else if (weather.pressure < 1000) { score -= 12; messages.push('급변하는 기압이 혼란의 기운을 드리웁니다'); }
-    else if (weather.pressure < 1005) { score -= 5; messages.push('변화하는 기압이 새로운 기회를 예고합니다'); }
+    else if (weather.pressure <= 1005) { score -= 5; messages.push('변화하는 기압이 새로운 기회를 예고합니다'); }
 
     if (weather.clouds < 20) { score += 8; messages.push('맑은 하늘이 밝은 에너지를 전합니다'); }
     else if (weather.clouds > 80) { score -= 8; messages.push('짙은 구름이 내면의 성찰을 이끕니다'); }
@@ -326,7 +326,7 @@ JSON 형식만 반환:
   } catch { return null; }
 }
 
-async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number, fortuneData?: any) {
+async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number, fortuneData?: any, localDate?: string) {
   const energyLabel = energy >= 80 ? '대길 ✨' : energy >= 60 ? '길 🌟' : energy >= 40 ? '평 ☯️' : energy >= 20 ? '소흉 ⚡' : '흉 🌙';
 
   const html = `
@@ -417,7 +417,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
     body: JSON.stringify({
       from: 'Mystic AI <onboarding@resend.dev>',
       to: [to],
-      subject: `🔮 오늘의 운세 — ${new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}`,
+      subject: `🔮 오늘의 운세 — ${localDate ? new Date(localDate + 'T00:00:00').toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}`,
       html,
     }),
   });
@@ -505,7 +505,7 @@ async function runDailyCron(env: Env, forceAll = false, resend = false, regenera
             console.log(`Fortune generated for ${email}: ${fortuneData ? 'OK' : 'FAILED'}`);
           }
 
-          // 10. Save to daily_readings (upsert)
+          // 10. Save to daily_readings (데이터 저장, email_sent는 아직 false)
           await supabaseRest(env, 'daily_readings', {
             method: 'POST',
             body: JSON.stringify({
@@ -515,13 +515,21 @@ async function runDailyCron(env: Env, forceAll = false, resend = false, regenera
               energy_score: energyScore,
               style_data: styleData,
               fortune_data: fortuneData,
-              email_sent: true,
+              email_sent: false,
             }),
             headers: { 'Prefer': 'resolution=merge-duplicates' },
           });
 
           // 11. Send email
-          await sendEmail(env, email, omenMessage, styleData, energyScore ?? 50, fortuneData);
+          const emailSent = await sendEmail(env, email, omenMessage, styleData, energyScore ?? 50, fortuneData, localDate);
+
+          // 12. 이메일 성공 시에만 email_sent=true로 업데이트
+          if (emailSent) {
+            await supabaseRest(env, `daily_readings?user_id=eq.${userId}&reading_date=eq.${localDate}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ email_sent: true }),
+            });
+          }
 
           processed++;
           console.log(`Sent to ${email} (local 06:00, lon=${lon})`);

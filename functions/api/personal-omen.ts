@@ -191,7 +191,9 @@ JSON 형식만 반환:
       return Response.json({ error: 'No AI response' }, { status: 500, headers: corsHeaders });
     }
 
-    const result = JSON.parse(text);
+    let result;
+    try { const parsed = JSON.parse(text); result = Array.isArray(parsed) ? parsed[0] : parsed; }
+    catch { return Response.json({ error: 'Failed to parse AI response' }, { status: 500, headers: corsHeaders }); }
 
     // Remove empty health_advice if no height/weight
     if (!height || !weight) {

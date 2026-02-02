@@ -538,8 +538,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               </div>
             ) : personalOmen ? (
               <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-5 space-y-4">
-                <p className="text-white/80 text-base italic text-center">"{personalOmen.headline}"</p>
+                {personalOmen.headline && <p className="text-white/80 text-base italic text-center">"{personalOmen.headline}"</p>}
 
+                {personalOmen.saju_reading && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-lg">🔮</span>
@@ -547,7 +548,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   </div>
                   <p className="text-white/70 text-sm leading-relaxed">{personalOmen.saju_reading}</p>
                 </div>
+                )}
 
+                {personalOmen.feng_shui_tip && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-lg">🧭</span>
@@ -555,6 +558,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   </div>
                   <p className="text-white/70 text-sm leading-relaxed">{personalOmen.feng_shui_tip}</p>
                 </div>
+                )}
 
                 {personalOmen.health_advice && (
                   <div>
@@ -567,14 +571,18 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                 )}
 
                 <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
+                  {personalOmen.lucky_item && (
                   <div>
                     <span className="text-white/40 text-xs block mb-1">{t('omenTab.luckyItem')}</span>
                     <span className="text-white text-sm">{personalOmen.lucky_item}</span>
                   </div>
+                  )}
+                  {personalOmen.caution && (
                   <div>
                     <span className="text-white/40 text-xs block mb-1">{t('omenTab.caution')}</span>
                     <span className="text-orange-400 text-sm">{personalOmen.caution}</span>
                   </div>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -606,8 +614,8 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                 </div>
               ) : dailyStyle ? (
                 <div className="space-y-4">
-                  <p className="text-white/80 text-base italic">"{dailyStyle.headline}"</p>
-                  <p className="text-white/60 text-sm leading-relaxed">{dailyStyle.style}</p>
+                  {dailyStyle.headline && <p className="text-white/80 text-base italic">"{dailyStyle.headline}"</p>}
+                  {dailyStyle.style && <p className="text-white/60 text-sm leading-relaxed">{dailyStyle.style}</p>}
                   <div className="flex flex-wrap gap-2">
                     <span className="text-white/40 text-xs">{t('sub.styleColors')}:</span>
                     {dailyStyle.colors?.map((color: string, i: number) => (
@@ -617,14 +625,14 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                     ))}
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
-                    <div>
+                    {dailyStyle.item && <div>
                       <span className="text-white/40 text-xs block mb-1">{t('sub.styleItem')}</span>
                       <span className="text-white text-sm">{dailyStyle.item}</span>
-                    </div>
-                    <div>
+                    </div>}
+                    {dailyStyle.tip && <div>
                       <span className="text-white/40 text-xs block mb-1">{t('sub.styleTip')}</span>
                       <span className="text-white text-sm">{dailyStyle.tip}</span>
-                    </div>
+                    </div>}
                   </div>
                 </div>
               ) : null}
