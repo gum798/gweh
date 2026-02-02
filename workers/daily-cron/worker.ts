@@ -394,7 +394,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
   return res.ok;
 }
 
-async function runDailyCron(env: Env, forceAll = false) {
+async function runDailyCron(env: Env, forceAll = false, resend = false) {
     const utcNow = new Date();
     console.log(`Hourly cron started: ${utcNow.toISOString()} (UTC ${utcNow.getUTCHours()}:00)`);
 
@@ -441,7 +441,7 @@ async function runDailyCron(env: Env, forceAll = false) {
           const existing = await existingRes.json() as any[];
           const row = existing?.[0];
 
-          if (row?.email_sent) { skipped++; continue; }
+          if (row?.email_sent && !resend) { skipped++; continue; }
 
           // 7. Fetch weather
           const weather = await fetchWeather(lat, lon, env.VITE_OPENWEATHER_API_KEY);
@@ -513,7 +513,8 @@ export default {
     // /test?force=true 로 수동 테스트 (시간 체크 무시)
     if (url.pathname === '/test') {
       const forceAll = url.searchParams.get('force') === 'true';
-      const result = await runDailyCron(env, forceAll);
+      const resend = url.searchParams.get('resend') === 'true';
+      const result = await runDailyCron(env, forceAll, resend);
       return new Response(JSON.stringify({ result }), {
         headers: { 'Content-Type': 'application/json' },
       });
