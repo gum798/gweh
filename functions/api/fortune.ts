@@ -69,10 +69,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         );
         if (cacheRes.ok) {
           const rows = await cacheRes.json() as { fortune_data?: any }[];
-          if (rows?.[0]?.fortune_data) {
-            return new Response(JSON.stringify({ success: true, fortune: rows[0].fortune_data }), {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            });
+          let cached = rows?.[0]?.fortune_data;
+          if (cached) {
+            if (Array.isArray(cached)) cached = cached[0];
+            if (cached?.overall) {
+              return new Response(JSON.stringify({ success: true, fortune: cached }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
           }
         }
       }

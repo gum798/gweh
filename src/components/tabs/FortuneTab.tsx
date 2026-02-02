@@ -25,7 +25,8 @@ function getCachedFortune(birthDate: string): FortuneResult | null {
     const cached = JSON.parse(raw);
     const today = new Date().toISOString().split('T')[0];
     if (cached.date === today && cached.birthDate === birthDate && cached.fortune) {
-      return cached.fortune;
+      const f = Array.isArray(cached.fortune) ? cached.fortune[0] : cached.fortune;
+      if (f?.overall) return f;
     }
   } catch { /* ignore */ }
   return null;
@@ -121,8 +122,9 @@ export default function FortuneTab() {
         });
         const data = await res.json();
         if (data.success) {
-          setResult(data.fortune);
-          setCachedFortune(year, data.fortune);
+          const fortune = Array.isArray(data.fortune) ? data.fortune[0] : data.fortune;
+          setResult(fortune);
+          setCachedFortune(year, fortune);
         } else {
           setError(data.error || t('fortune.error'));
         }

@@ -71,8 +71,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
       if (cacheRes.ok) {
         const rows = await cacheRes.json() as { personal_omen_data?: any }[];
-        if (rows?.[0]?.personal_omen_data) {
-          return Response.json({ success: true, data: rows[0].personal_omen_data }, { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        let cached = rows?.[0]?.personal_omen_data;
+        if (cached) {
+          if (Array.isArray(cached)) cached = cached[0];
+          if (cached?.headline) {
+            return Response.json({ success: true, data: cached }, { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+          }
         }
       }
     } catch {}
