@@ -547,18 +547,35 @@ export default function FashionTab() {
         {/* Action Buttons */}
         <div className="px-4 pb-8 space-y-3 max-w-md mx-auto">
           {isSubscribed ? (
-            /* 구독자: 무료 분석 (하루 1회) */
-            <button
-              onClick={handleFreeAnalysis}
-              disabled={!capturedImage || !height || !weight || usedToday}
-              className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
-                capturedImage && height && weight && !usedToday
-                  ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
-                  : 'bg-white/10 text-white/30 cursor-not-allowed'
-              }`}
-            >
-              {usedToday ? tc('fashion.usedToday') : tc('fashion.freeAnalysis')}
-            </button>
+            /* 구독자: 무료 분석 (하루 1회) + 추가 결제 */
+            usedToday ? (
+              <>
+                <p className="text-white/40 text-sm text-center">{tc('fashion.usedToday')}</p>
+                <button
+                  onClick={goToCheckout}
+                  disabled={!capturedImage || !height || !weight}
+                  className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                    capturedImage && height && weight
+                      ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
+                      : 'bg-white/10 text-white/30 cursor-not-allowed'
+                  }`}
+                >
+                  {tc('fashion.extraAnalysis')}
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleFreeAnalysis}
+                disabled={!capturedImage || !height || !weight}
+                className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                  capturedImage && height && weight
+                    ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
+                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                }`}
+              >
+                {tc('fashion.freeAnalysis')}
+              </button>
+            )
           ) : (
             <>
               {/* 비구독자: 결제 분석 */}
