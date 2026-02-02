@@ -289,6 +289,12 @@ export function getOverallEnergy(weather, moon, earthquake) {
     else if (earthquake.maxMagnitude > 4) score -= 5;
   }
 
+  // 일별 변동: 날짜 기반 시드로 ±15 범위 변동 추가
+  const today = new Date();
+  const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const variance = ((daySeed * 9301 + 49297) % 233280) / 233280; // 0~1
+  score += Math.round(variance * 30 - 15); // -15 ~ +15
+
   return Math.max(0, Math.min(100, score));
 }
 
