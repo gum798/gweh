@@ -239,7 +239,10 @@ async function generateStyleWithGemini(env: Env, omenMessage: string, energy: nu
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) return null;
 
-  try { return JSON.parse(text); } catch { return null; }
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed[0] : parsed;
+  } catch { return null; }
 }
 
 async function generateFortuneWithGemini(env: Env, birthYear: string): Promise<any> {
@@ -288,7 +291,10 @@ JSON 형식만 반환:
   const data = await res.json() as any;
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) return null;
-  try { return JSON.parse(text); } catch { return null; }
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed[0] : parsed;
+  } catch { return null; }
 }
 
 async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number, fortuneData?: any) {
@@ -394,7 +400,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
   return res.ok;
 }
 
-async function runDailyCron(env: Env, forceAll = false, resend = false) {
+async function runDailyCron(env: Env, forceAll = false, resend = false, regenerate = false) {
     const utcNow = new Date();
     console.log(`Hourly cron started: ${utcNow.toISOString()} (UTC ${utcNow.getUTCHours()}:00)`);
 
@@ -449,7 +455,7 @@ async function runDailyCron(env: Env, forceAll = false, resend = false) {
           // 8. 기존 데이터 있으면 사용, 없으면 생성
           let omenMessage = row?.omen_message;
           let energyScore = row?.energy_score;
-          let styleData = row?.style_data;
+          let styleData = regenerate ? null : row?.style_data;
 
           if (!omenMessage) {
             const omen = generateSimpleOmen(weather, moon, earthquake);
@@ -457,14 +463,14 @@ async function runDailyCron(env: Env, forceAll = false, resend = false) {
             energyScore = omen.energy;
           }
 
-          if (!styleData?.headline) {
+          if (!styleData || typeof styleData !== 'object' || !styleData.headline) {
             styleData = await generateStyleWithGemini(env, omenMessage, energyScore ?? 50, weather, profile);
-            console.log(`Style generated for ${email}: ${styleData ? 'OK' : 'FAILED'}`);
+            console.log(`Style generated for ${email}:`, JSON.stringify(styleData));
           }
 
           // 8-1. Fortune 데이터
-          let fortuneData = row?.fortune_data;
-          if (!fortuneData?.overall && (profile as any)?.birth_date) {
+          let fortuneData = regenerate ? null : row?.fortune_data;
+          if ((!fortuneData || typeof fortuneData !== 'object' || !fortuneData.overall) && (profile as any)?.birth_date) {
             const birthYear = (profile as any).birth_date.split('-')[0];
             fortuneData = await generateFortuneWithGemini(env, birthYear);
             console.log(`Fortune generated for ${email}: ${fortuneData ? 'OK' : 'FAILED'}`);
@@ -514,7 +520,8 @@ export default {
     if (url.pathname === '/test') {
       const forceAll = url.searchParams.get('force') === 'true';
       const resend = url.searchParams.get('resend') === 'true';
-      const result = await runDailyCron(env, forceAll, resend);
+      const regenerate = url.searchParams.get('regenerate') === 'true';
+      const result = await runDailyCron(env, forceAll, resend, regenerate);
       return new Response(JSON.stringify({ result }), {
         headers: { 'Content-Type': 'application/json' },
       });
