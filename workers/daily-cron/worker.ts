@@ -169,23 +169,52 @@ function generateSimpleOmen(weather: any, moon: any, earthquake: any): { message
   let score = 50;
   const messages: string[] = [];
 
+  // 날씨 영향 (더 세분화)
   if (weather) {
-    if (weather.pressure > 1015) { score += 10; messages.push('안정된 기압이 평온한 기운을 가져옵니다'); }
-    if (weather.pressure < 1005) { score -= 5; messages.push('변화하는 기압이 새로운 기회를 예고합니다'); }
-    if (weather.clouds < 30) { score += 5; messages.push('맑은 하늘이 밝은 에너지를 전합니다'); }
+    if (weather.pressure > 1020) { score += 12; messages.push('높은 기압이 맑은 기운을 불러옵니다'); }
+    else if (weather.pressure > 1015) { score += 5; messages.push('안정된 기압이 평온한 기운을 가져옵니다'); }
+    else if (weather.pressure < 1000) { score -= 12; messages.push('급변하는 기압이 혼란의 기운을 드리웁니다'); }
+    else if (weather.pressure < 1005) { score -= 5; messages.push('변화하는 기압이 새로운 기회를 예고합니다'); }
+
+    if (weather.clouds < 20) { score += 8; messages.push('맑은 하늘이 밝은 에너지를 전합니다'); }
+    else if (weather.clouds > 80) { score -= 8; messages.push('짙은 구름이 내면의 성찰을 이끕니다'); }
+
+    if (weather.windSpeed > 10) { score -= 5; messages.push('거센 바람이 변화의 기운을 몰고 옵니다'); }
+    else if (weather.windSpeed < 2) { score += 5; messages.push('고요한 바람이 평화를 선사합니다'); }
+
+    if (weather.humidity > 85) { score -= 3; messages.push('높은 습기가 무거운 기운을 드리웁니다'); }
+    else if (weather.humidity < 40) { score += 3; messages.push('건조한 공기가 명료한 기운을 전합니다'); }
+
+    if (weather.temperature < -5) { score -= 8; messages.push('혹한의 기운이 시련을 예고합니다'); }
+    else if (weather.temperature > 35) { score -= 5; messages.push('강렬한 열기가 열정의 기운을 불태웁니다'); }
   }
 
+  // 달 영향 (모든 달 상태 반영)
   if (moon) {
     if (moon.name === '보름달') { score += 15; messages.push('보름달의 강한 기운이 당신을 감쌉니다'); }
-    if (moon.name === '새달') { score += 10; messages.push('새달이 새로운 시작을 축복합니다'); }
+    else if (moon.name === '새달') { score += 8; messages.push('새달이 새로운 시작을 축복합니다'); }
+    else if (moon.name === '상현달') { score += 5; messages.push('차오르는 달이 성장의 기운을 보냅니다'); }
+    else if (moon.name === '하현달') { score -= 5; messages.push('기우는 달이 정리와 마무리를 권합니다'); }
+    else if (moon.name === '그믐달') { score -= 8; messages.push('그믐달이 내면의 쉼을 속삭입니다'); }
+    else if (moon.name === '초승달') { score += 3; messages.push('초승달이 희망의 빛을 밝힙니다'); }
   }
 
+  // 지진 영향
   if (earthquake) {
-    if (earthquake.count < 5) { score += 10; messages.push('고요한 대지가 안정을 선사합니다'); }
-    if (earthquake.count > 15) { score -= 10; messages.push('활발한 대지의 움직임에 주의가 필요합니다'); }
+    if (earthquake.count === 0) { score += 12; messages.push('고요한 대지가 깊은 안정을 선사합니다'); }
+    else if (earthquake.count < 5) { score += 5; messages.push('대지의 기운이 잔잔합니다'); }
+    else if (earthquake.count > 20) { score -= 15; messages.push('요동치는 대지가 경각심을 일깨웁니다'); }
+    else if (earthquake.count > 10) { score -= 8; messages.push('활발한 대지의 움직임에 주의가 필요합니다'); }
+    if (earthquake.maxMagnitude >= 6) { score -= 10; messages.push('강한 지진파가 대지를 흔듭니다'); }
   }
 
-  score = Math.max(0, Math.min(100, score));
+  // 날짜 기반 변동 (같은 조건이어도 날마다 미세하게 다르게)
+  const today = new Date();
+  const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const dailyVariance = ((daySeed * 9301 + 49297) % 233280) / 233280; // 0~1 사이 의사난수
+  score += Math.round((dailyVariance - 0.5) * 16); // -8 ~ +8
+
+  score = Math.max(5, Math.min(98, score));
   const message = messages.length > 0 ? messages.join('. ') + '.' : '천지의 기운이 평온합니다.';
 
   return { message, energy: score };
