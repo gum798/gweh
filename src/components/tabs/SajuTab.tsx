@@ -25,15 +25,17 @@ const ELEMENT_BG = {
 export default function SajuTab() {
   const { t } = useTranslation('saju');
   const { t: tc } = useTranslation();
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
   const [result, setResult] = useState(null);
   const [ready, setReady] = useState(false);
   const autoSubmitted = useRef(false);
 
-  // 우선순위: 1) localStorage → 2) DB 프로필 → 3) 사용자 입력
+  // 우선순위: 1) localStorage(사주 전용) → 2) DB 프로필 → 3) 운세탭 연도 → 4) 사용자 입력
   useEffect(() => {
+    if (authLoading) return;
+
     try {
       const saved = localStorage.getItem(SAJU_INPUT_KEY);
       if (saved) {
@@ -47,35 +49,40 @@ export default function SajuTab() {
       }
     } catch { /* ignore */ }
 
-    // 운세탭에서 저장한 생년이 있으면 날짜만 프리필 (자동 제출 안 함)
+    // DB 프로필에서 생년월일 가져오기
+    if (session?.access_token) {
+      fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } })
+        .then(r => r.json())
+        .then(d => {
+          if (d.profile?.birth_date) {
+            setBirthDate(d.profile.birth_date);
+            if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
+            localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify({
+              birthDate: d.profile.birth_date,
+              birthHour: d.profile.birth_hour ?? 12,
+            }));
+            return;
+          }
+          // DB에 없으면 운세탭 연도로 프리필 (자동 제출 안 함)
+          const fortuneYear = localStorage.getItem('mystic_birth_year');
+          if (fortuneYear) {
+            setBirthDate(`${fortuneYear}-01-01`);
+            autoSubmitted.current = true;
+          }
+        })
+        .catch(() => {})
+        .finally(() => setReady(true));
+      return;
+    }
+
+    // 비로그인: 운세탭 연도로 프리필
     const fortuneYear = localStorage.getItem('mystic_birth_year');
     if (fortuneYear) {
       setBirthDate(`${fortuneYear}-01-01`);
-      autoSubmitted.current = true; // 자동 제출 방지
-      setReady(true);
-      return;
+      autoSubmitted.current = true;
     }
-
-    if (!session?.access_token) {
-      setReady(true);
-      return;
-    }
-
-    fetch('/api/profile', { headers: { Authorization: `Bearer ${session.access_token}` } })
-      .then(r => r.json())
-      .then(d => {
-        if (d.profile?.birth_date) {
-          setBirthDate(d.profile.birth_date);
-          if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
-          localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify({
-            birthDate: d.profile.birth_date,
-            birthHour: d.profile.birth_hour ?? 12,
-          }));
-        }
-      })
-      .catch(() => {})
-      .finally(() => setReady(true));
-  }, [session?.access_token]);
+    setReady(true);
+  }, [authLoading, session?.access_token]);
 
   const hourOptions = useMemo(() => {
     const options = [];
