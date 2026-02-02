@@ -311,15 +311,15 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       )}
 
       {/* 3. 운세 요약 */}
-      {fortune && (
+      {fortune?.overall && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
             <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
-            <div className="text-center mb-4">
+            {fortune.level && <div className="text-center mb-4">
               <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(fortune.level)}`}>
                 {fortune.level}
               </span>
-            </div>
+            </div>}
             <p className="text-white/70 text-sm leading-relaxed text-center italic mb-4">
               "{fortune.overall}"
             </p>
@@ -329,7 +329,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 { icon: '💼', label: t('fortune.career'), text: fortune.career },
                 { icon: '💰', label: t('fortune.wealth'), text: fortune.wealth },
                 { icon: '🏥', label: t('fortune.health'), text: fortune.health },
-              ].map((item) => (
+              ].filter((item) => item.text).map((item) => (
                 <div key={item.label} className="bg-white/5 rounded-xl p-3">
                   <div className="flex items-center gap-1 mb-1">
                     <span className="text-sm">{item.icon}</span>
@@ -344,24 +344,24 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       )}
 
       {/* 3-1. 조언 + 행운 정보 */}
-      {fortune && (
+      {fortune?.advice && (
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6">
             <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             <p className="text-white/80 text-sm leading-relaxed mb-5">"{fortune.advice}"</p>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
-              <div className="text-center">
+              {fortune.luckyColor && <div className="text-center">
                 <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
                 <span className="text-white text-sm font-medium">{fortune.luckyColor}</span>
-              </div>
-              <div className="text-center">
+              </div>}
+              {fortune.luckyNumber != null && <div className="text-center">
                 <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
                 <span className="text-white text-sm font-medium">{fortune.luckyNumber}</span>
-              </div>
-              <div className="text-center">
+              </div>}
+              {fortune.luckyDirection && <div className="text-center">
                 <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
                 <span className="text-white text-sm font-medium">{fortune.luckyDirection}</span>
-              </div>
+              </div>}
             </div>
           </div>
         </section>

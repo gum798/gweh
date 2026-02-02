@@ -639,7 +639,7 @@ export default function FashionTab() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{t('result.complete')}</span>
-                <h3 className="text-white text-2xl font-bold tracking-tight">{result.bodyAnalysis.bodyType}</h3>
+                <h3 className="text-white text-2xl font-bold tracking-tight">{result.bodyAnalysis?.bodyType || ''}</h3>
               </div>
               <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
                 <span className="text-[var(--accent)] text-xl">✨</span>
@@ -656,7 +656,7 @@ export default function FashionTab() {
                     <span className="text-[var(--accent)] font-bold">{t('result.aiMatch')}</span>
                   </div>
                   <p className="text-white/60 text-sm italic leading-relaxed">
-                    "{result.mainMessage}"
+                    "{result.mainMessage || ''}"
                   </p>
                 </div>
               </div>
@@ -671,11 +671,11 @@ export default function FashionTab() {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm border-b border-white/5 pb-3">
                 <span className="text-white/80 font-medium">{t('result.bodyFeatures')}</span>
-                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis.features}</span>
+                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis?.features || ''}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/80 font-medium">{t('result.proportions')}</span>
-                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis.proportions}</span>
+                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis?.proportions || ''}</span>
               </div>
             </div>
           </div>
@@ -685,14 +685,14 @@ export default function FashionTab() {
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1">{t('result.styleRecommendations')}</h4>
-            {result.styles.map((style, i) => (
+            {(result.styles || []).map((style, i) => (
               <div key={i} className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{style.icon}</span>
                   <span className="text-white font-bold">{style.category}</span>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {style.items.map((item, j) => (
+                  {(style.items || []).map((item, j) => (
                     <span
                       key={j}
                       className="px-3 py-1.5 bg-[var(--accent-20)] rounded-full text-[var(--accent)] text-xs font-medium"
@@ -712,7 +712,7 @@ export default function FashionTab() {
           <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.colorPalette')}</h4>
             <div className="flex flex-wrap gap-2 mb-4">
-              {result.colors.recommended.map((color, i) => (
+              {(result.colors?.recommended || []).map((color, i) => (
                 <span
                   key={i}
                   className="px-4 py-2 bg-white/5 rounded-full text-white/80 text-sm border border-white/10"
@@ -721,11 +721,11 @@ export default function FashionTab() {
                 </span>
               ))}
             </div>
-            {result.colors.avoid.length > 0 && (
+            {result.colors?.avoid?.length > 0 && (
               <div className="pt-4 border-t border-white/10">
                 <p className="text-white/40 text-xs uppercase tracking-widest mb-2">{t('result.avoid')}</p>
                 <div className="flex flex-wrap gap-2">
-                  {result.colors.avoid.map((color, i) => (
+                  {(result.colors?.avoid || []).map((color, i) => (
                     <span key={i} className="px-3 py-1 bg-red-500/10 rounded-full text-red-400/80 text-xs">
                       {color}
                     </span>
@@ -733,7 +733,7 @@ export default function FashionTab() {
                 </div>
               </div>
             )}
-            <p className="text-white/40 text-sm mt-4">{result.colors.description}</p>
+            {result.colors?.description && <p className="text-white/40 text-sm mt-4">{result.colors.description}</p>}
           </div>
         </section>
 
@@ -742,7 +742,7 @@ export default function FashionTab() {
           <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.stylingTips')}</h4>
             <ul className="space-y-3">
-              {result.tips.map((tip, i) => (
+              {(result.tips || []).map((tip, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
                   <span className="text-[var(--accent)]">✓</span>
                   <span className="text-white/70">{tip}</span>
@@ -753,7 +753,7 @@ export default function FashionTab() {
         </section>
 
         {/* Avoid Section */}
-        {result.avoid.length > 0 && (
+        {result.avoid?.length > 0 && (
           <section className="px-4">
             <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
               <h4 className="text-white font-bold uppercase tracking-widest text-xs text-red-400 mb-4">{t('result.styleWarnings')}</h4>

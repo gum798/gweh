@@ -229,15 +229,15 @@ export default function FortuneTab() {
         {/* 헤더 */}
         <section className="px-4">
           <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 shadow-[0_0_15px_var(--accent-20)]">
-            <div className="text-center mb-4">
+            {result.level && <div className="text-center mb-4">
               <span className="text-5xl mb-3 block">{getLevelEmoji(result.level)}</span>
               <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(result.level)}`}>
                 {result.level}
               </span>
-            </div>
-            <p className="text-white/70 text-base leading-relaxed text-center italic">
+            </div>}
+            {result.overall && <p className="text-white/70 text-base leading-relaxed text-center italic">
               "{result.overall}"
-            </p>
+            </p>}
           </div>
         </section>
 
