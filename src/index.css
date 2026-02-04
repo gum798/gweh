@@ -6,7 +6,7 @@
   body {
     background-color: var(--bg-primary);
     @apply text-gray-100 min-h-screen;
-    font-family: 'Gowun Batang', serif;
+    font-family: 'Gowun Batang', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', serif;
   }
 
   /* English Optical Adjustment: Increase base size to match Hangeul visual weight */
@@ -77,4 +77,18 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
+}
+
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
 }

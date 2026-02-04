@@ -18,6 +18,16 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
   });
   const [expanded, setExpanded] = useState(false);
 
+  // 첫 방문자는 배너 숨김 (맛보기 체험 허용)
+  const [isFirstVisit] = useState(() => {
+    const visited = localStorage.getItem('mystic_has_visited');
+    if (!visited) {
+      localStorage.setItem('mystic_has_visited', 'true');
+      return true;
+    }
+    return false;
+  });
+
   // Scarcity: countdown timer (resets daily)
   const [timeLeft, setTimeLeft] = useState('');
   useEffect(() => {
@@ -35,7 +45,8 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
     return () => clearInterval(interval);
   }, []);
 
-  if (isSubscribed || dismissed || loading) return null;
+  // 첫 방문, 구독중, 배너 닫음, 로딩 중이면 숨김
+  if (isSubscribed || dismissed || loading || isFirstVisit) return null;
 
   const handleClick = () => {
     if (!user) {

@@ -301,7 +301,7 @@ export function getOverallEnergy(weather, moon, earthquake) {
 export function getEnergyLabel(energy) {
   if (energy >= 80) return { label: i18next.t('common:energy.excellent'), color: 'text-green-400' };
   if (energy >= 60) return { label: i18next.t('common:energy.good'), color: 'text-emerald-400' };
-  if (energy >= 40) return { label: i18next.t('common:energy.moderate'), color: 'text-yellow-400' };
+  if (energy >= 40) return { label: i18next.t('common:energy.neutral'), color: 'text-yellow-400' };
   if (energy >= 20) return { label: i18next.t('common:energy.caution'), color: 'text-orange-400' };
   return { label: i18next.t('common:energy.careful'), color: 'text-red-400' };
 }

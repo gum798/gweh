@@ -324,9 +324,12 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           >
             <div className="flex flex-col gap-3 max-w-2xl">
               <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-                Divine <br />
-                <span className="text-[var(--accent)] italic font-light">Omen</span>
+                {t('omenTab.heroTitle1')} <br />
+                <span className="text-[var(--accent)] italic font-light">{t('omenTab.heroTitle2')}</span>
               </h1>
+              <p className="text-[var(--accent)] text-base font-medium mb-1">
+                {t('omenTab.heroSubtitle')}
+              </p>
               <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('omenTab.heroDesc')}
               </p>

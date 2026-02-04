@@ -6,6 +6,7 @@ import ProfileModal from './components/auth/ProfileModal';
 import { useAuth } from './contexts/AuthContext';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
+import { SkeletonOmenTab } from './components/ui/Skeleton';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -62,7 +63,8 @@ function App() {
   }, []);
 
   const renderTab = () => {
-    const fallback = (
+    const skeletonFallback = <SkeletonOmenTab />;
+    const defaultFallback = (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
           <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
@@ -77,43 +79,43 @@ function App() {
     switch (activeTab) {
       case 'omen':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={skeletonFallback}>
             <OmenTab onLoginRequired={openAuthModal} />
           </Suspense>
         );
       case 'face':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={defaultFallback}>
             <FaceTab />
           </Suspense>
         );
       case 'palm':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={defaultFallback}>
             <PalmTab />
           </Suspense>
         );
       case 'saju':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={defaultFallback}>
             <SajuTab />
           </Suspense>
         );
       case 'fortune':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={defaultFallback}>
             <FortuneTab />
           </Suspense>
         );
       case 'fashion':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={defaultFallback}>
             <FashionTab />
           </Suspense>
         );
       case 'summary':
         return (
-          <Suspense fallback={fallback}>
+          <Suspense fallback={defaultFallback}>
             <SummaryTab onLoginRequired={openAuthModal} />
           </Suspense>
         );

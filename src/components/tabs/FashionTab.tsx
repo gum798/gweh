@@ -3,10 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { storeFashionData, getFashionData, deleteFashionData } from '../../utils/imageStorage';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { CircularProgress } from '../ui/ProgressBar';
 
 const FASHION_DATA_KEY = 'mystic_fashion_data';
 
 type Mode = 'input' | 'analyzing' | 'result' | 'error';
+
+function authHeaders(token: string | undefined): Record<string, string> {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+const ACTION_BUTTON_ENABLED =
+  'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95';
+const ACTION_BUTTON_DISABLED = 'bg-white/10 text-white/30 cursor-not-allowed';
 
 interface StyleRecommendation {
   category: string;
@@ -49,6 +58,7 @@ export default function FashionTab() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [result, setResult] = useState<FashionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [analysisProgress, setAnalysisProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPaid, setIsPaid] = useState(false);
   const [usedToday, setUsedToday] = useState(false);
@@ -150,7 +160,7 @@ export default function FashionTab() {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}) },
+        headers: { 'Content-Type': 'application/json', ...authHeaders(session?.access_token) },
         body: JSON.stringify({}),
       });
       if (!response.ok) throw new Error('Checkout failed');
@@ -180,15 +190,27 @@ export default function FashionTab() {
     }
   };
 
-  // 구독자 무료 분석
-  const handleFreeAnalysis = async () => {
-    if (!capturedImage || !height || !weight) return;
+  // 공통 분석 실행
+  const runAnalysis = async (options?: { markUsedToday?: boolean }) => {
     setMode('analyzing');
+    setAnalysisProgress(0);
+
+    // 프로그레스 시뮬레이션 (0 → 90% 점진적 증가)
+    const progressInterval = setInterval(() => {
+      setAnalysisProgress(prev => {
+        if (prev >= 90) return 90;
+        return prev + Math.random() * 8 + 2; // 2~10% 씩 증가
+      });
+    }, 400);
+
     try {
+      setAnalysisProgress(10); // 시작
       const weather = await fetchWeather();
+      setAnalysisProgress(25); // 날씨 완료
+
       const response = await fetch('/api/fashion-consult', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}) },
+        headers: { 'Content-Type': 'application/json', ...authHeaders(session?.access_token) },
         body: JSON.stringify({
           image: capturedImage,
           height: parseFloat(height),
@@ -196,63 +218,54 @@ export default function FashionTab() {
           weather,
         }),
       });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.error || tc('fashion.errorAnalysis'));
-      setResult(data.data);
-      setMode('result');
-      setUsedToday(true);
-      // 사용 기록
-      if (session?.access_token) {
-        fetch('/api/fashion-usage', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        }).catch(() => {});
-      }
-      saveProfileData();
-    } catch (err) {
-      console.error('Fashion consult error:', err);
-      setErrorMessage(err instanceof Error ? err.message : tc('fashion.errorGeneric'));
-      setMode('error');
-    }
-  };
-
-  // 결제 후 분석 실행
-  const handleAnalyzeAfterPayment = async () => {
-    setMode('analyzing');
-    try {
-      const weather = await fetchWeather();
-      const response = await fetch('/api/fashion-consult', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}) },
-        body: JSON.stringify({
-          image: capturedImage,
-          height: parseFloat(height),
-          weight: parseFloat(weight),
-          weather,
-        }),
-      });
+      setAnalysisProgress(85); // API 응답 수신
 
       const data = await response.json();
-
       if (!response.ok || !data.success) {
         throw new Error(data.error || tc('fashion.errorAnalysis'));
       }
 
+      setAnalysisProgress(100); // 완료
+      clearInterval(progressInterval);
+
+      // 100% 표시 후 결과 화면으로 전환
+      await new Promise(r => setTimeout(r, 300));
+
       setResult(data.data);
       setMode('result');
-      // Save profile data to Supabase
+      if (options?.markUsedToday) {
+        setUsedToday(true);
+        if (session?.access_token) {
+          fetch('/api/fashion-usage', {
+            method: 'POST',
+            headers: authHeaders(session.access_token),
+          }).catch(() => {});
+        }
+      }
       saveProfileData();
     } catch (err) {
+      clearInterval(progressInterval);
       console.error('Fashion consult error:', err);
       setErrorMessage(err instanceof Error ? err.message : tc('fashion.errorGeneric'));
       setMode('error');
     }
   };
 
+  const handleFreeAnalysis = async () => {
+    if (!capturedImage || !height || !weight) return;
+    runAnalysis({ markUsedToday: true });
+  };
+
+  const handleAnalyzeAfterPayment = () => runAnalysis();
+
   const saveProfileData = async () => {
     if (!session?.access_token) return;
+    const jsonAuthHeaders = {
+      'Content-Type': 'application/json',
+      ...authHeaders(session.access_token),
+    };
     try {
-      const profilePayload: any = {};
+      const profilePayload: Record<string, number> = {};
       const h = parseFloat(height);
       const w = parseFloat(weight);
       if (h) profilePayload.height = h;
@@ -260,31 +273,21 @@ export default function FashionTab() {
 
       await fetch('/api/profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
+        headers: jsonAuthHeaders,
         body: JSON.stringify(profilePayload),
       });
 
-      // Upload photo to R2
       if (capturedImage) {
         const uploadRes = await fetch('/api/upload-photo', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
+          headers: jsonAuthHeaders,
           body: JSON.stringify({ image: capturedImage, type: 'fashion' }),
         });
         if (uploadRes.ok) {
           const { url } = await uploadRes.json();
           await fetch('/api/profile', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
-            },
+            headers: jsonAuthHeaders,
             body: JSON.stringify({ photo_url: url }),
           });
         }
@@ -371,39 +374,8 @@ export default function FashionTab() {
       return;
     }
 
-    setMode('analyzing');
     setErrorMessage('');
-
-    try {
-      const weather = await fetchWeather();
-      const response = await fetch('/api/fashion-consult', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify({
-          image: capturedImage,
-          height: heightNum,
-          weight: weightNum,
-          weather,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || tc('fashion.errorAnalysis'));
-      }
-
-      setResult(data.data);
-      setMode('result');
-      saveProfileData();
-    } catch (error) {
-      console.error('Fashion consult error:', error);
-      setErrorMessage(error instanceof Error ? error.message : tc('fashion.errorGeneric'));
-      setMode('error');
-    }
+    runAnalysis();
   }, [height, weight, capturedImage]);
 
   const handleReset = () => {
@@ -555,9 +527,7 @@ export default function FashionTab() {
                   onClick={goToCheckout}
                   disabled={!capturedImage || !height || !weight}
                   className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
-                    capturedImage && height && weight
-                      ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
-                      : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    capturedImage && height && weight ? ACTION_BUTTON_ENABLED : ACTION_BUTTON_DISABLED
                   }`}
                 >
                   {tc('fashion.extraAnalysis')}
@@ -606,23 +576,24 @@ export default function FashionTab() {
 
   // 분석 중 화면
   if (mode === 'analyzing') {
+    const getStatusText = () => {
+      if (analysisProgress < 20) return '이미지 준비 중...';
+      if (analysisProgress < 40) return '날씨 정보 확인 중...';
+      if (analysisProgress < 80) return 'AI 분석 중...';
+      if (analysisProgress < 100) return '결과 생성 중...';
+      return '완료!';
+    };
+
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
-          <div className="h-24 w-24 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
-            <span className="text-4xl animate-pulse">✨</span>
-          </div>
-        </div>
+        <CircularProgress progress={analysisProgress} size={120} strokeWidth={6} />
         <h3 className="text-white text-xl font-bold mt-8 mb-2">{t('analyzing.title')}</h3>
-        <p className="text-white/50 text-sm text-center max-w-xs">
+        <p className="text-white/50 text-sm text-center max-w-xs mb-2">
           {t('analyzing.description')}
         </p>
-        <div className="mt-6 flex gap-1">
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-        </div>
+        <p className="text-[var(--accent)] text-sm font-medium">
+          {getStatusText()}
+        </p>
       </div>
     );
   }

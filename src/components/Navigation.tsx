@@ -21,7 +21,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
   const { t } = useTranslation();
 
   return (
-    <nav className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
+    <nav className="sticky top-0 z-40 bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
       <div className="flex justify-center overflow-x-auto gap-1 scrollbar-hide snap-x" role="tablist">
         {tabs.map((tab) => (
           <button

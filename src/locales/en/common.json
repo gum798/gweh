@@ -93,9 +93,10 @@
   "keypoint.pinky3": "Pinky 3",
   "keypoint.pinkyTip": "Pinky Tip",
 
-  "omenTab.heroTitle1": "Divine",
-  "omenTab.heroTitle2": "Omen",
-  "omenTab.heroDesc": "We read the energy of heaven and earth to reveal today's oracle",
+  "omenTab.heroTitle1": "MYSTIC",
+  "omenTab.heroTitle2": "AI",
+  "omenTab.heroDesc": "Korea's premier multimodal AI fortune-telling service",
+  "omenTab.heroSubtitle": "AI-powered analysis of your mystical destiny",
   "omenTab.readingSigns": "Reading the Signs...",
   "omenTab.underSky": "Under the sky of {{city}}",
   "omenTab.detailedOmens": "Detailed Omens",
