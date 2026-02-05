@@ -16,6 +16,7 @@ const SajuTab = lazy(() => import('./components/tabs/SajuTab'));
 const FortuneTab = lazy(() => import('./components/tabs/FortuneTab'));
 const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 const SummaryTab = lazy(() => import('./components/tabs/SummaryTab'));
+const FaceHarmonyTab = lazy(() => import('./components/tabs/FaceHarmonyTab'));
 
 function App() {
   const { t, i18n } = useTranslation('auth');
@@ -24,7 +25,7 @@ function App() {
   const { isSubscribed } = useSubscription();
   const [activeTab, setActiveTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
-    const validTabs = ['omen', 'fortune', 'fashion', 'face', 'palm', 'saju', 'summary'];
+    const validTabs = ['omen', 'fortune', 'fashion', 'face', 'harmony', 'palm', 'saju', 'summary'];
     return validTabs.includes(hash) ? hash : 'omen';
   });
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -87,6 +88,12 @@ function App() {
         return (
           <Suspense fallback={defaultFallback}>
             <FaceTab />
+          </Suspense>
+        );
+      case 'harmony':
+        return (
+          <Suspense fallback={defaultFallback}>
+            <FaceHarmonyTab />
           </Suspense>
         );
       case 'palm':

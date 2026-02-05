@@ -6,6 +6,7 @@ const tabs = [
   { id: 'fortune', labelKey: 'nav.fortune', icon: '🔮' },
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
   { id: 'face', labelKey: 'nav.face', icon: '👁️' },
+  { id: 'harmony', labelKey: 'nav.harmony', icon: '💖' },
   { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
   { id: 'saju', labelKey: 'nav.saju', icon: '🏛️' },
   { id: 'summary', labelKey: 'nav.summary', icon: '📊' },
