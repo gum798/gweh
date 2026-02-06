@@ -31,6 +31,7 @@ export function useFaceDetection() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const modelRef = useRef<any>(null);
+  const multiModelRef = useRef<any>(null);
 
   const loadModel = useCallback(async () => {
     if (modelRef.current) return modelRef.current;
@@ -51,6 +52,29 @@ export function useFaceDetection() {
       return model;
     } catch (err) {
       console.error('Face detection model load error:', err);
+      throw new Error(i18next.t('error.faceModel'));
+    }
+  }, []);
+
+  const loadMultiModel = useCallback(async () => {
+    if (multiModelRef.current) return multiModelRef.current;
+
+    try {
+      const { faceLandmarksDetection: faceModule } = await loadModules();
+
+      const model = await faceModule!.createDetector(
+        faceModule!.SupportedModels.MediaPipeFaceMesh,
+        {
+          runtime: 'tfjs',
+          refineLandmarks: true,
+          maxFaces: 2,
+        }
+      );
+
+      multiModelRef.current = model;
+      return model;
+    } catch (err) {
+      console.error('Multi-face detection model load error:', err);
       throw new Error(i18next.t('error.faceModel'));
     }
   }, []);
@@ -109,8 +133,64 @@ export function useFaceDetection() {
     }
   }, [loadModel]);
 
+  const detectMultipleFaces = useCallback(async (imageSrc) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const model = await loadMultiModel();
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = imageSrc;
+      });
+
+      const predictions = await model.estimateFaces(img);
+
+      if (!predictions || predictions.length < 2) {
+        throw new Error('두 얼굴을 감지할 수 없습니다. 두 사람이 함께 나온 사진을 사용해주세요.');
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      const faces = predictions.slice(0, 2).map(face => {
+        const skinSamples = extractSkinSamples(ctx, face.keypoints, img.width, img.height);
+        const annotatedImage = drawFaceLandmarks(img, face.keypoints);
+
+        return {
+          landmarks: face.keypoints,
+          skinSamples,
+          annotatedImage,
+        };
+      });
+
+      // Sort by x position (left face first)
+      faces.sort((a, b) => {
+        const avgXA = a.landmarks.reduce((s, p) => s + p.x, 0) / a.landmarks.length;
+        const avgXB = b.landmarks.reduce((s, p) => s + p.x, 0) / b.landmarks.length;
+        return avgXA - avgXB;
+      });
+
+      setIsLoading(false);
+      return faces;
+    } catch (err) {
+      setError(err.message || i18next.t('error.faceModel'));
+      setIsLoading(false);
+      return null;
+    }
+  }, [loadMultiModel]);
+
   return {
     detectFace,
+    detectMultipleFaces,
     isLoading,
     error,
   };

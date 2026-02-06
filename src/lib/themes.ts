@@ -52,31 +52,31 @@ export interface ThemeDefinition {
 
 export const themes: Record<string, ThemeDefinition> = {
   // ═══════════════════════════════════════════
-  // 1. COSMIC VOID — Deep purple electric void
+  // 1. COSMIC DAWN — Dark navy + gold radiance
   // ═══════════════════════════════════════════
   cosmic: {
-    name: 'Cosmic Void',
-    nameKo: '코스믹 보이드',
-    '--bg-primary': '#161022',
-    '--bg-panel': 'rgba(34, 25, 51, 0.6)',
-    '--bg-panel-solid': '#1a1030',
-    '--bg-hero-bottom': '#161022',
-    '--bg-hero-mid': 'rgba(22, 16, 34, 0.6)',
-    '--accent': '#5b13ec',
-    '--accent-hover': '#4a0fd0',
-    '--accent-glow': 'rgba(91, 19, 236, 0.5)',
-    '--accent-10': 'rgba(91, 19, 236, 0.1)',
-    '--accent-20': 'rgba(91, 19, 236, 0.2)',
-    '--accent-30': 'rgba(91, 19, 236, 0.3)',
-    '--accent-40': 'rgba(91, 19, 236, 0.4)',
-    '--accent-50': 'rgba(91, 19, 236, 0.5)',
-    '--scrollbar-track': '#0a0a1a',
-    '--scrollbar-thumb': '#5b13ec',
-    '--scrollbar-thumb-hover': '#4a0fd0',
-    '--glow-1': '0 0 5px #d4af37, 0 0 10px #d4af37',
-    '--glow-2': '0 0 20px #d4af37, 0 0 30px #d4af37',
+    name: 'Cosmic Dawn',
+    nameKo: '코스믹 던',
+    '--bg-primary': '#0a0a1a',
+    '--bg-panel': 'rgba(18, 14, 36, 0.65)',
+    '--bg-panel-solid': '#110e24',
+    '--bg-hero-bottom': '#0a0a1a',
+    '--bg-hero-mid': 'rgba(10, 10, 26, 0.6)',
+    '--accent': '#d4af37',
+    '--accent-hover': '#c9a227',
+    '--accent-glow': 'rgba(212, 175, 55, 0.45)',
+    '--accent-10': 'rgba(212, 175, 55, 0.1)',
+    '--accent-20': 'rgba(212, 175, 55, 0.2)',
+    '--accent-30': 'rgba(212, 175, 55, 0.3)',
+    '--accent-40': 'rgba(212, 175, 55, 0.4)',
+    '--accent-50': 'rgba(212, 175, 55, 0.5)',
+    '--scrollbar-track': '#05050f',
+    '--scrollbar-thumb': '#d4af37',
+    '--scrollbar-thumb-hover': '#c9a227',
+    '--glow-1': '0 0 5px #d4af37, 0 0 10px rgba(212,175,55,0.6)',
+    '--glow-2': '0 0 20px #d4af37, 0 0 35px rgba(212,175,55,0.4)',
     '--text-glow': 'rgba(212, 175, 55, 0.5)',
-    '--glass-border': 'rgba(212, 175, 55, 0.2)',
+    '--glass-border': 'rgba(212, 175, 55, 0.15)',
   },
 
   // ═══════════════════════════════════════════

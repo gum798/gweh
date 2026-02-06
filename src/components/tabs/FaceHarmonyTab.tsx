@@ -267,9 +267,10 @@ function AvatarCircle({
 // ═══════════════════════════════════════════════════════════════
 export default function FaceHarmonyTab() {
   const { t } = useTranslation();
-  const { detectFace, isLoading } = useFaceDetection();
+  const { detectFace, detectMultipleFaces, isLoading } = useFaceDetection();
 
   const [mode, setMode] = useState<'idle' | 'capture-a' | 'capture-b' | 'analyzing' | 'result'>('idle');
+  const [inputMode, setInputMode] = useState<'separate' | 'single'>('separate');
   const [imageA, setImageA] = useState<string | null>(null);
   const [imageB, setImageB] = useState<string | null>(null);
   const [landmarksA, setLandmarksA] = useState<any[] | null>(null);
@@ -277,6 +278,7 @@ export default function FaceHarmonyTab() {
   const [harmonyResult, setHarmonyResult] = useState<HarmonyResult | null>(null);
   const [showParticles, setShowParticles] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCapture = useCallback(async (imageSrc: string, target: 'a' | 'b') => {
     setError(null);
@@ -299,6 +301,43 @@ export default function FaceHarmonyTab() {
       setMode('idle');
     }
   }, [detectFace]);
+
+  const handleSinglePhoto = useCallback(async (imageSrc: string) => {
+    setError(null);
+    setMode('analyzing');
+
+    const faces = await detectMultipleFaces(imageSrc);
+    if (!faces || faces.length < 2) {
+      setError('두 얼굴을 감지할 수 없습니다. 두 사람이 함께 나온 사진을 사용해주세요.');
+      setMode('idle');
+      return;
+    }
+
+    const [faceA, faceB] = faces;
+    setImageA(faceA.annotatedImage || imageSrc);
+    setImageB(faceB.annotatedImage || imageSrc);
+    setLandmarksA(faceA.landmarks);
+    setLandmarksB(faceB.landmarks);
+
+    // Start analysis immediately
+    setTimeout(() => {
+      const result = analyzeFaceHarmony(faceA.landmarks, faceB.landmarks);
+      setHarmonyResult(result);
+      setMode('result');
+      setTimeout(() => setShowParticles(true), 300);
+    }, 2500);
+  }, [detectMultipleFaces]);
+
+  const handleSinglePhotoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageSrc = event.target?.result as string;
+      if (imageSrc) handleSinglePhoto(imageSrc);
+    };
+    reader.readAsDataURL(file);
+  }, [handleSinglePhoto]);
 
   const startAnalysis = useCallback(() => {
     if (!landmarksA || !landmarksB) return;
@@ -506,7 +545,7 @@ export default function FaceHarmonyTab() {
             <GoldenOrbitSVG size={320} animate />
           </div>
 
-          <div className="relative z-10 text-center mb-10">
+          <div className="relative z-10 text-center mb-6">
             <h2 className="text-amber-400 text-3xl md:text-4xl font-bold mb-3 tracking-wider
                           drop-shadow-[0_2px_15px_rgba(212,175,55,0.4)]">
               관상 궁합
@@ -517,31 +556,100 @@ export default function FaceHarmonyTab() {
             </p>
           </div>
 
-          {/* Avatar Pair */}
-          <div className="relative z-10 flex items-center justify-center gap-4 md:gap-8">
-            <AvatarCircle
-              image={imageA}
-              label="인물 1"
-              side="left"
-              onClick={() => setMode('capture-a')}
-            />
-
-            <HarmonyConnectionSVG active={false} score={harmonyResult?.totalScore} />
-
-            {/* mobile connector */}
-            <div className="md:hidden flex flex-col items-center">
-              <div className="w-8 h-px bg-amber-500/20" />
-              <span className="text-amber-400/40 text-lg my-1">☯</span>
-              <div className="w-8 h-px bg-amber-500/20" />
-            </div>
-
-            <AvatarCircle
-              image={imageB}
-              label="인물 2"
-              side="right"
-              onClick={() => setMode('capture-b')}
-            />
+          {/* Input Mode Toggle */}
+          <div className="relative z-10 flex justify-center gap-2 mb-8">
+            <button
+              onClick={() => { setInputMode('separate'); handleReset(); }}
+              className={`px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                inputMode === 'separate'
+                  ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30'
+                  : 'text-gray-500 hover:text-amber-300/70 border border-transparent'
+              }`}
+            >
+              📷 각각 촬영
+            </button>
+            <button
+              onClick={() => { setInputMode('single'); handleReset(); }}
+              className={`px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                inputMode === 'single'
+                  ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30'
+                  : 'text-gray-500 hover:text-amber-300/70 border border-transparent'
+              }`}
+            >
+              🤳 함께 찍은 사진
+            </button>
           </div>
+
+          {/* Separate mode: Avatar Pair */}
+          {inputMode === 'separate' && (
+            <div className="relative z-10 flex items-center justify-center gap-4 md:gap-8">
+              <AvatarCircle
+                image={imageA}
+                label="인물 1"
+                side="left"
+                onClick={() => setMode('capture-a')}
+              />
+
+              <HarmonyConnectionSVG active={false} score={harmonyResult?.totalScore} />
+
+              {/* mobile connector */}
+              <div className="md:hidden flex flex-col items-center">
+                <div className="w-8 h-px bg-amber-500/20" />
+                <span className="text-amber-400/40 text-lg my-1">☯</span>
+                <div className="w-8 h-px bg-amber-500/20" />
+              </div>
+
+              <AvatarCircle
+                image={imageB}
+                label="인물 2"
+                side="right"
+                onClick={() => setMode('capture-b')}
+              />
+            </div>
+          )}
+
+          {/* Single photo mode: Upload area */}
+          {inputMode === 'single' && !imageA && !imageB && (
+            <div className="relative z-10 animate-fade-in">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="mx-auto max-w-sm border-2 border-dashed border-amber-400/25 rounded-2xl p-10 cursor-pointer
+                           hover:border-amber-400/50 hover:bg-amber-400/5 transition-all duration-300 text-center group"
+              >
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
+                <p className="text-amber-300/80 text-sm font-medium mb-2">두 사람이 함께 찍은 사진을 올려주세요</p>
+                <p className="text-gray-600 text-xs leading-relaxed">
+                  AI가 자동으로 두 얼굴을 감지하여<br/>궁합을 분석합니다
+                </p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleSinglePhotoUpload}
+                className="hidden"
+              />
+            </div>
+          )}
+
+          {/* Single photo mode: Show detected faces */}
+          {inputMode === 'single' && imageA && imageB && mode !== 'analyzing' && mode !== 'result' && (
+            <div className="relative z-10 flex items-center justify-center gap-4 md:gap-8 animate-fade-in">
+              <div className="flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full border-2 border-amber-400/40 overflow-hidden">
+                  <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-amber-200/50 text-xs mt-2">인물 1</span>
+              </div>
+              <span className="text-amber-400/40 text-2xl">☯</span>
+              <div className="flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full border-2 border-amber-400/40 overflow-hidden">
+                  <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-amber-200/50 text-xs mt-2">인물 2</span>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -554,7 +662,7 @@ export default function FaceHarmonyTab() {
 
       {/* Instruction / Action */}
       <section className="mx-4">
-        {!imageA || !imageB ? (
+        {inputMode === 'separate' && (!imageA || !imageB) ? (
           <div className="text-center space-y-4 animate-fade-in-up" style={{ opacity: 0 }}>
             <p className="text-gray-500 text-sm">
               {!imageA && !imageB
@@ -581,7 +689,7 @@ export default function FaceHarmonyTab() {
               )}
             </div>
           </div>
-        ) : (
+        ) : inputMode === 'separate' && imageA && imageB ? (
           <div className="text-center animate-scale-in" style={{ opacity: 0 }}>
             <button onClick={startAnalysis}
               className="px-10 py-4 bg-gradient-to-b from-amber-400 to-amber-600 text-[#0a0a1a] font-bold
@@ -594,7 +702,7 @@ export default function FaceHarmonyTab() {
               처음부터 다시
             </button>
           </div>
-        )}
+        ) : null}
       </section>
 
       {/* Feature Description Cards */}
