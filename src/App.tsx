@@ -7,6 +7,8 @@ import { useAuth } from './contexts/AuthContext';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
+import { applyTheme, type ColorMode } from './lib/applyTheme';
+import type { ThemeKey } from './lib/themes';
 
 // 탭 컴포넌트 동적 로딩
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -31,6 +33,17 @@ function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [colorMode, setColorMode] = useState<ColorMode>(() =>
+    (localStorage.getItem('mystic_color_mode') as ColorMode) || 'dark'
+  );
+
+  const toggleColorMode = useCallback(() => {
+    const next: ColorMode = colorMode === 'dark' ? 'light' : 'dark';
+    setColorMode(next);
+    localStorage.setItem('mystic_color_mode', next);
+    const currentTheme = (localStorage.getItem('theme') as ThemeKey) || 'cosmic';
+    applyTheme(currentTheme, next);
+  }, [colorMode]);
 
   // 결제 완료 후 토스트 표시 (탭 이동 없음)
   useEffect(() => {
@@ -148,7 +161,7 @@ function App() {
       <div className="relative z-10 container mx-auto px-4 py-6 max-w-4xl">
         {/* 헤더 */}
         <header className="relative text-center mb-6">
-          <div className="absolute left-0 top-4">
+          <div className="absolute left-0 top-4 flex gap-1.5">
             <button
               onClick={() => {
                 const newLang = i18n.language === 'ko' ? 'en' : 'ko';
@@ -160,6 +173,13 @@ function App() {
               className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             >
               {i18n.language === 'ko' ? 'EN' : 'KO'}
+            </button>
+            <button
+              onClick={toggleColorMode}
+              aria-label={colorMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="text-sm text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+            >
+              {colorMode === 'dark' ? '☀️' : '🌙'}
             </button>
           </div>
           <div className="absolute right-0 top-4">

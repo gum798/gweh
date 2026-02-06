@@ -1,7 +1,7 @@
 /**
  * MYSTIC AI — Theme System
  *
- * 4 distinctive design skins. Change DEFAULT_THEME to switch.
+ * 4 distinctive design skins × 2 color modes (dark/light).
  * Each theme defines CSS custom properties applied to :root.
  */
 
@@ -48,6 +48,20 @@ export interface ThemeDefinition {
   '--text-glow': string;
   /** Glass panel border */
   '--glass-border': string;
+  /** Primary text color */
+  '--text-primary': string;
+  /** Secondary text color */
+  '--text-secondary': string;
+  /** Muted text color */
+  '--text-muted': string;
+  /** Faint text color */
+  '--text-faint': string;
+  /** Default border color */
+  '--border-default': string;
+  /** Overlay surface background */
+  '--surface-overlay': string;
+  /** Elevated surface background */
+  '--surface-elevated': string;
 }
 
 export const themes: Record<string, ThemeDefinition> = {
@@ -77,6 +91,13 @@ export const themes: Record<string, ThemeDefinition> = {
     '--glow-2': '0 0 20px #d4af37, 0 0 35px rgba(212,175,55,0.4)',
     '--text-glow': 'rgba(212, 175, 55, 0.5)',
     '--glass-border': 'rgba(212, 175, 55, 0.15)',
+    '--text-primary': '#f3f4f6',
+    '--text-secondary': 'rgba(255, 255, 255, 0.7)',
+    '--text-muted': 'rgba(255, 255, 255, 0.5)',
+    '--text-faint': 'rgba(255, 255, 255, 0.3)',
+    '--border-default': 'rgba(255, 255, 255, 0.1)',
+    '--surface-overlay': 'rgba(255, 255, 255, 0.05)',
+    '--surface-elevated': 'rgba(255, 255, 255, 0.1)',
   },
 
   // ═══════════════════════════════════════════
@@ -105,6 +126,13 @@ export const themes: Record<string, ThemeDefinition> = {
     '--glow-2': '0 0 20px #f59e0b, 0 0 30px #f59e0b',
     '--text-glow': 'rgba(245, 158, 11, 0.5)',
     '--glass-border': 'rgba(245, 158, 11, 0.2)',
+    '--text-primary': '#f3f4f6',
+    '--text-secondary': 'rgba(255, 255, 255, 0.7)',
+    '--text-muted': 'rgba(255, 255, 255, 0.5)',
+    '--text-faint': 'rgba(255, 255, 255, 0.3)',
+    '--border-default': 'rgba(255, 255, 255, 0.1)',
+    '--surface-overlay': 'rgba(255, 255, 255, 0.05)',
+    '--surface-elevated': 'rgba(255, 255, 255, 0.1)',
   },
 
   // ═══════════════════════════════════════════
@@ -133,6 +161,13 @@ export const themes: Record<string, ThemeDefinition> = {
     '--glow-2': '0 0 20px #f59e0b, 0 0 30px #f59e0b',
     '--text-glow': 'rgba(245, 158, 11, 0.5)',
     '--glass-border': 'rgba(245, 158, 11, 0.2)',
+    '--text-primary': '#f3f4f6',
+    '--text-secondary': 'rgba(255, 255, 255, 0.7)',
+    '--text-muted': 'rgba(255, 255, 255, 0.5)',
+    '--text-faint': 'rgba(255, 255, 255, 0.3)',
+    '--border-default': 'rgba(255, 255, 255, 0.1)',
+    '--surface-overlay': 'rgba(255, 255, 255, 0.05)',
+    '--surface-elevated': 'rgba(255, 255, 255, 0.1)',
   },
 
   // ═══════════════════════════════════════════
@@ -161,10 +196,140 @@ export const themes: Record<string, ThemeDefinition> = {
     '--glow-2': '0 0 20px #fef3c7, 0 0 30px #fef3c7',
     '--text-glow': 'rgba(254, 243, 199, 0.5)',
     '--glass-border': 'rgba(254, 243, 199, 0.2)',
+    '--text-primary': '#f3f4f6',
+    '--text-secondary': 'rgba(255, 255, 255, 0.7)',
+    '--text-muted': 'rgba(255, 255, 255, 0.5)',
+    '--text-faint': 'rgba(255, 255, 255, 0.3)',
+    '--border-default': 'rgba(255, 255, 255, 0.1)',
+    '--surface-overlay': 'rgba(255, 255, 255, 0.05)',
+    '--surface-elevated': 'rgba(255, 255, 255, 0.1)',
   },
 };
 
 export type ThemeKey = keyof typeof themes;
+
+/**
+ * Light mode overrides per theme.
+ * Applied on top of the base theme when color mode is 'light'.
+ */
+export const lightOverrides: Record<ThemeKey, Partial<ThemeDefinition>> = {
+  cosmic: {
+    '--bg-primary': '#f5f3f0',
+    '--bg-panel': 'rgba(255, 255, 255, 0.75)',
+    '--bg-panel-solid': '#ffffff',
+    '--bg-hero-bottom': '#f5f3f0',
+    '--bg-hero-mid': 'rgba(245, 243, 240, 0.6)',
+    '--accent': '#b8930f',
+    '--accent-hover': '#a07e0d',
+    '--accent-glow': 'rgba(184, 147, 15, 0.3)',
+    '--accent-10': 'rgba(184, 147, 15, 0.08)',
+    '--accent-20': 'rgba(184, 147, 15, 0.15)',
+    '--accent-30': 'rgba(184, 147, 15, 0.22)',
+    '--accent-40': 'rgba(184, 147, 15, 0.3)',
+    '--accent-50': 'rgba(184, 147, 15, 0.4)',
+    '--scrollbar-track': '#e8e5e0',
+    '--scrollbar-thumb': '#b8930f',
+    '--scrollbar-thumb-hover': '#a07e0d',
+    '--glow-1': '0 0 5px rgba(184,147,15,0.2), 0 0 10px rgba(184,147,15,0.1)',
+    '--glow-2': '0 0 15px rgba(184,147,15,0.15), 0 0 25px rgba(184,147,15,0.08)',
+    '--text-glow': 'rgba(184, 147, 15, 0.3)',
+    '--glass-border': 'rgba(184, 147, 15, 0.2)',
+    '--text-primary': '#1a1a2e',
+    '--text-secondary': 'rgba(26, 26, 46, 0.7)',
+    '--text-muted': 'rgba(26, 26, 46, 0.5)',
+    '--text-faint': 'rgba(26, 26, 46, 0.3)',
+    '--border-default': 'rgba(0, 0, 0, 0.1)',
+    '--surface-overlay': 'rgba(0, 0, 0, 0.04)',
+    '--surface-elevated': 'rgba(0, 0, 0, 0.06)',
+  },
+  celestial: {
+    '--bg-primary': '#f0f4fa',
+    '--bg-panel': 'rgba(255, 255, 255, 0.75)',
+    '--bg-panel-solid': '#ffffff',
+    '--bg-hero-bottom': '#f0f4fa',
+    '--bg-hero-mid': 'rgba(240, 244, 250, 0.6)',
+    '--accent': '#2563eb',
+    '--accent-hover': '#1d4ed8',
+    '--accent-glow': 'rgba(37, 99, 235, 0.3)',
+    '--accent-10': 'rgba(37, 99, 235, 0.08)',
+    '--accent-20': 'rgba(37, 99, 235, 0.15)',
+    '--accent-30': 'rgba(37, 99, 235, 0.22)',
+    '--accent-40': 'rgba(37, 99, 235, 0.3)',
+    '--accent-50': 'rgba(37, 99, 235, 0.4)',
+    '--scrollbar-track': '#e5e9f0',
+    '--scrollbar-thumb': '#2563eb',
+    '--scrollbar-thumb-hover': '#1d4ed8',
+    '--glow-1': '0 0 5px rgba(37,99,235,0.15), 0 0 10px rgba(37,99,235,0.08)',
+    '--glow-2': '0 0 15px rgba(37,99,235,0.12), 0 0 25px rgba(37,99,235,0.06)',
+    '--text-glow': 'rgba(37, 99, 235, 0.25)',
+    '--glass-border': 'rgba(37, 99, 235, 0.15)',
+    '--text-primary': '#1a1a2e',
+    '--text-secondary': 'rgba(26, 26, 46, 0.7)',
+    '--text-muted': 'rgba(26, 26, 46, 0.5)',
+    '--text-faint': 'rgba(26, 26, 46, 0.3)',
+    '--border-default': 'rgba(0, 0, 0, 0.1)',
+    '--surface-overlay': 'rgba(0, 0, 0, 0.04)',
+    '--surface-elevated': 'rgba(0, 0, 0, 0.06)',
+  },
+  ember: {
+    '--bg-primary': '#faf5f3',
+    '--bg-panel': 'rgba(255, 255, 255, 0.75)',
+    '--bg-panel-solid': '#ffffff',
+    '--bg-hero-bottom': '#faf5f3',
+    '--bg-hero-mid': 'rgba(250, 245, 243, 0.6)',
+    '--accent': '#b91c1c',
+    '--accent-hover': '#991b1b',
+    '--accent-glow': 'rgba(185, 28, 28, 0.3)',
+    '--accent-10': 'rgba(185, 28, 28, 0.08)',
+    '--accent-20': 'rgba(185, 28, 28, 0.15)',
+    '--accent-30': 'rgba(185, 28, 28, 0.22)',
+    '--accent-40': 'rgba(185, 28, 28, 0.3)',
+    '--accent-50': 'rgba(185, 28, 28, 0.4)',
+    '--scrollbar-track': '#f0e8e5',
+    '--scrollbar-thumb': '#b91c1c',
+    '--scrollbar-thumb-hover': '#991b1b',
+    '--glow-1': '0 0 5px rgba(185,28,28,0.15), 0 0 10px rgba(185,28,28,0.08)',
+    '--glow-2': '0 0 15px rgba(185,28,28,0.12), 0 0 25px rgba(185,28,28,0.06)',
+    '--text-glow': 'rgba(185, 28, 28, 0.25)',
+    '--glass-border': 'rgba(185, 28, 28, 0.15)',
+    '--text-primary': '#1a1a2e',
+    '--text-secondary': 'rgba(26, 26, 46, 0.7)',
+    '--text-muted': 'rgba(26, 26, 46, 0.5)',
+    '--text-faint': 'rgba(26, 26, 46, 0.3)',
+    '--border-default': 'rgba(0, 0, 0, 0.1)',
+    '--surface-overlay': 'rgba(0, 0, 0, 0.04)',
+    '--surface-elevated': 'rgba(0, 0, 0, 0.06)',
+  },
+  jade: {
+    '--bg-primary': '#f0f7f3',
+    '--bg-panel': 'rgba(255, 255, 255, 0.75)',
+    '--bg-panel-solid': '#ffffff',
+    '--bg-hero-bottom': '#f0f7f3',
+    '--bg-hero-mid': 'rgba(240, 247, 243, 0.6)',
+    '--accent': '#059669',
+    '--accent-hover': '#047857',
+    '--accent-glow': 'rgba(5, 150, 105, 0.3)',
+    '--accent-10': 'rgba(5, 150, 105, 0.08)',
+    '--accent-20': 'rgba(5, 150, 105, 0.15)',
+    '--accent-30': 'rgba(5, 150, 105, 0.22)',
+    '--accent-40': 'rgba(5, 150, 105, 0.3)',
+    '--accent-50': 'rgba(5, 150, 105, 0.4)',
+    '--scrollbar-track': '#e0ede5',
+    '--scrollbar-thumb': '#059669',
+    '--scrollbar-thumb-hover': '#047857',
+    '--glow-1': '0 0 5px rgba(5,150,105,0.15), 0 0 10px rgba(5,150,105,0.08)',
+    '--glow-2': '0 0 15px rgba(5,150,105,0.12), 0 0 25px rgba(5,150,105,0.06)',
+    '--text-glow': 'rgba(5, 150, 105, 0.25)',
+    '--glass-border': 'rgba(5, 150, 105, 0.15)',
+    '--text-primary': '#1a1a2e',
+    '--text-secondary': 'rgba(26, 26, 46, 0.7)',
+    '--text-muted': 'rgba(26, 26, 46, 0.5)',
+    '--text-faint': 'rgba(26, 26, 46, 0.3)',
+    '--border-default': 'rgba(0, 0, 0, 0.1)',
+    '--surface-overlay': 'rgba(0, 0, 0, 0.04)',
+    '--surface-elevated': 'rgba(0, 0, 0, 0.06)',
+  },
+};
 
 /**
  * ✨ Change this value to switch the entire app's design skin ✨

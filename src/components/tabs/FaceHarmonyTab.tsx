@@ -71,7 +71,7 @@ function HarmonyConnectionSVG({ active, score }: { active: boolean; score?: numb
       {/* center score badge */}
       {score != null && !active && (
         <g>
-          <circle cx="60" cy="30" r="18" fill="rgba(10,10,26,0.9)" stroke="#d4af37" strokeWidth="1.5" />
+          <circle cx="60" cy="30" r="18" fill="var(--bg-panel-solid)" stroke="#d4af37" strokeWidth="1.5" />
           <text x="60" y="31" textAnchor="middle" dominantBaseline="central"
             fill="#d4af37" fontSize="12" fontWeight="bold">{score}%</text>
         </g>
@@ -208,7 +208,7 @@ function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) 
 
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: `${index * 120}ms`, opacity: 0 }}>
-      <div className="bg-[rgba(20,15,35,0.6)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
+      <div className="bg-[var(--bg-panel)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
                       hover:border-amber-400/30 transition-all duration-300 group">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -244,7 +244,7 @@ function AvatarCircle({
         {/* outer glow ring */}
         <div className="absolute -inset-3 rounded-full border border-amber-400/20 animate-pulse-slow" />
         <div className="w-36 h-36 md:w-40 md:h-40 rounded-full border-2 border-amber-500/30 overflow-hidden
-                        bg-gradient-to-br from-[#1a1530] to-[#0d0a18] flex items-center justify-center
+                        bg-gradient-to-br from-[var(--bg-panel-solid)] to-[var(--bg-primary)] flex items-center justify-center
                         group-hover:border-amber-400/60 group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]
                         transition-all duration-500">
           {image ? (
@@ -432,7 +432,7 @@ export default function FaceHarmonyTab() {
         {/* Hero Result */}
         <section className="relative overflow-hidden rounded-2xl mx-2">
           <ParticleBurstCanvas trigger={showParticles} />
-          <div className="relative z-10 bg-gradient-to-b from-[rgba(20,15,35,0.95)] to-[rgba(10,8,20,0.98)] border border-amber-500/15 rounded-2xl p-8">
+          <div className="relative z-10 bg-gradient-to-b from-[var(--bg-panel-solid)] to-[var(--bg-primary)] border border-amber-500/15 rounded-2xl p-8">
             {/* Grade Badge */}
             <div className="text-center mb-6 animate-scale-in" style={{ opacity: 0 }}>
               <span className="inline-block px-5 py-1.5 bg-amber-400/10 border border-amber-400/30 rounded-full text-amber-300 text-sm font-bold tracking-widest">
@@ -486,7 +486,7 @@ export default function FaceHarmonyTab() {
 
         {/* Element Harmony Detail */}
         <section className="mx-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1000ms' }}>
-          <div className="bg-[rgba(20,15,35,0.6)] backdrop-blur-md rounded-xl border border-amber-500/10 p-5">
+          <div className="bg-[var(--bg-panel)] backdrop-blur-md rounded-xl border border-amber-500/10 p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">🔥</span>
               <span className="text-amber-300/90 text-sm font-bold tracking-wide">오행 궁합</span>
@@ -509,7 +509,7 @@ export default function FaceHarmonyTab() {
 
         {/* Advice Section */}
         <section className="mx-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1200ms' }}>
-          <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] to-[rgba(15,12,25,0.8)] backdrop-blur-md rounded-xl border border-amber-400/20 p-5">
+          <div className="bg-gradient-to-br from-[var(--bg-panel)] to-[var(--bg-primary)] backdrop-blur-md rounded-xl border border-amber-400/20 p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">📜</span>
               <span className="text-amber-300/90 text-sm font-bold tracking-wide">신비로운 조언</span>
@@ -539,7 +539,7 @@ export default function FaceHarmonyTab() {
     <div className="space-y-8">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-2xl mx-2">
-        <div className="relative bg-gradient-to-b from-[rgba(20,15,35,0.95)] to-[rgba(10,8,20,0.98)] border border-amber-500/10 rounded-2xl py-12 px-6">
+        <div className="relative bg-gradient-to-b from-[var(--bg-panel-solid)] to-[var(--bg-primary)] border border-amber-500/10 rounded-2xl py-12 px-6">
           {/* Background SVG mandala */}
           <div className="absolute inset-0 flex items-center justify-center opacity-30">
             <GoldenOrbitSVG size={320} animate />
@@ -713,7 +713,7 @@ export default function FaceHarmonyTab() {
             { icon: '☯', title: '오행 상생·상극', desc: '얼굴 비율에서 도출한 오행(木火土金水) 원소의 궁합을 판별합니다' },
             { icon: '⏳', title: '삼정 시기 조화', desc: '초년·중년·말년의 운의 흐름이 서로 어떻게 맞물리는지 분석합니다' },
           ].map((card, i) => (
-            <div key={i} className="bg-[rgba(20,15,35,0.5)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
+            <div key={i} className="bg-[var(--bg-panel)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
                                     animate-fade-in-up" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
               <span className="text-xl mb-2 block">{card.icon}</span>
               <h4 className="text-amber-300/90 text-sm font-bold mb-1">{card.title}</h4>

@@ -23,7 +23,7 @@ export default function LoadingScreen({ message }: { message?: string }) {
   const displayMessage = message || t('loading.message');
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#0a0a1a] z-[9999]">
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[var(--bg-primary)] z-[9999]">
       {/* 배경 그라데이션 오라 */}
       <div className="absolute inset-0 bg-radial-gradient from-mystic-purple/10 to-transparent opacity-50" />
 

@@ -92,3 +92,99 @@
 .animate-shimmer {
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════
+   Light Mode Global Overrides
+   ═══════════════════════════════════════════ */
+
+:root[data-mode="light"] {
+  color-scheme: light;
+}
+
+/* ─── Text color inversions ─── */
+[data-mode="light"] .text-white { color: var(--text-primary) !important; }
+[data-mode="light"] .text-white\/80 { color: var(--text-secondary) !important; }
+[data-mode="light"] .text-white\/70 { color: var(--text-secondary) !important; }
+[data-mode="light"] .text-white\/60 { color: var(--text-secondary) !important; }
+[data-mode="light"] .text-white\/50 { color: var(--text-muted) !important; }
+[data-mode="light"] .text-white\/40 { color: var(--text-muted) !important; }
+[data-mode="light"] .text-white\/30 { color: var(--text-faint) !important; }
+[data-mode="light"] .text-white\/20 { color: var(--text-faint) !important; }
+[data-mode="light"] .text-white\/10 { color: rgba(0,0,0,0.08) !important; }
+
+/* ─── Gray text → light-friendly ─── */
+[data-mode="light"] .text-gray-100 { color: var(--text-primary) !important; }
+[data-mode="light"] .text-gray-200 { color: var(--text-primary) !important; }
+[data-mode="light"] .text-gray-300 { color: var(--text-secondary) !important; }
+[data-mode="light"] .text-gray-400 { color: var(--text-muted) !important; }
+[data-mode="light"] .text-gray-500 { color: rgba(26,26,46,0.45) !important; }
+[data-mode="light"] .text-gray-600 { color: rgba(26,26,46,0.55) !important; }
+
+/* ─── Background overlays ─── */
+[data-mode="light"] .bg-white\/5 { background-color: var(--surface-overlay) !important; }
+[data-mode="light"] .bg-white\/10 { background-color: var(--surface-elevated) !important; }
+
+/* ─── Border inversions ─── */
+[data-mode="light"] .border-white\/10 { border-color: var(--border-default) !important; }
+[data-mode="light"] .border-white\/20 { border-color: rgba(0,0,0,0.12) !important; }
+[data-mode="light"] .border-white\/30 { border-color: rgba(0,0,0,0.15) !important; }
+
+/* ─── Modal overlays ─── */
+[data-mode="light"] .bg-black\/70 { background-color: rgba(0,0,0,0.35) !important; }
+
+/* ─── Dark background utilities ─── */
+[data-mode="light"] .bg-gray-800\/60 { background-color: rgba(0,0,0,0.08) !important; }
+[data-mode="light"] .bg-gray-800\/50 { background-color: rgba(0,0,0,0.06) !important; }
+
+/* ─── Mystic legacy colors ─── */
+[data-mode="light"] .bg-mystic-800\/80 { background-color: rgba(255,255,255,0.85) !important; }
+
+/* ─── Glass panel light mode ─── */
+[data-mode="light"] .glass-panel {
+  background: var(--bg-panel);
+  border-color: var(--glass-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ─── Cosmic gold text → accent-aware ─── */
+[data-mode="light"] .text-cosmic-gold { color: var(--accent) !important; }
+[data-mode="light"] .text-cosmic-silver\/70 { color: var(--text-muted) !important; }
+
+/* ─── Drop shadows for light ─── */
+[data-mode="light"] .shadow-cosmic-gold\/20 {
+  --tw-shadow-color: var(--accent-20);
+}
+
+/* ─── Amber text overrides (FaceHarmonyTab) ─── */
+[data-mode="light"] .text-amber-400 { color: var(--accent) !important; }
+[data-mode="light"] .text-amber-300 { color: var(--accent) !important; }
+[data-mode="light"] .text-amber-200 { color: var(--text-primary) !important; }
+[data-mode="light"] .text-amber-200\/90 { color: var(--text-primary) !important; }
+[data-mode="light"] .text-amber-200\/70 { color: var(--text-secondary) !important; }
+[data-mode="light"] .text-amber-200\/50 { color: var(--text-muted) !important; }
+[data-mode="light"] .text-amber-400\/60 { color: var(--text-muted) !important; }
+[data-mode="light"] .text-amber-400\/50 { color: var(--text-muted) !important; }
+[data-mode="light"] .text-amber-400\/40 { color: var(--text-faint) !important; }
+[data-mode="light"] .text-amber-500 { color: var(--accent) !important; }
+[data-mode="light"] .text-amber-500\/40 { color: var(--text-faint) !important; }
+[data-mode="light"] .text-amber-300\/90 { color: var(--accent) !important; }
+[data-mode="light"] .text-amber-300\/80 { color: var(--accent) !important; }
+[data-mode="light"] .text-amber-100\/80 { color: var(--text-secondary) !important; }
+
+/* ─── Amber border/bg → accent-aware ─── */
+[data-mode="light"] .border-amber-500\/10 { border-color: var(--accent-10) !important; }
+[data-mode="light"] .border-amber-500\/20 { border-color: var(--accent-20) !important; }
+[data-mode="light"] .border-amber-500\/30 { border-color: var(--accent-30) !important; }
+[data-mode="light"] .border-amber-400\/10 { border-color: var(--accent-10) !important; }
+[data-mode="light"] .border-amber-400\/20 { border-color: var(--accent-20) !important; }
+[data-mode="light"] .border-amber-400\/30 { border-color: var(--accent-30) !important; }
+[data-mode="light"] .border-amber-400\/40 { border-color: var(--accent-40) !important; }
+[data-mode="light"] .border-amber-400\/60 { border-color: var(--accent-50) !important; }
+[data-mode="light"] .bg-amber-400\/10 { background-color: var(--accent-10) !important; }
+[data-mode="light"] .bg-amber-400\/15 { background-color: var(--accent-10) !important; }
+[data-mode="light"] .bg-amber-400\/20 { background-color: var(--accent-20) !important; }
+
+/* ─── Shimmer for light ─── */
+[data-mode="light"] .animate-shimmer {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.03), rgba(0,0,0,0.06), rgba(0,0,0,0.03));
+}

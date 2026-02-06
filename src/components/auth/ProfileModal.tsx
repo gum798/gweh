@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { themes, ThemeKey } from '../../lib/themes';
-import { applyTheme } from '../../lib/applyTheme';
+import { applyTheme, type ColorMode } from '../../lib/applyTheme';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -22,6 +22,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number; theme?: string } | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => (localStorage.getItem('theme') as ThemeKey) || 'cosmic');
+  const [currentMode, setCurrentMode] = useState<ColorMode>(() => (localStorage.getItem('mystic_color_mode') as ColorMode) || 'dark');
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const handleThemeChange = async (key: ThemeKey) => {
     setCurrentTheme(key);
-    applyTheme(key);
+    applyTheme(key, currentMode);
     localStorage.setItem('theme', key);
     if (session?.access_token) {
       fetch('/api/profile', {
@@ -205,6 +206,47 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </button>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Color Mode Toggle */}
+        <div className="space-y-3 mb-6">
+          <h3 className="text-sm text-white/50 uppercase tracking-wider">{tc('theme.colorMode', 'Mode')}</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => {
+                setCurrentMode('dark');
+                localStorage.setItem('mystic_color_mode', 'dark');
+                applyTheme(currentTheme, 'dark');
+              }}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
+                currentMode === 'dark'
+                  ? 'border-[var(--accent)] bg-[var(--accent-10)] ring-1 ring-[var(--accent-30)]'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10'
+              }`}
+            >
+              <span>🌙</span>
+              <span className={`text-xs font-medium ${currentMode === 'dark' ? 'text-white' : 'text-white/60'}`}>
+                {i18n.language === 'ko' ? '다크 모드' : 'Dark'}
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                setCurrentMode('light');
+                localStorage.setItem('mystic_color_mode', 'light');
+                applyTheme(currentTheme, 'light');
+              }}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${
+                currentMode === 'light'
+                  ? 'border-[var(--accent)] bg-[var(--accent-10)] ring-1 ring-[var(--accent-30)]'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10'
+              }`}
+            >
+              <span>☀️</span>
+              <span className={`text-xs font-medium ${currentMode === 'light' ? 'text-white' : 'text-white/60'}`}>
+                {i18n.language === 'ko' ? '라이트 모드' : 'Light'}
+              </span>
+            </button>
           </div>
         </div>
 
