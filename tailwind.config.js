@@ -46,7 +46,7 @@ export default {
         'progress-loop': 'progressLoop 2s ease-in-out infinite',
         'count-up': 'countPulse 0.6s ease-out forwards',
         'shimmer-gold': 'shimmerGold 3s ease-in-out infinite',
-        'nav-underline': 'navUnderline 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'nav-underline': 'navUnderline 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
       },
       keyframes: {
         float: {
@@ -93,7 +93,7 @@ export default {
         },
         navUnderline: {
           '0%': { width: '0%', opacity: '0', transform: 'translateX(-50%)' },
-          '100%': { width: '70%', opacity: '1', transform: 'translateX(-50%)' },
+          '100%': { width: '85%', opacity: '1', transform: 'translateX(-50%)' },
         },
       }
     },

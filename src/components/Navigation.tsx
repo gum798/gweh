@@ -45,13 +45,13 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
               <span className="text-lg" aria-hidden="true">{tab.icon}</span>
               <span className="hidden sm:inline text-sm">{t(tab.labelKey)}</span>
               <span className="sr-only sm:hidden">{t(tab.labelKey)}</span>
-              {/* Mystical golden underline */}
+              {/* Accent-aware underline */}
               {isActive && (
                 <span
-                  className="absolute bottom-0 left-1/2 h-[2px] rounded-full animate-nav-underline"
+                  className="absolute bottom-0 left-1/2 h-[2.5px] rounded-full animate-nav-underline"
                   style={{
-                    background: 'linear-gradient(90deg, transparent, #d4af37, #ffd700, #d4af37, transparent)',
-                    boxShadow: '0 0 8px rgba(212,175,55,0.6), 0 0 16px rgba(212,175,55,0.3)',
+                    background: `linear-gradient(90deg, transparent, var(--accent), var(--accent-hover), var(--accent), transparent)`,
+                    boxShadow: `0 0 10px var(--accent-glow), 0 0 20px var(--accent-30)`,
                   }}
                 />
               )}
