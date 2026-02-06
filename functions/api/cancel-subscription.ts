@@ -7,11 +7,22 @@ interface Env {
     SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
+function corsHeaders(request: Request) {
+    const origin = request.headers.get('origin') || '*';
+    return {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    };
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+    const cors = corsHeaders(context.request);
+
     try {
         const authHeader = context.request.headers.get('Authorization');
         if (!authHeader?.startsWith('Bearer ')) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
         }
 
         const accessToken = authHeader.slice(7);
@@ -25,7 +36,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         });
 
         if (!userRes.ok) {
-            return Response.json({ error: 'Invalid user token' }, { status: 401 });
+            return Response.json({ error: 'Invalid user token' }, { status: 401, headers: cors });
         }
 
         const user = await userRes.json() as { email: string };
@@ -46,14 +57,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         );
 
         if (!custRes.ok) {
-            return Response.json({ error: 'Customer not found' }, { status: 404 });
+            return Response.json({ error: 'Customer not found' }, { status: 404, headers: cors });
         }
 
         const custData = await custRes.json() as { items: any[] };
         const customer = custData.items?.[0];
 
         if (!customer) {
-            return Response.json({ error: 'Customer not found' }, { status: 404 });
+            return Response.json({ error: 'Customer not found' }, { status: 404, headers: cors });
         }
 
         // 4. Find active subscription
@@ -63,7 +74,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         );
 
         if (!subsRes.ok) {
-            return Response.json({ error: 'Failed to fetch subscriptions' }, { status: 500 });
+            return Response.json({ error: 'Failed to fetch subscriptions' }, { status: 500, headers: cors });
         }
 
         const subsData = await subsRes.json() as { items: any[] };
@@ -72,49 +83,44 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         );
 
         if (!activeSub) {
-            return Response.json({ error: 'No active subscription found' }, { status: 404 });
+            return Response.json({ error: 'No active subscription found' }, { status: 404, headers: cors });
         }
 
-        // 5. Cancel subscription at period end
-        // POST /v1/subscriptions/{id}/cancel (Polar Management API)
+        console.log('Cancelling subscription:', activeSub.id, 'for customer:', customer.id);
+
+        // 5. Cancel subscription (revoke immediately)
+        // DELETE /v1/subscriptions/{id} — Polar Management API (scope: subscriptions:write)
         const cancelRes = await fetch(
-            `${apiBaseUrl}/v1/subscriptions/${activeSub.id}/cancel`,
+            `${apiBaseUrl}/v1/subscriptions/${activeSub.id}`,
             {
-                method: 'POST',
+                method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${polarToken}`,
-                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    cancel_at_period_end: true,
-                    reason: 'customer_request',
-                }),
             }
         );
 
         if (!cancelRes.ok) {
             const errorText = await cancelRes.text();
-            console.error('Cancellation failed:', errorText);
-            return Response.json({ error: 'Failed to cancel subscription', details: errorText }, { status: 500 });
+            console.error('Cancellation failed:', cancelRes.status, errorText);
+            return Response.json(
+                { error: 'Failed to cancel subscription', status: cancelRes.status, details: errorText },
+                { status: 500, headers: cors }
+            );
         }
 
         const result = await cancelRes.json();
-        return Response.json({ success: true, subscription: result });
+        return Response.json({ success: true, subscription: result }, { headers: cors });
 
     } catch (error) {
         console.error('Cancel subscription error:', error);
-        return Response.json({ error: 'Internal server error' }, { status: 500 });
+        return Response.json({ error: 'Internal server error' }, { status: 500, headers: cors });
     }
 };
 
 export const onRequestOptions: PagesFunction = async (context) => {
-    const origin = context.request.headers.get('origin') || '*';
     return new Response(null, {
         status: 204,
-        headers: {
-            'Access-Control-Allow-Origin': origin,
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
+        headers: corsHeaders(context.request),
     });
 };
