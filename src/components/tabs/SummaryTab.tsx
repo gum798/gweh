@@ -424,7 +424,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     );
   }
 
-  // 구독자: 데이터 없으면 안내 (로딩 중이면 대기)
+  // 구독자: 데이터 없으면 신비로운 빈 상태 표시
   if (!hasAnyData && !isLoading) {
     return (
       <div className="space-y-6 pb-8">
@@ -433,10 +433,30 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </div>
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
-            <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-8">
-              <span className="text-5xl mb-4 block" aria-hidden="true">📊</span>
-              <h3 className="text-white text-lg font-bold mb-2">{t('summary.title')}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{t('summary.noData')}</p>
+            <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-10 relative overflow-hidden">
+              {/* Glowing orb background */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-32 h-32 rounded-full bg-[var(--accent)] opacity-[0.04] blur-3xl animate-pulse-slow" />
+              </div>
+              {/* Animated icon */}
+              <div className="relative inline-block mb-5">
+                <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] animate-ping opacity-30" style={{ animationDuration: '3s' }} />
+                <div className="relative h-16 w-16 mx-auto rounded-full border border-[var(--accent-40)] flex items-center justify-center shadow-[0_0_25px_var(--accent-20)] bg-[var(--accent-10)]">
+                  <svg className="w-7 h-7 text-[var(--accent)] animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" strokeOpacity="0.5" />
+                    <circle cx="12" cy="12" r="4" strokeOpacity="0.8" />
+                    <line x1="12" y1="2" x2="12" y2="6" strokeOpacity="0.3" />
+                    <line x1="12" y1="18" x2="12" y2="22" strokeOpacity="0.3" />
+                    <line x1="2" y1="12" x2="6" y2="12" strokeOpacity="0.3" />
+                    <line x1="18" y1="12" x2="22" y2="12" strokeOpacity="0.3" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-white text-lg font-bold mb-2 relative">{t('summary.title')}</h3>
+              <p className="text-[var(--accent)] text-sm font-medium mb-1.5 animate-pulse-slow relative">
+                {i18n.language === 'ko' ? '천기를 모으는 중...' : 'Gathering celestial energies...'}
+              </p>
+              <p className="text-white/40 text-xs leading-relaxed relative">{t('summary.noData')}</p>
             </div>
           </div>
         </section>

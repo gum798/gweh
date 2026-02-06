@@ -49,6 +49,8 @@ export default {
         'nav-underline': 'navUnderline 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
         'press': 'press 0.15s ease-out forwards',
         'glow-ring': 'glowRing 2s ease-in-out infinite alternate',
+        'mandala-spin': 'mandalaSpin 40s linear infinite',
+        'tab-enter': 'tabEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards',
       },
       keyframes: {
         float: {
@@ -105,6 +107,14 @@ export default {
         glowRing: {
           '0%': { boxShadow: '0 0 0 0 var(--accent-20)' },
           '100%': { boxShadow: '0 0 0 6px transparent' },
+        },
+        mandalaSpin: {
+          '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
+          '100%': { transform: 'translate(-50%, -50%) rotate(360deg)' },
+        },
+        tabEnter: {
+          '0%': { opacity: '0', transform: 'translateY(8px) scale(0.99)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
       }
     },
