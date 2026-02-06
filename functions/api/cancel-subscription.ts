@@ -75,13 +75,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             return Response.json({ error: 'No active subscription found' }, { status: 404 });
         }
 
-        // 5. Cancel subscription
-        // Using DELETE /v1/subscriptions/{id} (Management API)
+        // 5. Cancel subscription at period end
+        // Using PATCH /v1/subscriptions/{id} (Management API)
         const cancelRes = await fetch(
             `${apiBaseUrl}/v1/subscriptions/${activeSub.id}`,
             {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${polarToken}` }
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${polarToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cancelAtPeriodEnd: true,
+                }),
             }
         );
 
