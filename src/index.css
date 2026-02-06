@@ -9,7 +9,7 @@
     font-family: 'Gowun Batang', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', serif;
   }
 
-  /* Cosmic Dawn: deep radial gradient background */
+  /* Cosmic Dawn: deep radial gradient background with aurora */
   [data-theme="cosmic"] body {
     background:
       radial-gradient(ellipse 80% 60% at 50% 0%, rgba(30, 20, 60, 0.7) 0%, transparent 55%),
@@ -18,6 +18,19 @@
       radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 70%),
       #06060f;
     background-attachment: fixed;
+  }
+
+  /* Cosmic Dawn: animated aurora overlay */
+  [data-theme="cosmic"] body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 120% 40% at 25% 0%, rgba(120, 80, 200, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 35% at 75% 0%, rgba(212, 175, 55, 0.06) 0%, transparent 55%);
+    animation: auroraShift 12s ease-in-out infinite alternate;
   }
 
   /* English Optical Adjustment: Increase base size to match Hangeul visual weight */
@@ -212,17 +225,19 @@ button:active:not(:disabled) {
     inset 0 1px 0 rgba(212, 175, 55, 0.06);
 }
 
-/* Cosmic: navigation bar glassmorphism */
+/* Cosmic: navigation bar glassmorphism — deeper frost */
 [data-theme="cosmic"] nav.sticky {
   background: linear-gradient(
     180deg,
-    rgba(14, 10, 30, 0.75) 0%,
-    rgba(10, 8, 22, 0.65) 100%
+    rgba(14, 10, 30, 0.8) 0%,
+    rgba(10, 8, 22, 0.7) 100%
   );
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(212, 175, 55, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(212, 175, 55, 0.1),
     0 1px 0 rgba(212, 175, 55, 0.06);
+  border-color: rgba(212, 175, 55, 0.08);
 }
 
 /* ═══════════════════════════════════════════
@@ -367,4 +382,216 @@ button:active:not(:disabled) {
     0 12px 36px rgba(0,0,0,0.05),
     0 0 0 1px var(--accent-20),
     inset 0 1px 0 rgba(255,255,255,0.9) !important;
+}
+
+/* Light mode: disable aurora overlay */
+[data-mode="light"] body::before {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════
+   Cosmic Dawn — Aurora Shift Animation
+   ═══════════════════════════════════════════ */
+
+@keyframes auroraShift {
+  0% {
+    opacity: 0.6;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    filter: hue-rotate(15deg);
+  }
+  100% {
+    opacity: 0.7;
+    filter: hue-rotate(-10deg);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Cosmic Starfield — CSS-only star particles
+   ═══════════════════════════════════════════ */
+
+.cosmic-starfield {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cosmic-starfield::before,
+.cosmic-starfield::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 45%, rgba(212,175,55,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 70%, rgba(212,175,55,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 60%, rgba(212,175,55,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 90%, rgba(212,175,55,0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 30% 55%, rgba(255,255,255,0.3) 0%, transparent 100%);
+  animation: starTwinkle 6s ease-in-out infinite alternate;
+}
+
+.cosmic-starfield::after {
+  background-image:
+    radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 20% 85%, rgba(212,175,55,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 5%, rgba(212,175,55,0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 75% 80%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 40%, rgba(212,175,55,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 55%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 25%, rgba(255,255,255,0.3) 0%, transparent 100%);
+  animation-delay: -3s;
+  animation-duration: 8s;
+}
+
+@keyframes starTwinkle {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+/* ═══════════════════════════════════════════
+   Cosmic Divider Ornament
+   ═══════════════════════════════════════════ */
+
+.cosmic-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  height: 24px;
+  margin: 2rem 0;
+}
+
+.cosmic-divider::before,
+.cosmic-divider::after {
+  content: '';
+  flex: 1;
+  max-width: 160px;
+  height: 1px;
+}
+
+.cosmic-divider::before {
+  background: linear-gradient(90deg, transparent 0%, var(--accent-30) 100%);
+}
+
+.cosmic-divider::after {
+  background: linear-gradient(90deg, var(--accent-30) 0%, transparent 100%);
+}
+
+.cosmic-divider-gem {
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  background: var(--accent);
+  opacity: 0.5;
+  box-shadow: 0 0 12px var(--accent-glow), 0 0 4px var(--accent-30);
+  margin: 0 8px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   Enhanced Glass Panel — Depth Layers
+   ═══════════════════════════════════════════ */
+
+[data-theme="cosmic"] .glass-panel-deep {
+  background: linear-gradient(
+    145deg,
+    rgba(14, 10, 30, 0.7) 0%,
+    rgba(25, 18, 50, 0.5) 30%,
+    rgba(14, 10, 30, 0.65) 70%,
+    rgba(10, 8, 25, 0.75) 100%
+  );
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(212, 175, 55, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(212, 175, 55, 0.06);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+}
+
+/* ═══════════════════════════════════════════
+   Footer Constellation Pattern
+   ═══════════════════════════════════════════ */
+
+.footer-constellation {
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-constellation::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 15% 30%, rgba(212,175,55,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 60%, rgba(212,175,55,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 20%, rgba(212,175,55,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 50%, rgba(212,175,55,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 80%, rgba(212,175,55,0.1) 0%, transparent 100%);
+  opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════
+   Header Logo Breath Animation
+   ═══════════════════════════════════════════ */
+
+@keyframes logoBreathe {
+  0%, 100% {
+    filter: drop-shadow(0 0 15px var(--accent-glow)) drop-shadow(0 0 30px rgba(212,175,55,0.15));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 25px var(--accent-glow)) drop-shadow(0 0 50px rgba(212,175,55,0.2));
+    transform: scale(1.02);
+  }
+}
+
+.logo-breathe {
+  animation: logoBreathe 4s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════
+   Navigation — Enhanced Tab Hover Glow
+   ═══════════════════════════════════════════ */
+
+.nav-tab-glow {
+  position: relative;
+}
+
+.nav-tab-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 0.75rem;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 100%, var(--accent-20) 0%, transparent 70%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.nav-tab-glow:hover::before {
+  opacity: 1;
+}
+
+/* Active tab gets persistent glow */
+.nav-tab-glow[aria-selected="true"]::before {
+  opacity: 1;
+  background: radial-gradient(ellipse at 50% 100%, var(--accent-30) 0%, transparent 70%);
 }

@@ -51,6 +51,7 @@ export default {
         'glow-ring': 'glowRing 2s ease-in-out infinite alternate',
         'mandala-spin': 'mandalaSpin 40s linear infinite',
         'tab-enter': 'tabEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        'star-twinkle': 'starTwinkle 6s ease-in-out infinite alternate',
       },
       keyframes: {
         float: {
@@ -115,6 +116,11 @@ export default {
         tabEnter: {
           '0%': { opacity: '0', transform: 'translateY(8px) scale(0.99)' },
           '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        starTwinkle: {
+          '0%': { opacity: '0.4' },
+          '50%': { opacity: '0.8' },
+          '100%': { opacity: '0.5' },
         },
       }
     },

@@ -22,8 +22,8 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
   const { t } = useTranslation();
 
   return (
-    <nav className="sticky top-0 z-40 bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-2 mb-6">
-      <div className="flex justify-center overflow-x-auto gap-1 scrollbar-hide snap-x" role="tablist">
+    <nav className="sticky top-0 z-40 bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-1.5 sm:p-2 mb-6 shadow-[0_4px_30px_rgba(0,0,0,0.25)]">
+      <div className="flex justify-center overflow-x-auto gap-0.5 sm:gap-1 scrollbar-hide snap-x" role="tablist">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -33,16 +33,16 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
               aria-selected={isActive}
               onClick={() => onTabChange(tab.id)}
               className={`
-                mystic-ripple relative flex items-center gap-2 px-3 py-2.5 rounded-xl flex-shrink-0 snap-start
+                nav-tab-glow mystic-ripple relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl flex-shrink-0 snap-start
                 transition-all duration-300 font-medium
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg-primary)]
                 ${isActive
-                  ? 'bg-[var(--accent-20)] text-white border border-[var(--accent-40)] shadow-[0_0_10px_var(--accent-20)]'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                  ? 'bg-[var(--accent-20)] text-white border border-[var(--accent-40)] shadow-[0_0_15px_var(--accent-20),_inset_0_1px_0_var(--accent-10)]'
+                  : 'text-white/50 hover:text-white/90 hover:bg-white/5 border border-transparent'
                 }
               `}
             >
-              <span className="text-lg" aria-hidden="true">{tab.icon}</span>
+              <span className={`text-base sm:text-lg transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} aria-hidden="true">{tab.icon}</span>
               <span className="hidden sm:inline text-sm">{t(tab.labelKey)}</span>
               <span className="sr-only sm:hidden">{t(tab.labelKey)}</span>
               {/* Accent-aware underline */}

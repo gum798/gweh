@@ -149,6 +149,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
+      {/* Cosmic starfield background layer */}
+      <div className="cosmic-starfield" aria-hidden="true" />
+
       {/* 구독 배너 (floating badge) */}
       <SubscriptionBanner onLoginRequired={openAuthModal} />
 
@@ -206,7 +209,7 @@ function App() {
               </button>
             )}
           </div>
-          <div className="relative inline-block">
+          <div className="relative inline-block logo-breathe">
             {/* Rotating mandala aura behind logo */}
             <svg
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 md:w-48 md:h-48 pointer-events-none animate-mandala-spin"
@@ -262,8 +265,8 @@ function App() {
               </span>
             </h1>
           </div>
-          <p className="text-white/40 text-xs uppercase tracking-[0.3em] mt-0.5">
-            <span className="inline-block bg-gradient-to-r from-transparent via-white/20 to-transparent bg-[length:200%_100%] animate-shimmer-gold bg-clip-text">
+          <p className="text-white/40 text-xs uppercase tracking-[0.35em] mt-1.5">
+            <span className="inline-block bg-gradient-to-r from-[var(--accent-30)] via-[var(--accent)] to-[var(--accent-30)] bg-[length:200%_100%] animate-shimmer-gold bg-clip-text text-transparent font-medium">
               Unveil Your Destiny
             </span>
           </p>
@@ -284,16 +287,14 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="mt-16 pb-10">
-          {/* Golden separator */}
-          <div className="relative flex items-center justify-center mb-6">
-            <div className="h-px flex-1 max-w-[120px] bg-gradient-to-r from-transparent to-[var(--accent-30)]" />
-            <div className="mx-3 w-1.5 h-1.5 rounded-full bg-[var(--accent)] opacity-40 shadow-[0_0_8px_var(--accent-glow)]" />
-            <div className="h-px flex-1 max-w-[120px] bg-gradient-to-l from-transparent to-[var(--accent-30)]" />
+        <footer className="mt-16 pb-10 footer-constellation">
+          {/* Cosmic divider ornament */}
+          <div className="cosmic-divider" aria-hidden="true">
+            <div className="cosmic-divider-gem" />
           </div>
 
-          {/* Social links placeholders */}
-          <div className="flex justify-center gap-4 mb-4">
+          {/* Social links */}
+          <div className="flex justify-center gap-3 mb-5">
             {[
               { label: 'Instagram', path: 'M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6' },
               { label: 'Twitter', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' },
@@ -303,9 +304,9 @@ function App() {
                 key={social.label}
                 href="#"
                 aria-label={social.label}
-                className="w-8 h-8 rounded-full border border-white/10 hover:border-[var(--accent-40)] flex items-center justify-center text-white/25 hover:text-[var(--accent)] transition-all duration-300 hover:shadow-[0_0_10px_var(--accent-20)]"
+                className="w-9 h-9 rounded-full border border-white/10 hover:border-[var(--accent-40)] flex items-center justify-center text-white/25 hover:text-[var(--accent)] transition-all duration-300 hover:shadow-[0_0_12px_var(--accent-20)] hover:scale-110 active:scale-95 group"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="transition-transform duration-300 group-hover:scale-110">
                   <path d={social.path} />
                 </svg>
               </a>
@@ -313,7 +314,9 @@ function App() {
           </div>
 
           <p className="text-[10px] text-white/20 uppercase tracking-[0.4em] text-center">
-            © 2026 MYSTIC AI
+            <span className="bg-gradient-to-r from-white/10 via-white/25 to-white/10 bg-clip-text text-transparent">
+              © 2026 MYSTIC AI
+            </span>
           </p>
         </footer>
       </div>
