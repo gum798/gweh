@@ -1,8 +1,185 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { getEnergyLabel } from '../../utils/omenGenerator';
+
+function generateDestinyCard(
+  dateStr: string,
+  energyLabel: string | undefined,
+  omenMessage: string | undefined,
+  fortuneLevel: string | undefined,
+  fortuneOverall: string | undefined,
+  advice: string | undefined,
+): Promise<Blob> {
+  return new Promise((resolve) => {
+    const W = 600, H = 800;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+
+    // Background gradient
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#0a0a1a');
+    bg.addColorStop(0.5, '#12102a');
+    bg.addColorStop(1, '#06060f');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle radial glow
+    const glow = ctx.createRadialGradient(W / 2, H / 3, 0, W / 2, H / 3, 300);
+    glow.addColorStop(0, 'rgba(212,175,55,0.08)');
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // Decorative border
+    ctx.strokeStyle = 'rgba(212,175,55,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(24, 24, W - 48, H - 48);
+
+    // Inner border
+    ctx.strokeStyle = 'rgba(212,175,55,0.1)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(32, 32, W - 64, H - 64);
+
+    // Corner ornaments
+    const ornSize = 16;
+    ctx.fillStyle = 'rgba(212,175,55,0.5)';
+    [[32, 32], [W - 32, 32], [32, H - 32], [W - 32, H - 32]].forEach(([x, y]) => {
+      ctx.beginPath();
+      ctx.arc(x, y, ornSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Title
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#d4af37';
+    ctx.font = 'bold 28px "Gowun Batang", serif';
+    ctx.fillText('MYSTIC AI', W / 2, 80);
+
+    // Subtitle
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = '10px sans-serif';
+    ctx.letterSpacing = '4px';
+    ctx.fillText('U N V E I L   Y O U R   D E S T I N Y', W / 2, 105);
+
+    // Divider
+    const divGrad = ctx.createLinearGradient(100, 0, W - 100, 0);
+    divGrad.addColorStop(0, 'transparent');
+    divGrad.addColorStop(0.5, 'rgba(212,175,55,0.4)');
+    divGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = divGrad;
+    ctx.fillRect(100, 120, W - 200, 1);
+
+    // Date
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '13px sans-serif';
+    ctx.fillText(dateStr, W / 2, 152);
+
+    let y = 190;
+
+    // Energy label
+    if (energyLabel) {
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('TODAY\'S ENERGY', W / 2, y);
+      y += 30;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px "Gowun Batang", serif';
+      ctx.fillText(energyLabel, W / 2, y);
+      y += 20;
+    }
+
+    // Omen message
+    if (omenMessage) {
+      y += 15;
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = 'italic 14px "Gowun Batang", serif';
+      const lines = wrapText(ctx, `"${omenMessage}"`, W - 120);
+      lines.forEach((line) => {
+        ctx.fillText(line, W / 2, y);
+        y += 22;
+      });
+    }
+
+    // Divider 2
+    y += 10;
+    ctx.fillStyle = divGrad;
+    ctx.fillRect(100, y, W - 200, 1);
+    y += 25;
+
+    // Fortune level
+    if (fortuneLevel) {
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('FORTUNE', W / 2, y);
+      y += 28;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px "Gowun Batang", serif';
+      ctx.fillText(fortuneLevel, W / 2, y);
+      y += 15;
+    }
+
+    // Fortune overall
+    if (fortuneOverall) {
+      y += 10;
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font = '13px "Gowun Batang", serif';
+      const lines = wrapText(ctx, fortuneOverall, W - 120);
+      lines.forEach((line) => {
+        ctx.fillText(line, W / 2, y);
+        y += 20;
+      });
+    }
+
+    // Advice
+    if (advice) {
+      y += 15;
+      ctx.fillStyle = divGrad;
+      ctx.fillRect(100, y, W - 200, 1);
+      y += 25;
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('ADVICE', W / 2, y);
+      y += 22;
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = 'italic 13px "Gowun Batang", serif';
+      const lines = wrapText(ctx, `"${advice}"`, W - 120);
+      lines.forEach((line) => {
+        ctx.fillText(line, W / 2, y);
+        y += 20;
+      });
+    }
+
+    // Footer
+    const footerY = H - 45;
+    ctx.fillStyle = divGrad;
+    ctx.fillRect(100, footerY - 10, W - 200, 1);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '9px sans-serif';
+    ctx.fillText('mystic-ai.com', W / 2, footerY + 10);
+
+    canvas.toBlob((blob) => resolve(blob!), 'image/png');
+  });
+}
+
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  let currentLine = '';
+  for (const char of text) {
+    const testLine = currentLine + char;
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = char;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
 
 interface FortuneResult {
   level: string;
@@ -32,6 +209,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const [energyLabel, setEnergyLabel] = useState<{ label: string; color: string } | null>(null);
   const [dailyStyle, setDailyStyle] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'generating' | 'shared' | 'copied'>('idle');
 
   // 모든 데이터를 한 번에 가져오기
   useEffect(() => {
@@ -153,6 +331,42 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
 
+  const handleShareDestiny = useCallback(async () => {
+    setShareStatus('generating');
+    try {
+      const blob = await generateDestinyCard(
+        dateStr,
+        energyLabel?.label,
+        dailyReading?.omen_message,
+        fortune?.level,
+        fortune?.overall,
+        fortune?.advice,
+      );
+      const file = new File([blob], 'mystic-destiny.png', { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: 'MYSTIC AI — My Destiny',
+          text: i18n.language === 'ko' ? '오늘의 운명을 확인해보세요' : 'Check out my destiny for today',
+          files: [file],
+        });
+        setShareStatus('shared');
+      } else {
+        // Fallback: download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mystic-destiny.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        setShareStatus('copied');
+      }
+    } catch {
+      setShareStatus('idle');
+    }
+    setTimeout(() => setShareStatus('idle'), 2500);
+  }, [dateStr, energyLabel, dailyReading, fortune, i18n.language]);
+
   // 비구독자: blurred preview + lock
   if (!isSubscribed) {
     return (
@@ -198,7 +412,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_var(--accent-40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
+                  className="mystic-ripple mt-2 px-6 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_var(--accent-40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
                 >
                   {t('summary.unlock')}
                 </button>
@@ -363,6 +577,47 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 <span className="text-white text-sm font-medium">{fortune.luckyDirection}</span>
               </div>}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Share Destiny */}
+      {hasAnyData && (
+        <section className="px-4">
+          <div className="max-w-md mx-auto text-center">
+            <button
+              onClick={handleShareDestiny}
+              disabled={shareStatus === 'generating'}
+              className="mystic-ripple inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] hover:from-[var(--accent-hover)] hover:to-[var(--accent)] rounded-full text-white text-sm font-bold tracking-wide transition-all shadow-[0_0_20px_var(--accent-30)] hover:shadow-[0_0_30px_var(--accent-glow)] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
+            >
+              {shareStatus === 'generating' ? (
+                <>
+                  <span className="animate-spin text-sm">&#9697;</span>
+                  {i18n.language === 'ko' ? '생성 중...' : 'Generating...'}
+                </>
+              ) : shareStatus === 'shared' ? (
+                <>
+                  <span>&#10003;</span>
+                  {i18n.language === 'ko' ? '공유 완료!' : 'Shared!'}
+                </>
+              ) : shareStatus === 'copied' ? (
+                <>
+                  <span>&#10003;</span>
+                  {i18n.language === 'ko' ? '이미지 저장됨!' : 'Image Saved!'}
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                  </svg>
+                  {i18n.language === 'ko' ? '운명 공유하기' : 'Share Destiny'}
+                </>
+              )}
+            </button>
           </div>
         </section>
       )}

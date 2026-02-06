@@ -149,6 +149,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
+      {/* 구독 배너 (floating badge) */}
+      <SubscriptionBanner onLoginRequired={openAuthModal} />
+
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] animate-fade-in">
@@ -222,9 +225,6 @@ function App() {
 
         {/* 네비게이션 */}
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
-
-        {/* 구독 배너 */}
-        <SubscriptionBanner onLoginRequired={openAuthModal} />
 
         {/* 탭 콘텐츠 */}
         <main>

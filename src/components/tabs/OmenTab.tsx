@@ -360,7 +360,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
             <div className="space-y-3">
               <button
                 onClick={requestLocation}
-                className="w-full flex items-center justify-center rounded-full h-14 px-8 bg-[var(--accent)] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
+                className="mystic-ripple w-full flex items-center justify-center rounded-full h-14 px-8 bg-[var(--accent)] text-white text-base font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
               >
                 {t('location.startButton')}
               </button>
@@ -418,7 +418,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="px-8 py-3 bg-[var(--accent)] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_var(--accent-30)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
+            className="mystic-ripple px-8 py-3 bg-[var(--accent)] text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 transition-all shadow-[0_0_15px_var(--accent-30)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
           >
             {t('omenTab.readAgain')}
           </button>
@@ -500,12 +500,12 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
       {/* 세부 괘 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto space-y-4">
+        <div className="max-w-md mx-auto space-y-6">
           <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1">{t('omenTab.detailedOmens')}</h4>
           {omen?.details?.map((detail, index) => (
             <div
               key={index}
-              className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5"
+              className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6"
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">{detail.icon}</span>
@@ -667,7 +667,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_var(--accent-40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
+                  className="mystic-ripple mt-2 px-6 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-full text-white text-xs font-bold tracking-wide transition-all shadow-[0_0_15px_var(--accent-40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
                 >
                   {t('sub.unlockStyle')}
                 </button>

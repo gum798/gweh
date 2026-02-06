@@ -108,6 +108,49 @@ button:active:not(:disabled) {
   transform: translateY(-1px);
 }
 
+/* ═══════════════════════════════════════════
+   Mystical Ripple Effect
+   ═══════════════════════════════════════════ */
+
+.mystic-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.mystic-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-30) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mystic-ripple:active::after {
+  width: 300%;
+  height: 300%;
+  opacity: 1;
+  animation: mysticRipple 0.6s ease-out forwards;
+}
+
+@keyframes mysticRipple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.6;
+  }
+  100% {
+    width: 300%;
+    height: 300%;
+    opacity: 0;
+  }
+}
+
 /* prefers-reduced-motion: disable animations */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

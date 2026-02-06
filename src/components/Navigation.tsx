@@ -33,7 +33,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
               aria-selected={isActive}
               onClick={() => onTabChange(tab.id)}
               className={`
-                relative flex items-center gap-2 px-3 py-2.5 rounded-xl flex-shrink-0 snap-start
+                mystic-ripple relative flex items-center gap-2 px-3 py-2.5 rounded-xl flex-shrink-0 snap-start
                 transition-all duration-300 font-medium
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg-primary)]
                 ${isActive
