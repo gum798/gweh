@@ -1,86 +1,624 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import CameraCapture from '../camera/CameraCapture';
+import { useFaceDetection } from '../../hooks/useFaceDetection';
+import { analyzeFaceFeatures, analyzeFaceHarmony } from '../../utils/physiognomy';
+import type { HarmonyResult, HarmonyDimension } from '../../utils/physiognomy';
 
-export default function FaceHarmonyTab() {
-  const { t } = useTranslation();
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [score, setScore] = useState<number | null>(null);
+// ─── Animated SVG: Orbiting golden ring with runes ────────────────────────
+function GoldenOrbitSVG({ size = 240, animate = true }: { size?: number; animate?: boolean }) {
+  const r = size / 2 - 12;
+  const runes = ['☯', '☰', '☲', '☵', '☴', '☷', '☳', '☶'];
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 m-auto pointer-events-none">
+      {/* outer dashed ring */}
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(212,175,55,0.25)" strokeWidth="1.5"
+        strokeDasharray="8 6" className={animate ? 'animate-spin-slow origin-center' : ''} />
+      {/* inner glowing ring */}
+      <circle cx={size / 2} cy={size / 2} r={r * 0.85} fill="none" stroke="rgba(212,175,55,0.15)" strokeWidth="1" />
+      {/* rune characters placed around the ring */}
+      {runes.map((rune, i) => {
+        const angle = (i / runes.length) * Math.PI * 2 - Math.PI / 2;
+        const cx = size / 2 + Math.cos(angle) * (r * 0.92);
+        const cy = size / 2 + Math.sin(angle) * (r * 0.92);
+        return (
+          <text key={i} x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
+            fill="rgba(212,175,55,0.4)" fontSize="14" fontFamily="serif"
+            style={{ animationDelay: `${i * 0.15}s` }}>
+            {rune}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
 
-  const handleAnalyze = () => {
-    setIsAnalyzing(true);
-    // 분석 시뮬레이션
-    setTimeout(() => {
-      setScore(Math.floor(Math.random() * 21) + 80); // 80~100점 사이
-      setIsAnalyzing(false);
-    }, 3000);
-  };
+// ─── SVG Connection Line with animated particles ──────────────────────────
+function HarmonyConnectionSVG({ active, score }: { active: boolean; score?: number }) {
+  return (
+    <svg width="120" height="60" viewBox="0 0 120 60" className="hidden md:block flex-shrink-0">
+      <defs>
+        <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="rgba(212,175,55,0.1)" />
+          <stop offset="50%" stopColor="rgba(212,175,55,0.8)" />
+          <stop offset="100%" stopColor="rgba(212,175,55,0.1)" />
+        </linearGradient>
+        <filter id="goldGlow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* base line */}
+      <line x1="10" y1="30" x2="110" y2="30" stroke="rgba(212,175,55,0.15)" strokeWidth="2" />
+      {/* animated glow line */}
+      {active && (
+        <line x1="10" y1="30" x2="110" y2="30" stroke="url(#lineGrad)" strokeWidth="3" filter="url(#goldGlow)">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" />
+        </line>
+      )}
+      {/* traveling particles */}
+      {active && [0, 1, 2].map(i => (
+        <circle key={i} r="3" fill="#d4af37" filter="url(#goldGlow)">
+          <animateMotion dur={`${1.5 + i * 0.4}s`} repeatCount="indefinite"
+            path="M10,30 L110,30" begin={`${i * 0.5}s`} />
+          <animate attributeName="opacity" values="0;1;0" dur={`${1.5 + i * 0.4}s`}
+            repeatCount="indefinite" begin={`${i * 0.5}s`} />
+        </circle>
+      ))}
+      {/* center score badge */}
+      {score != null && !active && (
+        <g>
+          <circle cx="60" cy="30" r="18" fill="rgba(10,10,26,0.9)" stroke="#d4af37" strokeWidth="1.5" />
+          <text x="60" y="31" textAnchor="middle" dominantBaseline="central"
+            fill="#d4af37" fontSize="12" fontWeight="bold">{score}%</text>
+        </g>
+      )}
+    </svg>
+  );
+}
+
+// ─── Canvas: Particle Burst on result reveal ──────────────────────────────
+function ParticleBurstCanvas({ trigger }: { trigger: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!trigger || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = canvas.offsetHeight * 2;
+    ctx.scale(2, 2);
+
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    const particles: { x: number; y: number; vx: number; vy: number; r: number; a: number; decay: number; color: string }[] = [];
+
+    const goldColors = ['#d4af37', '#f5d061', '#c9a227', '#ffd700', '#e8c547', '#b8860b'];
+    for (let i = 0; i < 80; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 4;
+      particles.push({
+        x: w / 2, y: h / 2,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        r: 1 + Math.random() * 3,
+        a: 1,
+        decay: 0.01 + Math.random() * 0.02,
+        color: goldColors[Math.floor(Math.random() * goldColors.length)],
+      });
+    }
+
+    let raf: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      let alive = false;
+      for (const p of particles) {
+        if (p.a <= 0) continue;
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03; // gravity
+        p.a -= p.decay;
+        ctx.globalAlpha = Math.max(0, p.a);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 6;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+      if (alive) raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => cancelAnimationFrame(raf);
+  }, [trigger]);
 
   return (
-    <div className="flex flex-col items-center p-6 bg-[#0a0a1a] min-height-[60vh]">
-      <h2 className="text-amber-400 text-3xl font-bold mb-8 tracking-widest drop-shadow-[0_2px_10px_rgba(251,191,36,0.4)]">
-        🔮 관상 궁합 (Face Harmony)
-      </h2>
+    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-20" />
+  );
+}
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12 relative w-full max-w-2xl">
-        {/* 첫 번째 인물 */}
-        <div className="relative group">
-          <div className="w-40 h-40 rounded-full border-4 border-amber-500/30 overflow-hidden bg-gray-900 flex items-center justify-center transition-all group-hover:border-amber-400">
-            <span className="text-4xl">👤</span>
+// ─── Circular Score Gauge (SVG) ────────────────────────────────────────────
+function ScoreGauge({ score, size = 180 }: { score: number; size?: number }) {
+  const r = size / 2 - 14;
+  const circumference = 2 * Math.PI * r;
+  const filled = (score / 100) * circumference;
+  const [animatedScore, setAnimatedScore] = useState(0);
+
+  useEffect(() => {
+    let frame: number;
+    const start = performance.now();
+    const duration = 1800;
+    const animate = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const ease = 1 - Math.pow(1 - t, 3);
+      setAnimatedScore(Math.round(score * ease));
+      if (t < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [score]);
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <defs>
+          <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ffd700" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#b8860b" />
+          </linearGradient>
+          <filter id="gaugeGlow">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {/* background circle */}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(212,175,55,0.1)" strokeWidth="8" />
+        {/* score arc */}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#gaugeGrad)" strokeWidth="8"
+          strokeLinecap="round" strokeDasharray={circumference}
+          strokeDashoffset={circumference - filled} filter="url(#gaugeGlow)"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          style={{ transition: 'stroke-dashoffset 1.8s cubic-bezier(0.34, 1, 0.64, 1)' }} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-5xl font-bold text-amber-400 drop-shadow-[0_0_20px_rgba(212,175,55,0.6)] animate-count-up">
+          {animatedScore}
+        </span>
+        <span className="text-amber-400/60 text-sm font-medium tracking-wider">점</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Dimension Bar ────────────────────────────────────────────────────────
+function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) {
+  const barColor = dim.score >= 85 ? 'from-amber-400 to-yellow-300'
+    : dim.score >= 70 ? 'from-amber-500 to-amber-400'
+    : 'from-amber-600 to-amber-500';
+
+  return (
+    <div className="animate-fade-in-up" style={{ animationDelay: `${index * 120}ms`, opacity: 0 }}>
+      <div className="bg-[rgba(20,15,35,0.6)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
+                      hover:border-amber-400/30 transition-all duration-300 group">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{dim.icon}</span>
+            <span className="text-amber-200/90 text-sm font-medium">{dim.label}</span>
           </div>
-          <p className="text-center mt-2 text-amber-200/70 font-medium">인물 1</p>
+          <span className={`text-sm font-bold ${dim.score >= 85 ? 'text-amber-300' : dim.score >= 70 ? 'text-amber-400' : 'text-amber-500'}`}>
+            {dim.score}점
+          </span>
         </div>
+        {/* bar */}
+        <div className="h-2 bg-gray-800/60 rounded-full overflow-hidden mb-3">
+          <div className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(212,175,55,0.4)]`}
+            style={{ width: `${dim.score}%`, transitionDelay: `${index * 120 + 300}ms` }} />
+        </div>
+        {/* interpretation */}
+        <p className="text-gray-400 text-xs leading-relaxed group-hover:text-gray-300 transition-colors">
+          {dim.interpretation}
+        </p>
+      </div>
+    </div>
+  );
+}
 
-        {/* 연결 애니메이션 라인 */}
-        <div className="hidden md:block flex-1 h-1 bg-gradient-to-r from-amber-500/20 via-amber-400 to-amber-500/20 relative">
-          {isAnalyzing && (
-            <div className="absolute inset-0 bg-amber-400 animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
+// ─── Avatar Circle ────────────────────────────────────────────────────────
+function AvatarCircle({
+  image, label, side, onClick
+}: { image?: string | null; label: string; side: 'left' | 'right'; onClick: () => void }) {
+  return (
+    <div className={`relative group cursor-pointer ${side === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}
+      style={{ opacity: 0 }} onClick={onClick}>
+      <div className="relative">
+        {/* outer glow ring */}
+        <div className="absolute -inset-3 rounded-full border border-amber-400/20 animate-pulse-slow" />
+        <div className="w-36 h-36 md:w-40 md:h-40 rounded-full border-2 border-amber-500/30 overflow-hidden
+                        bg-gradient-to-br from-[#1a1530] to-[#0d0a18] flex items-center justify-center
+                        group-hover:border-amber-400/60 group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]
+                        transition-all duration-500">
+          {image ? (
+            <img src={image} alt={label} className="w-full h-full object-cover" />
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-3xl opacity-60">📷</span>
+              <span className="text-amber-400/50 text-xs">촬영하기</span>
+            </div>
           )}
         </div>
-        <div className="md:hidden text-2xl animate-bounce">⚡</div>
-
-        {/* 두 번째 인물 */}
-        <div className="relative group">
-          <div className="w-40 h-40 rounded-full border-4 border-amber-500/30 overflow-hidden bg-gray-900 flex items-center justify-center transition-all group-hover:border-amber-400">
-            <span className="text-4xl">👤</span>
-          </div>
-          <p className="text-center mt-2 text-amber-200/70 font-medium">인물 2</p>
-        </div>
       </div>
+      <p className="text-center mt-3 text-amber-200/70 font-medium text-sm tracking-wide">{label}</p>
+    </div>
+  );
+}
 
-      {!score && !isAnalyzing && (
-        <button 
-          onClick={handleAnalyze}
-          className="px-10 py-4 bg-gradient-to-b from-amber-400 to-amber-600 text-mystic-950 font-bold rounded-full shadow-[0_0_20px_rgba(251,191,36,0.5)] hover:scale-105 active:scale-95 transition-all text-xl"
-        >
-          궁합 분석 시작
-        </button>
-      )}
+// ═══════════════════════════════════════════════════════════════
+// Main Component
+// ═══════════════════════════════════════════════════════════════
+export default function FaceHarmonyTab() {
+  const { t } = useTranslation();
+  const { detectFace, isLoading } = useFaceDetection();
 
-      {isAnalyzing && (
-        <div className="text-center">
-          <p className="text-amber-200 text-xl animate-pulse">두 분의 천기를 대조하는 중입니다...</p>
-          <div className="mt-4 w-48 h-1 bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full bg-amber-400 animate-progress-loop" />
-          </div>
+  const [mode, setMode] = useState<'idle' | 'capture-a' | 'capture-b' | 'analyzing' | 'result'>('idle');
+  const [imageA, setImageA] = useState<string | null>(null);
+  const [imageB, setImageB] = useState<string | null>(null);
+  const [landmarksA, setLandmarksA] = useState<any[] | null>(null);
+  const [landmarksB, setLandmarksB] = useState<any[] | null>(null);
+  const [harmonyResult, setHarmonyResult] = useState<HarmonyResult | null>(null);
+  const [showParticles, setShowParticles] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCapture = useCallback(async (imageSrc: string, target: 'a' | 'b') => {
+    setError(null);
+    const faceData = await detectFace(imageSrc);
+    if (!faceData) {
+      setError('얼굴을 감지할 수 없습니다. 다시 시도해주세요.');
+      setMode('idle');
+      return;
+    }
+
+    const croppedImage = faceData.annotatedImage || imageSrc;
+
+    if (target === 'a') {
+      setImageA(croppedImage);
+      setLandmarksA(faceData.landmarks);
+      setMode('idle');
+    } else {
+      setImageB(croppedImage);
+      setLandmarksB(faceData.landmarks);
+      setMode('idle');
+    }
+  }, [detectFace]);
+
+  const startAnalysis = useCallback(() => {
+    if (!landmarksA || !landmarksB) return;
+    setMode('analyzing');
+
+    // simulate mystical analysis delay
+    setTimeout(() => {
+      const result = analyzeFaceHarmony(landmarksA, landmarksB);
+      setHarmonyResult(result);
+      setMode('result');
+      setTimeout(() => setShowParticles(true), 300);
+    }, 3500);
+  }, [landmarksA, landmarksB]);
+
+  const handleReset = () => {
+    setMode('idle');
+    setImageA(null);
+    setImageB(null);
+    setLandmarksA(null);
+    setLandmarksB(null);
+    setHarmonyResult(null);
+    setShowParticles(false);
+    setError(null);
+  };
+
+  // ─── Camera Capture Screen ─────────────────────────────────
+  if (mode === 'capture-a' || mode === 'capture-b') {
+    const target = mode === 'capture-a' ? 'a' : 'b';
+    const label = target === 'a' ? '첫 번째 인물' : '두 번째 인물';
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="text-center mb-4">
+          <h3 className="text-amber-400 text-lg font-bold">{label}의 얼굴을 촬영하세요</h3>
+          <p className="text-gray-500 text-sm mt-1">정면을 바라보고 밝은 곳에서 촬영하면 정확도가 높아집니다</p>
         </div>
-      )}
-
-      {score && (
-        <div className="text-center animate-fade-in">
-          <div className="text-6xl font-bold text-amber-400 mb-4 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]">
-            {score}%
-          </div>
-          <p className="text-gray-300 text-lg leading-relaxed max-w-md">
-            "두 분은 서로의 부족한 기운을 채워주는 보완적인 관상을 가지고 있습니다. 특히 눈매의 조화가 뛰어나 백년해로할 기운이 보입니다."
-          </p>
-          <button 
-            onClick={() => setScore(null)}
-            className="mt-8 text-amber-400/60 hover:text-amber-400 underline underline-offset-4 transition-all"
-          >
-            다시 분석하기
+        <CameraCapture
+          onCapture={(img: string) => handleCapture(img, target)}
+          captureLabel="얼굴 촬영"
+          instruction=""
+          detectType="face"
+        />
+        <div className="text-center">
+          <button onClick={() => setMode('idle')}
+            className="text-amber-400/60 hover:text-amber-400 text-sm underline underline-offset-4 transition-colors">
+            ← 돌아가기
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // ─── Analyzing Screen ──────────────────────────────────────
+  if (mode === 'analyzing' || isLoading) {
+    return (
+      <div className="min-h-[65vh] flex flex-col items-center justify-center p-8 animate-fade-in">
+        {/* rotating mandala */}
+        <div className="relative w-48 h-48">
+          <GoldenOrbitSVG size={192} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-5xl animate-pulse">☯</span>
+          </div>
+        </div>
+
+        <h3 className="text-amber-300 text-xl font-bold mt-8 mb-2 tracking-wide">
+          천기를 대조하는 중...
+        </h3>
+        <p className="text-gray-500 text-sm text-center max-w-xs leading-relaxed">
+          두 분의 오관(五官)과 삼정(三停), 십이궁(十二宮)의 기운을 면밀히 비교하고 있습니다
+        </p>
+
+        {/* animated progress bar */}
+        <div className="mt-8 w-56 h-1.5 bg-gray-800/60 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-600 rounded-full animate-progress-loop shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+        </div>
+
+        {/* floating dots */}
+        <div className="mt-6 flex gap-1.5">
+          {[0, 1, 2, 3, 4].map(i => (
+            <div key={i} className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce"
+              style={{ animationDelay: `${i * 120}ms` }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Result Screen ─────────────────────────────────────────
+  if (mode === 'result' && harmonyResult) {
+    const { totalScore, grade, gradeEmoji, mainMessage, dimensions, advice, elementPair } = harmonyResult;
+    return (
+      <div className="space-y-8 pb-12 animate-fade-in">
+        {/* Hero Result */}
+        <section className="relative overflow-hidden rounded-2xl mx-2">
+          <ParticleBurstCanvas trigger={showParticles} />
+          <div className="relative z-10 bg-gradient-to-b from-[rgba(20,15,35,0.95)] to-[rgba(10,8,20,0.98)] border border-amber-500/15 rounded-2xl p-8">
+            {/* Grade Badge */}
+            <div className="text-center mb-6 animate-scale-in" style={{ opacity: 0 }}>
+              <span className="inline-block px-5 py-1.5 bg-amber-400/10 border border-amber-400/30 rounded-full text-amber-300 text-sm font-bold tracking-widest">
+                {gradeEmoji} {grade}
+              </span>
+            </div>
+
+            {/* Faces + Score */}
+            <div className="flex items-center justify-center gap-4 md:gap-6 mb-8">
+              {/* Person A */}
+              <div className="flex flex-col items-center animate-slide-in-left" style={{ opacity: 0 }}>
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-amber-400/40 overflow-hidden shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                  {imageA && <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />}
+                </div>
+                <span className="text-amber-200/50 text-xs mt-2">인물 1</span>
+              </div>
+
+              {/* Score Gauge */}
+              <div className="animate-scale-in" style={{ opacity: 0, animationDelay: '300ms' }}>
+                <ScoreGauge score={totalScore} size={140} />
+              </div>
+
+              {/* Person B */}
+              <div className="flex flex-col items-center animate-slide-in-right" style={{ opacity: 0 }}>
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-amber-400/40 overflow-hidden shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                  {imageB && <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />}
+                </div>
+                <span className="text-amber-200/50 text-xs mt-2">인물 2</span>
+              </div>
+            </div>
+
+            {/* Main Message */}
+            <div className="animate-fade-in-up" style={{ opacity: 0, animationDelay: '600ms' }}>
+              <p className="text-amber-100/80 text-sm md:text-base leading-relaxed text-center max-w-lg mx-auto italic">
+                &ldquo;{mainMessage}&rdquo;
+              </p>
+            </div>
+
+            {/* Element Pair */}
+            <div className="flex items-center justify-center gap-3 mt-6 animate-fade-in-up" style={{ opacity: 0, animationDelay: '900ms' }}>
+              <span className="px-3 py-1 bg-amber-400/10 rounded-full text-amber-300/80 text-xs font-medium">
+                {ELEMENT_LABELS[elementPair.a]}
+              </span>
+              <span className="text-amber-500/40">×</span>
+              <span className="px-3 py-1 bg-amber-400/10 rounded-full text-amber-300/80 text-xs font-medium">
+                {ELEMENT_LABELS[elementPair.b]}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Element Harmony Detail */}
+        <section className="mx-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1000ms' }}>
+          <div className="bg-[rgba(20,15,35,0.6)] backdrop-blur-md rounded-xl border border-amber-500/10 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">🔥</span>
+              <span className="text-amber-300/90 text-sm font-bold tracking-wide">오행 궁합</span>
+            </div>
+            <p className="text-gray-400 text-sm leading-relaxed">{elementPair.harmony}</p>
+          </div>
+        </section>
+
+        {/* Dimension Cards */}
+        <section className="mx-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+            <span className="text-amber-400/60 text-xs font-bold tracking-[0.2em] uppercase">세부 궁합 분석</span>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+          </div>
+          {dimensions.map((dim, i) => (
+            <DimensionBar key={dim.key} dim={dim} index={i} />
+          ))}
+        </section>
+
+        {/* Advice Section */}
+        <section className="mx-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1200ms' }}>
+          <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] to-[rgba(15,12,25,0.8)] backdrop-blur-md rounded-xl border border-amber-400/20 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">📜</span>
+              <span className="text-amber-300/90 text-sm font-bold tracking-wide">신비로운 조언</span>
+            </div>
+            <p className="text-gray-300/80 text-sm leading-relaxed">{advice}</p>
+          </div>
+        </section>
+
+        {/* Reset Button */}
+        <div className="px-4 pt-2">
+          <button onClick={handleReset}
+            className="w-full max-w-md mx-auto flex items-center justify-center h-12 rounded-xl font-bold text-sm
+                       bg-gradient-to-r from-amber-500/20 to-amber-400/10 border border-amber-400/30
+                       text-amber-300 hover:from-amber-500/30 hover:to-amber-400/20
+                       hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-300 tracking-widest">
+            궁합을 다시 살피다
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Idle / Setup Screen ───────────────────────────────────
+  const bothReady = landmarksA && landmarksB;
+
+  return (
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-2xl mx-2">
+        <div className="relative bg-gradient-to-b from-[rgba(20,15,35,0.95)] to-[rgba(10,8,20,0.98)] border border-amber-500/10 rounded-2xl py-12 px-6">
+          {/* Background SVG mandala */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-30">
+            <GoldenOrbitSVG size={320} animate />
+          </div>
+
+          <div className="relative z-10 text-center mb-10">
+            <h2 className="text-amber-400 text-3xl md:text-4xl font-bold mb-3 tracking-wider
+                          drop-shadow-[0_2px_15px_rgba(212,175,55,0.4)]">
+              관상 궁합
+            </h2>
+            <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
+              두 사람의 오관(五官)과 삼정(三停), 오행(五行)의 기운을 비교하여<br/>
+              천생연분의 궁합을 밝혀드립니다
+            </p>
+          </div>
+
+          {/* Avatar Pair */}
+          <div className="relative z-10 flex items-center justify-center gap-4 md:gap-8">
+            <AvatarCircle
+              image={imageA}
+              label="인물 1"
+              side="left"
+              onClick={() => setMode('capture-a')}
+            />
+
+            <HarmonyConnectionSVG active={false} score={harmonyResult?.totalScore} />
+
+            {/* mobile connector */}
+            <div className="md:hidden flex flex-col items-center">
+              <div className="w-8 h-px bg-amber-500/20" />
+              <span className="text-amber-400/40 text-lg my-1">☯</span>
+              <div className="w-8 h-px bg-amber-500/20" />
+            </div>
+
+            <AvatarCircle
+              image={imageB}
+              label="인물 2"
+              side="right"
+              onClick={() => setMode('capture-b')}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Error message */}
+      {error && (
+        <div className="mx-4 bg-red-500/10 backdrop-blur-md rounded-xl border border-red-500/20 p-4 text-center text-red-400 text-sm animate-fade-in">
+          {error}
+        </div>
+      )}
+
+      {/* Instruction / Action */}
+      <section className="mx-4">
+        {!imageA || !imageB ? (
+          <div className="text-center space-y-4 animate-fade-in-up" style={{ opacity: 0 }}>
+            <p className="text-gray-500 text-sm">
+              {!imageA && !imageB
+                ? '위의 원을 눌러 두 분의 얼굴을 촬영해주세요'
+                : !imageA
+                ? '첫 번째 인물의 얼굴을 촬영해주세요'
+                : '두 번째 인물의 얼굴을 촬영해주세요'
+              }
+            </p>
+            <div className="flex justify-center gap-3">
+              {!imageA && (
+                <button onClick={() => setMode('capture-a')}
+                  className="px-6 py-3 bg-amber-400/10 border border-amber-400/20 rounded-xl text-amber-300 text-sm font-medium
+                             hover:bg-amber-400/20 transition-all duration-300">
+                  📷 인물 1 촬영
+                </button>
+              )}
+              {!imageB && (
+                <button onClick={() => setMode('capture-b')}
+                  className="px-6 py-3 bg-amber-400/10 border border-amber-400/20 rounded-xl text-amber-300 text-sm font-medium
+                             hover:bg-amber-400/20 transition-all duration-300">
+                  📷 인물 2 촬영
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center animate-scale-in" style={{ opacity: 0 }}>
+            <button onClick={startAnalysis}
+              className="px-10 py-4 bg-gradient-to-b from-amber-400 to-amber-600 text-[#0a0a1a] font-bold
+                         rounded-full shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)]
+                         hover:scale-105 active:scale-95 transition-all duration-300 text-lg tracking-wide">
+              궁합 분석 시작
+            </button>
+            <button onClick={handleReset}
+              className="block mx-auto mt-4 text-amber-400/40 hover:text-amber-400/70 text-xs underline underline-offset-4 transition-colors">
+              처음부터 다시
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* Feature Description Cards */}
+      {!imageA && !imageB && (
+        <section className="mx-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { icon: '👁️', title: '오관 상보 분석', desc: '눈·코·입·이마·얼굴형의 상보성을 분석하여 6가지 차원의 궁합을 측정합니다' },
+            { icon: '☯', title: '오행 상생·상극', desc: '얼굴 비율에서 도출한 오행(木火土金水) 원소의 궁합을 판별합니다' },
+            { icon: '⏳', title: '삼정 시기 조화', desc: '초년·중년·말년의 운의 흐름이 서로 어떻게 맞물리는지 분석합니다' },
+          ].map((card, i) => (
+            <div key={i} className="bg-[rgba(20,15,35,0.5)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
+                                    animate-fade-in-up" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
+              <span className="text-xl mb-2 block">{card.icon}</span>
+              <h4 className="text-amber-300/90 text-sm font-bold mb-1">{card.title}</h4>
+              <p className="text-gray-500 text-xs leading-relaxed">{card.desc}</p>
+            </div>
+          ))}
+        </section>
       )}
     </div>
   );
 }
+
+// Element label map for display
+const ELEMENT_LABELS: Record<string, string> = {
+  wood: '木(목)', fire: '火(화)', earth: '土(토)', metal: '金(금)', water: '水(수)',
+};
