@@ -535,12 +535,14 @@ export default function FaceHarmonyTab() {
             </div>
 
             {/* Element Pair */}
-            <div className="flex items-center justify-center gap-3 mt-6 animate-fade-in-up" style={{ opacity: 0, animationDelay: '900ms' }}>
-              <span className="px-3 py-1 bg-amber-400/10 rounded-full text-amber-300/80 text-xs font-medium">
+            <div className="flex items-center justify-center gap-4 mt-6 animate-fade-in-up" style={{ opacity: 0, animationDelay: '900ms' }}>
+              <span className="px-4 py-1.5 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-300 text-sm font-bold tracking-wider
+                             shadow-[0_0_12px_rgba(212,175,55,0.15)]">
                 {ELEMENT_LABELS[elementPair.a]}
               </span>
-              <span className="text-amber-500/40">×</span>
-              <span className="px-3 py-1 bg-amber-400/10 rounded-full text-amber-300/80 text-xs font-medium">
+              <span className="text-amber-400/60 text-lg animate-pulse-slow">☯</span>
+              <span className="px-4 py-1.5 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-300 text-sm font-bold tracking-wider
+                             shadow-[0_0_12px_rgba(212,175,55,0.15)]">
                 {ELEMENT_LABELS[elementPair.b]}
               </span>
             </div>
@@ -552,9 +554,9 @@ export default function FaceHarmonyTab() {
           <div className="bg-[var(--bg-panel)] backdrop-blur-md rounded-xl border border-amber-500/10 p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">🔥</span>
-              <span className="text-amber-300/90 text-sm font-bold tracking-wide">오행 궁합</span>
+              <span className="text-amber-300/90 text-sm font-bold tracking-wide">오행 궁합 · 상생상극(相生相剋)</span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">{elementPair.harmony}</p>
+            <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">{elementPair.harmony}</p>
           </div>
         </section>
 
@@ -777,10 +779,11 @@ export default function FaceHarmonyTab() {
             { icon: '⏳', title: '삼정 시기 조화', desc: '초년·중년·말년의 운의 흐름이 서로 어떻게 맞물리는지 분석합니다' },
           ].map((card, i) => (
             <div key={i} className="bg-[var(--bg-panel)] backdrop-blur-md rounded-xl border border-amber-500/10 p-4
-                                    animate-fade-in-up" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
-              <span className="text-xl mb-2 block">{card.icon}</span>
-              <h4 className="text-amber-300/90 text-sm font-bold mb-1">{card.title}</h4>
-              <p className="text-gray-500 text-xs leading-relaxed">{card.desc}</p>
+                                    animate-fade-in-up group hover:border-amber-400/30 hover:shadow-[0_0_20px_rgba(212,175,55,0.1)]
+                                    cursor-default" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
+              <span className="text-xl mb-2 block group-hover:scale-110 transition-transform duration-300 inline-block">{card.icon}</span>
+              <h4 className="text-amber-300/90 text-sm font-bold mb-1 group-hover:text-amber-300 transition-colors">{card.title}</h4>
+              <p className="text-gray-500 text-xs leading-relaxed group-hover:text-gray-400 transition-colors">{card.desc}</p>
             </div>
           ))}
         </section>

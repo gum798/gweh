@@ -47,6 +47,8 @@ export default {
         'count-up': 'countPulse 0.6s ease-out forwards',
         'shimmer-gold': 'shimmerGold 3s ease-in-out infinite',
         'nav-underline': 'navUnderline 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        'press': 'press 0.15s ease-out forwards',
+        'glow-ring': 'glowRing 2s ease-in-out infinite alternate',
       },
       keyframes: {
         float: {
@@ -94,6 +96,15 @@ export default {
         navUnderline: {
           '0%': { width: '0%', opacity: '0', transform: 'translateX(-50%)' },
           '100%': { width: '85%', opacity: '1', transform: 'translateX(-50%)' },
+        },
+        press: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(0.97)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        glowRing: {
+          '0%': { boxShadow: '0 0 0 0 var(--accent-20)' },
+          '100%': { boxShadow: '0 0 0 6px transparent' },
         },
       }
     },

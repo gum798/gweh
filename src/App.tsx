@@ -173,14 +173,14 @@ function App() {
                 document.documentElement.lang = newLang;
               }}
               aria-label={i18n.language === 'ko' ? 'Switch to English' : '한국어로 전환'}
-              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] hover:shadow-[0_0_12px_var(--accent-20)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-300 font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             >
               {i18n.language === 'ko' ? 'EN' : 'KO'}
             </button>
             <button
               onClick={toggleColorMode}
               aria-label={colorMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="text-sm text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+              className="text-sm text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] hover:shadow-[0_0_12px_var(--accent-20)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             >
               {colorMode === 'dark' ? '☀️' : '🌙'}
             </button>
@@ -203,11 +203,16 @@ function App() {
               </button>
             )}
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1 px-16">
-            MYSTIC <span className="text-[var(--accent)]">AI</span>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1 px-16 relative inline-block">
+            <span className="absolute inset-0 blur-2xl opacity-30 bg-[var(--accent)] rounded-full scale-150 animate-pulse-slow pointer-events-none" />
+            <span className="relative drop-shadow-[0_0_20px_var(--accent-glow)]">
+              MYSTIC <span className="text-[var(--accent)] drop-shadow-[0_0_12px_var(--accent-glow)]">AI</span>
+            </span>
           </h1>
-          <p className="text-white/40 text-xs uppercase tracking-[0.3em]">
-            Unveil Your Destiny
+          <p className="text-white/40 text-xs uppercase tracking-[0.3em] mt-0.5">
+            <span className="inline-block bg-gradient-to-r from-transparent via-white/20 to-transparent bg-[length:200%_100%] animate-shimmer-gold bg-clip-text">
+              Unveil Your Destiny
+            </span>
           </p>
         </header>
 
@@ -228,6 +233,7 @@ function App() {
 
         {/* Footer */}
         <footer className="mt-12 text-center pb-8">
+          <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[var(--accent-20)] to-transparent mb-4" />
           <p className="text-[10px] text-white/20 uppercase tracking-[0.4em]">
             © 2026 MYSTIC AI
           </p>
