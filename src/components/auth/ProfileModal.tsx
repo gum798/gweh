@@ -22,7 +22,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number; theme?: string } | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => (localStorage.getItem('theme') as ThemeKey) || 'cosmic');
-  const [currentMode, setCurrentMode] = useState<ColorMode>(() => (localStorage.getItem('mystic_color_mode') as ColorMode) || 'dark');
+  const [currentMode, setCurrentMode] = useState<ColorMode>(() => (localStorage.getItem('mystic_color_mode') as ColorMode) || 'light');
 
   // ESC 키로 모달 닫기
   useEffect(() => {

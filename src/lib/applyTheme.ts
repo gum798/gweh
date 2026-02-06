@@ -6,7 +6,7 @@ export type ColorMode = 'dark' | 'light';
  * Apply a theme by setting CSS custom properties on :root.
  * Call once at startup. Call again to switch themes or color modes at runtime.
  */
-export function applyTheme(key: ThemeKey = DEFAULT_THEME, mode: ColorMode = 'dark'): void {
+export function applyTheme(key: ThemeKey = DEFAULT_THEME, mode: ColorMode = 'light'): void {
   const theme = themes[key];
   if (!theme) {
     console.warn(`[Theme] Unknown theme "${key}", falling back to "${DEFAULT_THEME}"`);

@@ -37,7 +37,7 @@ function App() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [colorMode, setColorMode] = useState<ColorMode>(() =>
-    (localStorage.getItem('mystic_color_mode') as ColorMode) || 'dark'
+    (localStorage.getItem('mystic_color_mode') as ColorMode) || 'light'
   );
 
   const toggleColorMode = useCallback(() => {

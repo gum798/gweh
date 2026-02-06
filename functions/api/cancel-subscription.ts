@@ -76,17 +76,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
 
         // 5. Cancel subscription at period end
-        // Using PATCH /v1/subscriptions/{id} (Management API)
+        // POST /v1/subscriptions/{id}/cancel (Polar Management API)
         const cancelRes = await fetch(
-            `${apiBaseUrl}/v1/subscriptions/${activeSub.id}`,
+            `${apiBaseUrl}/v1/subscriptions/${activeSub.id}/cancel`,
             {
-                method: 'PATCH',
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${polarToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    cancelAtPeriodEnd: true,
+                    cancel_at_period_end: true,
+                    reason: 'customer_request',
                 }),
             }
         );

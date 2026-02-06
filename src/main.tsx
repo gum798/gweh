@@ -9,7 +9,7 @@ import App from './App.jsx'
 
 // ✨ Apply saved theme + color mode
 const savedTheme = (localStorage.getItem('theme') as any) || 'cosmic';
-const savedMode = (localStorage.getItem('mystic_color_mode') as any) || 'dark';
+const savedMode = (localStorage.getItem('mystic_color_mode') as any) || 'light';
 applyTheme(savedTheme, savedMode);
 
 createRoot(document.getElementById('root')!).render(
