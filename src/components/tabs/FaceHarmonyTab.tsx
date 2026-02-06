@@ -235,18 +235,24 @@ function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) 
 
 // ─── Avatar Circle ────────────────────────────────────────────────────────
 function AvatarCircle({
-  image, label, side, onClick
-}: { image?: string | null; label: string; side: 'left' | 'right'; onClick: () => void }) {
+  image, label, side, onClick, ready
+}: { image?: string | null; label: string; side: 'left' | 'right'; onClick: () => void; ready?: boolean }) {
   return (
     <div className={`relative group cursor-pointer ${side === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}
       style={{ opacity: 0 }} onClick={onClick}>
       <div className="relative">
-        {/* outer glow ring */}
-        <div className="absolute -inset-3 rounded-full border border-amber-400/20 animate-pulse-slow" />
-        <div className="w-36 h-36 md:w-40 md:h-40 rounded-full border-2 border-amber-500/30 overflow-hidden
+        {/* outer glow ring — enhanced when ready */}
+        <div className={`absolute -inset-3 rounded-full border transition-all duration-700 ${
+          ready
+            ? 'border-amber-400/50 shadow-[0_0_20px_rgba(212,175,55,0.25)]'
+            : 'border-amber-400/20 animate-pulse-slow'
+        }`} />
+        <div className={`w-36 h-36 md:w-40 md:h-40 rounded-full border-2 overflow-hidden
                         bg-gradient-to-br from-[var(--bg-panel-solid)] to-[var(--bg-primary)] flex items-center justify-center
                         group-hover:border-amber-400/60 group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]
-                        transition-all duration-500">
+                        transition-all duration-500 ${
+                          ready ? 'border-amber-400/50' : 'border-amber-500/30'
+                        }`}>
           {image ? (
             <img src={image} alt={label} className="w-full h-full object-cover" />
           ) : (
@@ -256,6 +262,16 @@ function AvatarCircle({
             </div>
           )}
         </div>
+        {/* checkmark badge when ready */}
+        {ready && (
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600
+                          rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(212,175,55,0.5)]
+                          animate-scale-in border-2 border-[var(--bg-primary)]" style={{ opacity: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7.5L5.5 11L12 3" stroke="#0a0a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        )}
       </div>
       <p className="text-center mt-3 text-amber-200/70 font-medium text-sm tracking-wide">{label}</p>
     </div>
@@ -302,6 +318,42 @@ export default function FaceHarmonyTab() {
     }
   }, [detectFace]);
 
+  // Crop a single face region from the source image using landmark bounding box
+  const cropFaceFromImage = useCallback((imageSrc: string, landmarks: any[]): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        let minX = Infinity, maxX = 0, minY = Infinity, maxY = 0;
+        for (const kp of landmarks) {
+          minX = Math.min(minX, kp.x);
+          maxX = Math.max(maxX, kp.x);
+          minY = Math.min(minY, kp.y);
+          maxY = Math.max(maxY, kp.y);
+        }
+
+        // 30% padding for natural framing
+        const pad = Math.max(maxX - minX, maxY - minY) * 0.3;
+        minX = Math.max(0, minX - pad);
+        minY = Math.max(0, minY - pad);
+        maxX = Math.min(img.width, maxX + pad);
+        maxY = Math.min(img.height, maxY + pad);
+
+        const w = maxX - minX;
+        const h = maxY - minY;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, minX, minY, w, h, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      };
+      img.onerror = () => resolve(imageSrc); // fallback
+      img.src = imageSrc;
+    });
+  }, []);
+
   const handleSinglePhoto = useCallback(async (imageSrc: string) => {
     setError(null);
     setMode('analyzing');
@@ -314,19 +366,30 @@ export default function FaceHarmonyTab() {
     }
 
     const [faceA, faceB] = faces;
-    setImageA(faceA.annotatedImage || imageSrc);
-    setImageB(faceB.annotatedImage || imageSrc);
+
+    // Crop each face individually from the original photo
+    const [croppedA, croppedB] = await Promise.all([
+      faceA.annotatedImage
+        ? Promise.resolve(faceA.annotatedImage)
+        : cropFaceFromImage(imageSrc, faceA.landmarks),
+      faceB.annotatedImage
+        ? Promise.resolve(faceB.annotatedImage)
+        : cropFaceFromImage(imageSrc, faceB.landmarks),
+    ]);
+
+    setImageA(croppedA);
+    setImageB(croppedB);
     setLandmarksA(faceA.landmarks);
     setLandmarksB(faceB.landmarks);
 
-    // Start analysis immediately
+    // Start analysis after a brief mystical delay
     setTimeout(() => {
       const result = analyzeFaceHarmony(faceA.landmarks, faceB.landmarks);
       setHarmonyResult(result);
       setMode('result');
       setTimeout(() => setShowParticles(true), 300);
     }, 2500);
-  }, [detectMultipleFaces]);
+  }, [detectMultipleFaces, cropFaceFromImage]);
 
   const handleSinglePhotoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -619,7 +682,7 @@ export default function FaceHarmonyTab() {
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
                 <p className="text-amber-300/80 text-sm font-medium mb-2">두 사람이 함께 찍은 사진을 올려주세요</p>
                 <p className="text-gray-600 text-xs leading-relaxed">
-                  AI가 자동으로 두 얼굴을 감지하여<br/>궁합을 분석합니다
+                  AI가 자동으로 두 얼굴을 감지·분리하여<br/>각 인물의 관상을 개별 분석합니다
                 </p>
               </div>
               <input
