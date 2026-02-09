@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
+import HeroSection from './components/HeroSection';
 import AuthModal from './components/auth/AuthModal';
 import ProfileModal from './components/auth/ProfileModal';
 import { useAuth } from './contexts/AuthContext';
@@ -188,6 +189,9 @@ function App() {
             Unveil Your Destiny
           </p>
         </header>
+
+        {/* Hero section */}
+        <HeroSection />
 
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />

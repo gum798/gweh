@@ -6,7 +6,20 @@
   "nav.saju": "사주",
   "nav.fortune": "운세",
   "nav.fashion": "패션",
+  "nav.harmony": "궁합",
   "nav.summary": "종합",
+
+  "hero.label": "AI 운명 해석",
+  "hero.line1": "당신의 운명,",
+  "hero.line2pre": "",
+  "hero.line2post": "가 읽어드립니다",
+  "hero.desc": "관상, 손금, 사주, 운세부터 퍼스널 컬러와 패션까지 — 멀티모달 AI가 분석하는 당신만의 이야기",
+  "hero.face": "관상",
+  "hero.palm": "손금",
+  "hero.saju": "사주",
+  "hero.fortune": "운세",
+  "hero.harmony": "궁합",
+  "hero.fashion": "패션",
 
   "loading.message": "천기를 살피는 중...",
 
