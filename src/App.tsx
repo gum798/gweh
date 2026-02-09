@@ -4,7 +4,6 @@ import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
 import AuthModal from './components/auth/AuthModal';
 import ProfileModal from './components/auth/ProfileModal';
-import { useAuth } from './contexts/AuthContext';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
@@ -20,9 +19,7 @@ const SummaryTab = lazy(() => import('./components/tabs/SummaryTab'));
 const FaceHarmonyTab = lazy(() => import('./components/tabs/FaceHarmonyTab'));
 
 function App() {
-  const { t, i18n } = useTranslation('auth');
   const { t: tc } = useTranslation();
-  const { user } = useAuth();
   const { isSubscribed } = useSubscription();
   const [activeTab, setActiveTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -144,55 +141,15 @@ function App() {
         </div>
       )}
 
+      {/* Full-screen Hero */}
+      <HeroSection
+        onLogin={() => setAuthModalOpen(true)}
+        onProfile={() => setProfileModalOpen(true)}
+        onTabChange={handleTabChange}
+      />
+
       {/* Content */}
-      <div className="relative container mx-auto px-4 py-6 max-w-4xl">
-        {/* Header */}
-        <header className="relative text-center mb-6">
-          <div className="absolute left-0 top-4 flex gap-1.5">
-            <button
-              onClick={() => {
-                const newLang = i18n.language === 'ko' ? 'en' : 'ko';
-                i18n.changeLanguage(newLang);
-                localStorage.setItem('mystic_language', newLang);
-                document.documentElement.lang = newLang;
-              }}
-              aria-label={i18n.language === 'ko' ? 'Switch to English' : '한국어로 전환'}
-              className="text-xs text-gal-muted hover:text-gal-black border border-gal-border hover:border-gal-accent min-w-[44px] min-h-[44px] flex items-center justify-center rounded-gal-xl transition-all duration-200 font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent"
-            >
-              {i18n.language === 'ko' ? 'EN' : 'KO'}
-            </button>
-          </div>
-          <div className="absolute right-0 top-4">
-            {user ? (
-              <button
-                onClick={() => setProfileModalOpen(true)}
-                aria-label={tc('profile.birthDate') ? `Profile: ${user.email}` : user.email}
-                className="text-xs text-gal-muted hover:text-gal-black border border-gal-border hover:border-gal-accent min-h-[44px] px-3 flex items-center rounded-gal-xl transition-all truncate max-w-[150px] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent"
-              >
-                {user.email}
-              </button>
-            ) : (
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="text-xs text-gal-accent hover:text-gal-accent-dark border border-gal-accent/30 hover:border-gal-accent min-h-[44px] px-3 flex items-center rounded-gal-xl transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent"
-              >
-                {t('login')}
-              </button>
-            )}
-          </div>
-          <div className="inline-block pt-2">
-            <h1 className="text-3xl md:text-4xl font-bold text-gal-black tracking-tight mb-1 px-16">
-              GWEH <span className="text-gal-accent">AI</span>
-            </h1>
-          </div>
-          <p className="text-gal-muted text-xs uppercase tracking-[0.25em] mt-1">
-            Unveil Your Destiny
-          </p>
-        </header>
-
-        {/* Hero section */}
-        <HeroSection />
-
+      <div id="app-content" className="relative container mx-auto px-4 pt-8 max-w-4xl">
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />

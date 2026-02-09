@@ -20,6 +20,13 @@
   "hero.fortune": "운세",
   "hero.harmony": "궁합",
   "hero.fashion": "패션",
+  "hero.faceDesc": "AI가 읽어내는 관상 분석",
+  "hero.palmDesc": "손금으로 보는 운명의 선",
+  "hero.sajuDesc": "사주팔자 천명 풀이",
+  "hero.fortuneDesc": "오늘 하루의 운세",
+  "hero.harmonyDesc": "두 사람의 궁합 분석",
+  "hero.fashionDesc": "AI 스타일 추천",
+  "hero.cta": "오늘의 운명 확인하기",
 
   "loading.message": "천기를 살피는 중...",
 

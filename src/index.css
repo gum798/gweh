@@ -94,6 +94,135 @@
 }
 
 /* ───────────────────────────────────────────
+   Hero Section — Dark Immersive Landing
+   ─────────────────────────────────────────── */
+
+.hero-section {
+  background: linear-gradient(160deg, #080c18 0%, #0f172a 40%, #0c1025 70%, #060a14 100%);
+}
+
+/* Floating gradient orbs — ambient glow */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform;
+}
+
+.hero-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: rgba(46, 163, 242, 0.10);
+  top: 8%;
+  right: -12%;
+  animation: heroFloat 16s ease-in-out infinite;
+}
+
+.hero-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: rgba(124, 58, 237, 0.07);
+  bottom: 12%;
+  left: -10%;
+  animation: heroFloat 20s ease-in-out infinite reverse;
+}
+
+.hero-orb-3 {
+  width: 280px;
+  height: 280px;
+  background: rgba(46, 163, 242, 0.05);
+  top: 50%;
+  left: 35%;
+  animation: heroFloat 14s ease-in-out infinite 4s;
+}
+
+/* Subtle perspective grid */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at center, black 15%, transparent 65%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 15%, transparent 65%);
+}
+
+/* Film grain noise */
+.hero-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Gradient text — "AI" accent */
+.hero-text-gradient {
+  background: linear-gradient(135deg, #2ea3f2 0%, #5ec4ff 50%, #2ea3f2 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: heroGradientShift 4s ease-in-out infinite;
+}
+
+/* Staggered reveal */
+.hero-fade {
+  opacity: 0;
+  transform: translateY(28px);
+  animation: heroReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-fade-1 { animation-delay: 0.15s; }
+.hero-fade-2 { animation-delay: 0.45s; }
+.hero-fade-3 { animation-delay: 0.75s; }
+.hero-fade-4 { animation-delay: 1.05s; }
+
+/* Service card glass */
+.hero-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hero-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* CTA button — white with glow */
+.hero-cta-btn {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  box-shadow: 0 0 20px rgba(46, 163, 242, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.hero-cta-btn:hover {
+  background-color: #2ea3f2;
+  color: white;
+  box-shadow: 0 0 48px rgba(46, 163, 242, 0.35), 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(20px, -25px); }
+  50% { transform: translate(-15px, 18px); }
+  75% { transform: translate(22px, 12px); }
+}
+
+@keyframes heroReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroGradientShift {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+/* ───────────────────────────────────────────
    Animations — Minimal & Functional
    ─────────────────────────────────────────── */
 
