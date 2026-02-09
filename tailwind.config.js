@@ -7,90 +7,76 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Legacy mystic colors (kept for any non-themed usage)
-        mystic: {
-          900: '#0a0a1a',
-          800: '#12122a',
-          700: '#1a1a3a',
-          600: '#2a2a5a',
-          500: '#3a3a7a',
-        },
-        cosmic: {
-          gold: '#d4af37',
-          silver: '#c0c0c0',
-          purple: '#9b59b6',
-        },
-        // Theme-aware semantic colors via CSS vars
-        th: {
-          bg: 'var(--bg-primary)',
-          panel: 'var(--bg-panel)',
-          'panel-solid': 'var(--bg-panel-solid)',
-          accent: 'var(--accent)',
-          'accent-hover': 'var(--accent-hover)',
-        },
+        "gal-black": "#1a1a1a",
+        "gal-dark": "#333333",
+        "gal-body": "#666666",
+        "gal-muted": "#999999",
+        "gal-border": "#e5e5e5",
+        "gal-light": "#f5f5f5",
+        "gal-bg": "#fafafa",
+        "gal-accent": "#2ea3f2",
+        "gal-accent-dark": "#1a8fd8",
+        "gal-accent-light": "#eaf6fe",
+        "gal-footer": "#111111",
       },
       fontFamily: {
-        mystic: ['"Gowun Batang"', 'serif'],
-        body: ['"Gowun Batang"', 'serif'],
+        "display": ["Noto Sans KR", "Manrope", "system-ui", "sans-serif"],
+        "heading": ["Noto Sans KR", "Manrope", "sans-serif"],
+      },
+      borderRadius: {
+        "gal-sm": "2px",
+        "gal-md": "4px",
+        "gal-lg": "6px",
+        "gal-xl": "8px",
+      },
+      boxShadow: {
+        "gal-soft": "0 2px 12px rgba(0, 0, 0, 0.06)",
+        "gal-card": "0 4px 20px rgba(0, 0, 0, 0.08)",
+        "gal-hover": "0 8px 32px rgba(0, 0, 0, 0.12)",
+        "gal-nav": "0 1px 4px rgba(0, 0, 0, 0.06)",
+        "gal-button": "0 4px 16px rgba(0, 0, 0, 0.12)",
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-        'fade-in': 'fadeIn 0.8s ease-out forwards',
-        'fade-in-up': 'fadeInUp 0.7s ease-out forwards',
-        'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
-        'slide-in-right': 'slideInRight 0.6s ease-out forwards',
-        'scale-in': 'scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-        'spin-slow': 'spin 20s linear infinite',
-        'progress-loop': 'progressLoop 2s ease-in-out infinite',
-        'count-up': 'countPulse 0.6s ease-out forwards',
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+        'fade-in-delay': 'fadeIn 0.6s ease-out 0.15s forwards',
+        'fade-in-delay-2': 'fadeIn 0.6s ease-out 0.3s forwards',
+        'slide-in-left': 'slideInLeft 0.5s ease-out forwards',
+        'slide-in-right': 'slideInRight 0.5s ease-out forwards',
+        'scale-in': 'scaleIn 0.4s ease-out forwards',
+        'tab-enter': 'tabEnter 0.3s ease-out forwards',
         'shimmer-gold': 'shimmerGold 3s ease-in-out infinite',
-        'nav-underline': 'navUnderline 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
-        'press': 'press 0.15s ease-out forwards',
-        'glow-ring': 'glowRing 2s ease-in-out infinite alternate',
-        'mandala-spin': 'mandalaSpin 40s linear infinite',
-        'tab-enter': 'tabEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards',
-        'star-twinkle': 'starTwinkle 6s ease-in-out infinite alternate',
+        'nav-underline': 'navUnderline 0.4s ease-out forwards',
+        'progress-loop': 'progressLoop 2s ease-in-out infinite',
+        'count-up': 'countPulse 0.5s ease-out forwards',
+        'pulse-slow': 'pulse 3s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'spin-slow': 'spin 20s linear infinite',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        glow: {
-          '0%': { boxShadow: 'var(--glow-1)' },
-          '100%': { boxShadow: 'var(--glow-2)' },
-        },
         fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideInLeft: {
-          '0%': { opacity: '0', transform: 'translateX(-30px)' },
+          '0%': { opacity: '0', transform: 'translateX(-20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         slideInRight: {
-          '0%': { opacity: '0', transform: 'translateX(30px)' },
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         scaleIn: {
-          '0%': { opacity: '0', transform: 'scale(0.5)' },
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
-        progressLoop: {
-          '0%': { width: '0%' },
-          '50%': { width: '80%' },
-          '100%': { width: '100%' },
-        },
-        countPulse: {
-          '0%': { transform: 'scale(0.5)', opacity: '0' },
-          '60%': { transform: 'scale(1.1)' },
-          '100%': { transform: 'scale(1)', opacity: '1' },
+        tabEnter: {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         shimmerGold: {
           '0%, 100%': { backgroundPosition: '200% center' },
@@ -100,27 +86,18 @@ export default {
           '0%': { width: '0%', opacity: '0', transform: 'translateX(-50%)' },
           '100%': { width: '85%', opacity: '1', transform: 'translateX(-50%)' },
         },
-        press: {
-          '0%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(0.97)' },
-          '100%': { transform: 'scale(1)' },
+        progressLoop: {
+          '0%': { width: '0%' },
+          '50%': { width: '80%' },
+          '100%': { width: '100%' },
         },
-        glowRing: {
-          '0%': { boxShadow: '0 0 0 0 var(--accent-20)' },
-          '100%': { boxShadow: '0 0 0 6px transparent' },
+        countPulse: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
         },
-        mandalaSpin: {
-          '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
-          '100%': { transform: 'translate(-50%, -50%) rotate(360deg)' },
-        },
-        tabEnter: {
-          '0%': { opacity: '0', transform: 'translateY(8px) scale(0.99)' },
-          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
-        },
-        starTwinkle: {
-          '0%': { opacity: '0.4' },
-          '50%': { opacity: '0.8' },
-          '100%': { opacity: '0.5' },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-8px)' },
         },
       }
     },

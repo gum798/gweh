@@ -84,18 +84,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50" />
       <div
-        className="relative w-full max-w-md bg-[var(--bg-panel-solid)] border border-[var(--accent-30)] rounded-2xl p-6 shadow-[0_0_40px_var(--accent-20)]"
+        className="relative w-full max-w-md bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-white/40 hover:text-white/80 text-xl">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
           &times;
         </button>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-white text-center mb-6">
+        <h2 className="text-2xl font-bold text-gal-black text-center mb-6">
           {mode === 'forgot' ? t('forgotPassword') : mode === 'login' ? t('login') : t('signup')}
         </h2>
 
@@ -105,7 +105,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="space-y-3">
               <button
                 onClick={() => handleOAuth('google')}
-                className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white flex items-center justify-center gap-3 transition-colors"
+                className="w-full py-3 bg-gal-light hover:bg-gal-bg border border-gal-border rounded-gal-md text-gal-black flex items-center justify-center gap-3 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -119,9 +119,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
             {/* Divider */}
             <div className="flex items-center my-5">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="px-3 text-white/30 text-sm">{t('orContinueWith')}</span>
-              <div className="flex-1 h-px bg-white/10" />
+              <div className="flex-1 h-px bg-gal-border" />
+              <span className="px-3 text-gal-muted text-sm">{t('orContinueWith')}</span>
+              <div className="flex-1 h-px bg-gal-border" />
             </div>
           </>
         )}
@@ -134,7 +134,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent-50)] transition-colors"
+            className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
           />
           {mode !== 'forgot' && (
             <input
@@ -144,7 +144,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent-50)] transition-colors"
+              className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
             />
           )}
           {mode === 'signup' && (
@@ -155,17 +155,17 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent-50)] transition-colors"
+              className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
             />
           )}
 
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-          {message && <p className="text-green-400 text-sm text-center">{message}</p>}
+          {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+          {message && <p className="text-green-600 text-sm text-center">{message}</p>}
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 rounded-xl text-white font-semibold transition-colors"
+            className="w-full py-3 bg-gal-accent hover:bg-gal-accent-dark disabled:opacity-50 rounded-gal-md text-white font-semibold transition-colors"
           >
             {mode === 'forgot' ? t('sendResetEmail') : mode === 'login' ? t('loginButton') : t('signupButton')}
           </button>
@@ -174,21 +174,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         {/* Toggle mode */}
         <div className="text-center text-sm mt-5 space-y-2">
           {mode === 'forgot' ? (
-            <p className="text-white/40">
+            <p className="text-gal-muted">
               <button
                 onClick={() => { setMode('login'); setError(''); setMessage(''); }}
-                className="text-[var(--accent)] hover:underline font-semibold"
+                className="text-gal-accent hover:underline font-semibold"
               >
                 {t('backToLogin')}
               </button>
             </p>
           ) : (
             <>
-              <p className="text-white/40">
+              <p className="text-gal-muted">
                 {mode === 'login' ? t('switchToSignup') : t('switchToLogin')}{' '}
                 <button
                   onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-                  className="text-[var(--accent)] hover:underline font-semibold"
+                  className="text-gal-accent hover:underline font-semibold"
                 >
                   {mode === 'login' ? t('signup') : t('login')}
                 </button>
@@ -197,7 +197,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <p>
                   <button
                     onClick={() => { setMode('forgot'); setError(''); setMessage(''); }}
-                    className="text-white/30 hover:text-white/50 text-xs"
+                    className="text-gal-muted hover:text-gal-body text-xs"
                   >
                     {t('forgotPassword')}
                   </button>

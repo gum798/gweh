@@ -22,7 +22,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
   const { t } = useTranslation();
 
   return (
-    <nav className="sticky top-0 z-40 bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-1.5 sm:p-2 mb-6 shadow-[0_4px_30px_rgba(0,0,0,0.25)]">
+    <nav className="sticky top-0 z-40 bg-white border-b border-gal-border p-1.5 sm:p-2 mb-6 shadow-gal-nav">
       <div className="flex justify-center overflow-x-auto gap-0.5 sm:gap-1 scrollbar-hide snap-x" role="tablist">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -33,28 +33,18 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
               aria-selected={isActive}
               onClick={() => onTabChange(tab.id)}
               className={`
-                nav-tab-glow mystic-ripple relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl flex-shrink-0 snap-start
-                transition-all duration-300 font-medium
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg-primary)]
+                nav-tab-glow relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-gal-md flex-shrink-0 snap-start
+                transition-all duration-200 font-medium
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-1
                 ${isActive
-                  ? 'bg-[var(--accent-20)] text-white border border-[var(--accent-40)] shadow-[0_0_15px_var(--accent-20),_inset_0_1px_0_var(--accent-10)]'
-                  : 'text-white/50 hover:text-white/90 hover:bg-white/5 border border-transparent'
+                  ? 'bg-gal-accent-light text-gal-accent border-b-2 border-gal-accent'
+                  : 'text-gal-muted hover:text-gal-body hover:bg-gal-light border-b-2 border-transparent'
                 }
               `}
             >
-              <span className={`text-base sm:text-lg transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} aria-hidden="true">{tab.icon}</span>
+              <span className={`text-base sm:text-lg transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} aria-hidden="true">{tab.icon}</span>
               <span className="hidden sm:inline text-sm">{t(tab.labelKey)}</span>
               <span className="sr-only sm:hidden">{t(tab.labelKey)}</span>
-              {/* Accent-aware underline */}
-              {isActive && (
-                <span
-                  className="absolute bottom-0 left-1/2 h-[2.5px] rounded-full animate-nav-underline"
-                  style={{
-                    background: `linear-gradient(90deg, transparent, var(--accent), var(--accent-hover), var(--accent), transparent)`,
-                    boxShadow: `0 0 10px var(--accent-glow), 0 0 20px var(--accent-30)`,
-                  }}
-                />
-              )}
             </button>
           );
         })}

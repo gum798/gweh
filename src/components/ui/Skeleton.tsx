@@ -11,13 +11,13 @@ export function Skeleton({
   height,
   className = '',
 }: SkeletonProps) {
-  const baseClasses = 'animate-shimmer bg-gradient-to-r from-white/5 via-white/10 to-white/5 bg-[length:200%_100%]';
+  const baseClasses = 'animate-shimmer bg-gradient-to-r from-gal-light via-gal-bg to-gal-light bg-[length:200%_100%]';
 
   const variantClasses = {
-    text: 'h-4 rounded',
-    card: 'rounded-2xl',
+    text: 'h-4 rounded-gal-sm',
+    card: 'rounded-gal-xl',
     circle: 'rounded-full',
-    rectangular: 'rounded-lg',
+    rectangular: 'rounded-gal-md',
   };
 
   const style: React.CSSProperties = {};

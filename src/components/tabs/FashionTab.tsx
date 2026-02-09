@@ -14,8 +14,8 @@ function authHeaders(token: string | undefined): Record<string, string> {
 }
 
 const ACTION_BUTTON_ENABLED =
-  'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95';
-const ACTION_BUTTON_DISABLED = 'bg-white/10 text-white/30 cursor-not-allowed';
+  'bg-gal-accent text-white shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95';
+const ACTION_BUTTON_DISABLED = 'bg-gal-light text-gal-muted cursor-not-allowed';
 
 interface StyleRecommendation {
   category: string;
@@ -392,19 +392,19 @@ export default function FashionTab() {
     return (
       <div className="space-y-8">
         {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-2xl">
+        <section className="relative overflow-hidden rounded-gal-xl">
           <div
             className="flex min-h-[50vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
             style={{
-              backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4nQj-qJlva8AQ6WBFm3QhpPEeeapJF1IfHXPUu19hcl-DeIb4gp1NFiD7cK9Pw8fMBwyjMNr_Emptb4FTirBhNggUaoYUCHBt29yId1WMncHm6pyf7AYB1NtzwjobDfm_8xhmmpNZ6n6-k65AR7UQkqxVzZGqozd6Q7uKSh6momPRI92tzI-d63_pt4uJ5a19xneYDkRaUGHEi5Fn_oqi9XLXwQbElKPY50jBQuQuEFBoElWdeyurnrd8abMJ8cBD6ULBVWW6ERI")`,
+              backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.95) 10%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4nQj-qJlva8AQ6WBFm3QhpPEeeapJF1IfHXPUu19hcl-DeIb4gp1NFiD7cK9Pw8fMBwyjMNr_Emptb4FTirBhNggUaoYUCHBt29yId1WMncHm6pyf7AYB1NtzwjobDfm_8xhmmpNZ6n6-k65AR7UQkqxVzZGqozd6Q7uKSh6momPRI92tzI-d63_pt4uJ5a19xneYDkRaUGHEi5Fn_oqi9XLXwQbElKPY50jBQuQuEFBoElWdeyurnrd8abMJ8cBD6ULBVWW6ERI")`,
             }}
           >
             <div className="flex flex-col gap-3 max-w-2xl">
-              <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
+              <h1 className="text-gal-black text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
                 Define Your <br />
-                <span className="text-[var(--accent)] italic font-light">Shadow Self</span>
+                <span className="text-gal-accent italic font-light">Shadow Self</span>
               </h1>
-              <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
+              <p className="text-gal-body text-sm font-light leading-relaxed max-w-xs mx-auto">
                 {t('subtitle')}
               </p>
             </div>
@@ -414,27 +414,27 @@ export default function FashionTab() {
         {/* Physical Essence Section */}
         <section className="py-6 px-4 space-y-6">
           <div className="text-center">
-            <h3 className="text-white text-xl font-bold tracking-tight pb-1">{t('section.physicalEssence')}</h3>
-            <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full"></div>
+            <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('section.physicalEssence')}</h3>
+            <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full"></div>
           </div>
           <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
             <label className="flex flex-col gap-2">
-              <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1">{t('label.height')}</p>
+              <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1">{t('label.height')}</p>
               <input
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
-                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
+                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-white"
                 placeholder={t('placeholder.height')}
               />
             </label>
             <label className="flex flex-col gap-2">
-              <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1">{t('label.weight')}</p>
+              <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1">{t('label.weight')}</p>
               <input
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 placeholder:text-white/20 p-4 text-lg font-medium transition-all focus:bg-white/10"
+                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-white"
                 placeholder={t('placeholder.weight')}
               />
             </label>
@@ -444,20 +444,20 @@ export default function FashionTab() {
         {/* 이전 사진 */}
         {previousPhotoUrl && !capturedImage && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-4">
+            <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent/20 p-4 shadow-gal-card">
               <div className="flex items-center gap-4">
                 <img
                   src={previousPhotoUrl}
                   alt="Previous"
-                  className="w-20 h-20 rounded-xl object-cover border border-white/10"
+                  className="w-20 h-20 rounded-gal-lg object-cover border border-gal-border"
                 />
                 <div className="flex-1">
-                  <p className="text-white text-sm font-bold mb-1">{tc('face.previousPhoto')}</p>
-                  <p className="text-white/50 text-xs mb-3">{tc('face.previousPhotoDesc')}</p>
+                  <p className="text-gal-black text-sm font-bold mb-1">{tc('face.previousPhoto')}</p>
+                  <p className="text-gal-muted text-xs mb-3">{tc('face.previousPhotoDesc')}</p>
                   <button
                     onClick={handleUsePreviousPhoto}
                     disabled={loadingPrevious}
-                    className="px-4 py-2 bg-[var(--accent-20)] text-[var(--accent)] rounded-full text-xs font-bold border border-[var(--accent-30)] hover:bg-[var(--accent-30)] transition-colors"
+                    className="px-4 py-2 bg-gal-accent-light text-gal-accent rounded-gal-xl text-xs font-bold border border-gal-accent/20 hover:bg-gal-accent/10 transition-colors"
                   >
                     {loadingPrevious ? '...' : tc('face.previousPhotoDesc')}
                   </button>
@@ -470,36 +470,36 @@ export default function FashionTab() {
         {/* Upload Section: The Portal */}
         <section className="py-6 px-4">
           <div className="text-center mb-8">
-            <h3 className="text-white text-xl font-bold tracking-tight pb-1">{t('section.thePortal')}</h3>
-            <p className="text-white/40 text-sm font-light">{t('upload.subtitle')}</p>
+            <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('section.thePortal')}</h3>
+            <p className="text-gal-muted text-sm font-light">{t('upload.subtitle')}</p>
           </div>
           <div className="max-w-md mx-auto aspect-square relative flex items-center justify-center">
-            {/* Neon Border */}
-            <div className="absolute inset-0 rounded-3xl border border-[var(--accent-30)] shadow-[0_0_15px_var(--accent-30)] animate-pulse"></div>
+            {/* Border */}
+            <div className="absolute inset-0 rounded-gal-xl border border-gal-accent/20 shadow-gal-soft"></div>
             <div
               onClick={triggerFileInput}
-              className="w-full h-full bg-[var(--bg-panel)] backdrop-blur-xl rounded-3xl flex flex-col items-center justify-center p-8 text-center cursor-pointer border-dashed border-2 border-[var(--accent-20)] hover:border-[var(--accent-50)] transition-all group"
+              className="w-full h-full bg-white rounded-gal-xl flex flex-col items-center justify-center p-8 text-center cursor-pointer border-dashed border-2 border-gal-accent/20 hover:border-gal-accent/50 transition-all group shadow-gal-card"
             >
               {capturedImage ? (
                 <img
                   src={capturedImage}
                   alt={t('upload.title')}
-                  className="w-full h-full object-cover rounded-2xl"
+                  className="w-full h-full object-cover rounded-gal-lg"
                 />
               ) : (
                 <>
-                  <div className="mb-6 bg-[var(--accent-20)] p-6 rounded-full group-hover:bg-[var(--accent-40)] transition-colors">
-                    <span className="text-5xl text-[var(--accent)]">☁️</span>
+                  <div className="mb-6 bg-gal-accent-light p-6 rounded-full group-hover:bg-gal-accent/15 transition-colors">
+                    <span className="text-5xl text-gal-accent">☁️</span>
                   </div>
-                  <h4 className="text-lg font-bold mb-2">{t('upload.title')}</h4>
-                  <p className="text-white/50 text-sm leading-relaxed">
+                  <h4 className="text-gal-black text-lg font-bold mb-2">{t('upload.title')}</h4>
+                  <p className="text-gal-muted text-sm leading-relaxed">
                     {t('upload.description')}
                   </p>
                   <div className="mt-6 flex gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-tight text-white/60">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-gal-md bg-gal-bg border border-gal-border text-[10px] font-bold uppercase tracking-tight text-gal-body">
                       ✓ {t('upload.frontView')}
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-tight text-white/60">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-gal-md bg-gal-bg border border-gal-border text-[10px] font-bold uppercase tracking-tight text-gal-body">
                       ○ {t('upload.sideView')}
                     </div>
                   </div>
@@ -522,11 +522,11 @@ export default function FashionTab() {
             /* 구독자: 무료 분석 (하루 1회) + 추가 결제 */
             usedToday ? (
               <>
-                <p className="text-white/40 text-sm text-center">{tc('fashion.usedToday')}</p>
+                <p className="text-gal-muted text-sm text-center">{tc('fashion.usedToday')}</p>
                 <button
                   onClick={goToCheckout}
                   disabled={!capturedImage || !height || !weight}
-                  className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                  className={`w-full flex items-center justify-center rounded-gal-xl h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
                     capturedImage && height && weight ? ACTION_BUTTON_ENABLED : ACTION_BUTTON_DISABLED
                   }`}
                 >
@@ -537,10 +537,10 @@ export default function FashionTab() {
               <button
                 onClick={handleFreeAnalysis}
                 disabled={!capturedImage || !height || !weight}
-                className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                className={`w-full flex items-center justify-center rounded-gal-xl h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
                   capturedImage && height && weight
-                    ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    ? 'bg-gal-accent text-white shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95'
+                    : 'bg-gal-light text-gal-muted cursor-not-allowed'
                 }`}
               >
                 {tc('fashion.freeAnalysis')}
@@ -552,10 +552,10 @@ export default function FashionTab() {
               <button
                 onClick={goToCheckout}
                 disabled={!capturedImage || !height || !weight}
-                className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
+                className={`w-full flex items-center justify-center rounded-gal-xl h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${
                   capturedImage && height && weight
-                    ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    ? 'bg-gal-accent text-white shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95'
+                    : 'bg-gal-light text-gal-muted cursor-not-allowed'
                 }`}
               >
                 {capturedImage && height && weight ? t('button.startAnalysis') : t('button.fillAll')}
@@ -563,7 +563,7 @@ export default function FashionTab() {
               {/* 무료체험 및 구독 */}
               <button
                 onClick={() => subscribe()}
-                className="w-full flex items-center justify-center rounded-full h-12 px-8 text-sm font-bold tracking-widest uppercase transition-all bg-white/5 text-[var(--accent)] border border-[var(--accent-30)] hover:bg-[var(--accent-10)] hover:border-[var(--accent-50)]"
+                className="w-full flex items-center justify-center rounded-gal-xl h-12 px-8 text-sm font-bold tracking-widest uppercase transition-all bg-gal-bg text-gal-accent border border-gal-accent/20 hover:bg-gal-accent-light hover:border-gal-accent/40"
               >
                 {tc('fashion.subscribeButton')}
               </button>
@@ -587,11 +587,11 @@ export default function FashionTab() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <CircularProgress progress={analysisProgress} size={120} strokeWidth={6} />
-        <h3 className="text-white text-xl font-bold mt-8 mb-2">{t('analyzing.title')}</h3>
-        <p className="text-white/50 text-sm text-center max-w-xs mb-2">
+        <h3 className="text-gal-black text-xl font-bold mt-8 mb-2">{t('analyzing.title')}</h3>
+        <p className="text-gal-muted text-sm text-center max-w-xs mb-2">
           {t('analyzing.description')}
         </p>
-        <p className="text-[var(--accent)] text-sm font-medium">
+        <p className="text-gal-accent text-sm font-medium">
           {getStatusText()}
         </p>
       </div>
@@ -602,14 +602,14 @@ export default function FashionTab() {
   if (mode === 'error') {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
-        <div className="h-20 w-20 rounded-full border border-red-500/50 flex items-center justify-center mb-6">
+        <div className="h-20 w-20 rounded-full border border-red-300 flex items-center justify-center mb-6">
           <span className="text-4xl">⚠️</span>
         </div>
-        <h3 className="text-white text-xl font-bold mb-2">{t('error.title')}</h3>
-        <p className="text-white/50 text-sm mb-6 max-w-xs">{errorMessage}</p>
+        <h3 className="text-gal-black text-xl font-bold mb-2">{t('error.title')}</h3>
+        <p className="text-gal-muted text-sm mb-6 max-w-xs">{errorMessage}</p>
         <button
           onClick={handleReset}
-          className="px-8 py-3 bg-[var(--accent-20)] text-[var(--accent)] rounded-full font-bold uppercase tracking-widest text-sm hover:bg-[var(--accent-30)] transition-colors border border-[var(--accent-30)]"
+          className="px-8 py-3 bg-gal-accent-light text-gal-accent rounded-gal-xl font-bold uppercase tracking-widest text-sm hover:bg-gal-accent/15 transition-colors border border-gal-accent/20"
         >
           {t('error.tryAgain')}
         </button>
@@ -622,28 +622,28 @@ export default function FashionTab() {
     return (
       <div className="space-y-8 pb-8">
         {/* Header */}
-        <section className="py-8 px-4 bg-gradient-to-b from-transparent to-black/20">
+        <section className="py-8 px-4 bg-gradient-to-b from-transparent to-gal-bg/50">
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-[var(--accent)] text-[10px] font-bold uppercase tracking-[0.3em]">{t('result.complete')}</span>
-                <h3 className="text-white text-2xl font-bold tracking-tight">{result.bodyAnalysis?.bodyType || ''}</h3>
+                <span className="text-gal-accent text-[10px] font-bold uppercase tracking-[0.3em]">{t('result.complete')}</span>
+                <h3 className="text-gal-black text-2xl font-bold tracking-tight">{result.bodyAnalysis?.bodyType || ''}</h3>
               </div>
-              <div className="h-12 w-12 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
-                <span className="text-[var(--accent)] text-xl">✨</span>
+              <div className="h-12 w-12 rounded-full border border-gal-accent/30 flex items-center justify-center shadow-gal-soft">
+                <span className="text-gal-accent text-xl">✨</span>
               </div>
             </div>
 
             {/* 업로드된 사진 */}
             {capturedImage && (
-              <div className="relative rounded-2xl overflow-hidden bg-[var(--bg-panel)] backdrop-blur-xl border border-white/10">
+              <div className="relative rounded-gal-xl overflow-hidden bg-white border border-gal-border shadow-gal-card">
                 <div className="aspect-[4/5] bg-cover bg-center" style={{ backgroundImage: `url(${capturedImage})` }}></div>
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-lg font-bold">{t('result.styleProfile')}</h4>
-                    <span className="text-[var(--accent)] font-bold">{t('result.aiMatch')}</span>
+                    <h4 className="text-gal-black text-lg font-bold">{t('result.styleProfile')}</h4>
+                    <span className="text-gal-accent font-bold">{t('result.aiMatch')}</span>
                   </div>
-                  <p className="text-white/60 text-sm italic leading-relaxed">
+                  <p className="text-gal-body text-sm italic leading-relaxed">
                     "{result.mainMessage || ''}"
                   </p>
                 </div>
@@ -654,16 +654,16 @@ export default function FashionTab() {
 
         {/* Body Analysis */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)]">{t('result.bodyAnalysis')}</h4>
+          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 space-y-4 shadow-gal-card">
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent">{t('result.bodyAnalysis')}</h4>
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm border-b border-white/5 pb-3">
-                <span className="text-white/80 font-medium">{t('result.bodyFeatures')}</span>
-                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis?.features || ''}</span>
+              <div className="flex items-center justify-between text-sm border-b border-gal-border/50 pb-3">
+                <span className="text-gal-dark font-medium">{t('result.bodyFeatures')}</span>
+                <span className="text-gal-muted text-right max-w-[60%]">{result.bodyAnalysis?.features || ''}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white/80 font-medium">{t('result.proportions')}</span>
-                <span className="text-white/40 text-right max-w-[60%]">{result.bodyAnalysis?.proportions || ''}</span>
+                <span className="text-gal-dark font-medium">{t('result.proportions')}</span>
+                <span className="text-gal-muted text-right max-w-[60%]">{result.bodyAnalysis?.proportions || ''}</span>
               </div>
             </div>
           </div>
@@ -672,24 +672,24 @@ export default function FashionTab() {
         {/* Style Recommendations */}
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] px-1">{t('result.styleRecommendations')}</h4>
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent px-1">{t('result.styleRecommendations')}</h4>
             {(result.styles || []).map((style, i) => (
-              <div key={i} className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-5">
+              <div key={i} className="bg-white rounded-gal-xl border border-gal-border p-5 shadow-gal-card">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{style.icon}</span>
-                  <span className="text-white font-bold">{style.category}</span>
+                  <span className="text-gal-black font-bold">{style.category}</span>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {(style.items || []).map((item, j) => (
                     <span
                       key={j}
-                      className="px-3 py-1.5 bg-[var(--accent-20)] rounded-full text-[var(--accent)] text-xs font-medium"
+                      className="px-3 py-1.5 bg-gal-accent-light rounded-gal-md text-gal-accent text-xs font-medium"
                     >
                       {item}
                     </span>
                   ))}
                 </div>
-                <p className="text-white/50 text-sm">{style.description}</p>
+                <p className="text-gal-muted text-sm">{style.description}</p>
               </div>
             ))}
           </div>
@@ -697,43 +697,43 @@ export default function FashionTab() {
 
         {/* Color Palette */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.colorPalette')}</h4>
+          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.colorPalette')}</h4>
             <div className="flex flex-wrap gap-2 mb-4">
               {(result.colors?.recommended || []).map((color, i) => (
                 <span
                   key={i}
-                  className="px-4 py-2 bg-white/5 rounded-full text-white/80 text-sm border border-white/10"
+                  className="px-4 py-2 bg-gal-bg rounded-gal-md text-gal-dark text-sm border border-gal-border"
                 >
                   {color}
                 </span>
               ))}
             </div>
             {result.colors?.avoid?.length > 0 && (
-              <div className="pt-4 border-t border-white/10">
-                <p className="text-white/40 text-xs uppercase tracking-widest mb-2">{t('result.avoid')}</p>
+              <div className="pt-4 border-t border-gal-border">
+                <p className="text-gal-muted text-xs uppercase tracking-widest mb-2">{t('result.avoid')}</p>
                 <div className="flex flex-wrap gap-2">
                   {(result.colors?.avoid || []).map((color, i) => (
-                    <span key={i} className="px-3 py-1 bg-red-500/10 rounded-full text-red-400/80 text-xs">
+                    <span key={i} className="px-3 py-1 bg-red-50 rounded-gal-md text-red-500 text-xs">
                       {color}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-            {result.colors?.description && <p className="text-white/40 text-sm mt-4">{result.colors.description}</p>}
+            {result.colors?.description && <p className="text-gal-muted text-sm mt-4">{result.colors.description}</p>}
           </div>
         </section>
 
         {/* Styling Tips */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.stylingTips')}</h4>
+          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.stylingTips')}</h4>
             <ul className="space-y-3">
               {(result.tips || []).map((tip, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
-                  <span className="text-[var(--accent)]">✓</span>
-                  <span className="text-white/70">{tip}</span>
+                  <span className="text-gal-accent">✓</span>
+                  <span className="text-gal-body">{tip}</span>
                 </li>
               ))}
             </ul>
@@ -743,13 +743,13 @@ export default function FashionTab() {
         {/* Avoid Section */}
         {result.avoid?.length > 0 && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-red-400 mb-4">{t('result.styleWarnings')}</h4>
+            <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+              <h4 className="font-bold uppercase tracking-widest text-xs text-red-500 mb-4">{t('result.styleWarnings')}</h4>
               <ul className="space-y-3">
                 {result.avoid.map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
-                    <span className="text-red-400">✕</span>
-                    <span className="text-white/50">{item}</span>
+                    <span className="text-red-500">✕</span>
+                    <span className="text-gal-muted">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -760,13 +760,13 @@ export default function FashionTab() {
         {/* Accessories */}
         {result.accessories && result.accessories.length > 0 && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.accessories')}</h4>
+            <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+              <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.accessories')}</h4>
               <div className="flex flex-wrap gap-2">
                 {result.accessories.map((item, i) => (
                   <span
                     key={i}
-                    className="px-4 py-2 bg-[var(--accent-10)] rounded-full text-[var(--accent)] text-sm border border-[var(--accent-20)]"
+                    className="px-4 py-2 bg-gal-accent-light rounded-gal-md text-gal-accent text-sm border border-gal-accent/15"
                   >
                     {item}
                   </span>
@@ -779,9 +779,9 @@ export default function FashionTab() {
         {/* Seasonal Advice */}
         {result.seasonalAdvice && (
           <section className="px-4">
-            <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-              <h4 className="text-white font-bold uppercase tracking-widest text-xs text-[var(--accent)] mb-4">{t('result.seasonalGuide')}</h4>
-              <p className="text-white/60 text-sm leading-relaxed">{result.seasonalAdvice}</p>
+            <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+              <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.seasonalGuide')}</h4>
+              <p className="text-gal-body text-sm leading-relaxed">{result.seasonalAdvice}</p>
             </div>
           </section>
         )}
@@ -790,7 +790,7 @@ export default function FashionTab() {
         <div className="px-4 pt-4">
           <button
             onClick={handleReset}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-colors"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-gal-black text-white h-12 rounded-gal-lg font-bold text-sm uppercase tracking-widest hover:bg-gal-accent hover:text-white transition-colors"
           >
             {t('button.newAnalysis')}
           </button>

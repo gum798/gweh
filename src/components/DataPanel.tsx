@@ -13,16 +13,15 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }: Data
   const { t } = useTranslation();
 
   return (
-    <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+    <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-soft">
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-2xl">📜</span>
-        <h2 className="text-white font-bold text-lg">{t('data.source')}</h2>
+        <h2 className="text-gal-black font-bold text-lg">{t('data.source')}</h2>
       </div>
 
       <div className="space-y-6">
         {/* 날씨 데이터 */}
         {weather && (
-          <DataSection title={t('data.weather')} icon="🌡️">
+          <DataSection title={t('data.weather')} icon="">
             <DataRow label={t('data.location')} value={weather.cityName} />
             <DataRow label={t('data.temperature')} value={`${weather.temperature}°C`} />
             <DataRow label={t('data.feelsLike')} value={`${weather.feelsLike}°C`} />
@@ -45,7 +44,7 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }: Data
 
         {/* 지진 데이터 */}
         {earthquake && (
-          <DataSection title={t('data.earthquake')} icon="🌍">
+          <DataSection title={t('data.earthquake')} icon="">
             <DataRow label={t('data.earthquakeCount')} value={`${earthquake.count}회`} />
             <DataRow label={t('data.avgMagnitude')} value={`M ${earthquake.avgMagnitude}`} />
             <DataRow label={t('data.maxMagnitude')} value={`M ${earthquake.maxMagnitude}`} />
@@ -60,7 +59,7 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }: Data
 
         {/* NASA APOD */}
         {nasa && (
-          <DataSection title={t('data.nasa')} icon="🔭">
+          <DataSection title={t('data.nasa')} icon="">
             <DataRow label={t('data.nasaTitle')} value={nasa.title} />
             <DataRow label={t('data.nasaDate')} value={nasa.date} />
           </DataSection>
@@ -73,9 +72,9 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }: Data
 // rerender-memo: Memoize sub-components to prevent unnecessary re-renders
 const DataSection = memo(function DataSection({ title, icon, children }: { title: string; icon: string; children: ReactNode }) {
   return (
-    <div className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
-      <h3 className="text-[var(--accent)] text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
-        <span>{icon}</span>
+    <div className="border-t border-gal-border pt-4 first:border-t-0 first:pt-0">
+      <h3 className="text-gal-accent text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
+        {icon && <span>{icon}</span>}
         <span>{title}</span>
       </h3>
       <div className="grid grid-cols-2 gap-2 text-sm">{children}</div>
@@ -86,8 +85,8 @@ const DataSection = memo(function DataSection({ title, icon, children }: { title
 const DataRow = memo(function DataRow({ label, value }: { label: string; value: string }) {
   return (
     <>
-      <span className="text-white/40">{label}</span>
-      <span className="text-white/80 truncate" title={value}>
+      <span className="text-gal-muted">{label}</span>
+      <span className="text-gal-body truncate" title={value}>
         {value}
       </span>
     </>

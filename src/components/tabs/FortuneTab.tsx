@@ -173,11 +173,11 @@ export default function FortuneTab() {
   };
 
   const getLevelStyle = (level: string) => {
-    if (level === '대길') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    if (level === '길') return 'bg-green-500/20 text-green-400 border-green-500/30';
-    if (level === '평') return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    if (level === '소흉') return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-    return 'bg-red-500/20 text-red-400 border-red-500/30';
+    if (level === '대길') return 'bg-amber-50 text-amber-600 border-amber-200';
+    if (level === '길') return 'bg-green-50 text-green-600 border-green-200';
+    if (level === '평') return 'bg-gray-100 text-gray-600 border-gray-200';
+    if (level === '소흉') return 'bg-orange-50 text-orange-600 border-orange-200';
+    return 'bg-red-50 text-red-600 border-red-200';
   };
 
   const getLevelEmoji = (level: string) => {
@@ -193,16 +193,16 @@ export default function FortuneTab() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping" />
-          <div className="h-24 w-24 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
+          <div className="absolute inset-0 rounded-full border border-gal-accent/30 animate-ping" />
+          <div className="h-24 w-24 rounded-full border border-gal-accent/50 flex items-center justify-center shadow-gal-soft">
             <span className="text-4xl animate-pulse">🔮</span>
           </div>
         </div>
-        <h3 className="text-white text-xl font-bold mt-8 mb-2">{t('fortune.analyzing')}</h3>
+        <h3 className="text-gal-black text-xl font-bold mt-8 mb-2">{t('fortune.analyzing')}</h3>
         <div className="mt-4 flex gap-1">
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-[var(--accent)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     );
@@ -223,19 +223,19 @@ export default function FortuneTab() {
       <div className="space-y-6 pb-8">
         {/* 오늘 날짜 */}
         <div className="text-center pt-4">
-          <p className="text-white/40 text-sm">{dateStr}</p>
+          <p className="text-gal-muted text-sm">{dateStr}</p>
         </div>
 
         {/* 헤더 */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6 shadow-[0_0_15px_var(--accent-20)]">
+          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent/20 p-6 shadow-gal-card">
             {result.level && <div className="text-center mb-4">
               <span className="text-5xl mb-3 block">{getLevelEmoji(result.level)}</span>
-              <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold border ${getLevelStyle(result.level)}`}>
+              <span className={`inline-block px-4 py-2 rounded-gal-xl text-sm font-bold border ${getLevelStyle(result.level)}`}>
                 {result.level}
               </span>
             </div>}
-            {result.overall && <p className="text-white/70 text-base leading-relaxed text-center italic">
+            {result.overall && <p className="text-gal-body text-base leading-relaxed text-center italic">
               "{result.overall}"
             </p>}
           </div>
@@ -250,12 +250,12 @@ export default function FortuneTab() {
               { icon: '💰', label: t('fortune.wealth'), text: result.wealth },
               { icon: '🏥', label: t('fortune.health'), text: result.health },
             ].filter((item) => item.text).map((item) => (
-              <div key={item.label} className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-4">
+              <div key={item.label} className="bg-white rounded-gal-xl border border-gal-border p-4 shadow-gal-card">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">{item.icon}</span>
-                  <span className="text-white font-bold text-sm">{item.label}</span>
+                  <span className="text-gal-black font-bold text-sm">{item.label}</span>
                 </div>
-                <p className="text-white/60 text-sm leading-relaxed">{item.text}</p>
+                <p className="text-gal-body text-sm leading-relaxed">{item.text}</p>
               </div>
             ))}
           </div>
@@ -263,21 +263,21 @@ export default function FortuneTab() {
 
         {/* 조언 + 행운 */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-[var(--accent-30)] p-6">
-            <h4 className="text-[var(--accent)] text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
-            {result.advice && <p className="text-white/80 text-sm leading-relaxed mb-5">"{result.advice}"</p>}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
+          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent/20 p-6 shadow-gal-card">
+            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
+            {result.advice && <p className="text-gal-dark text-sm leading-relaxed mb-5">"{result.advice}"</p>}
+            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {result.luckyColor && <div className="text-center">
-                <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
-                <span className="text-white text-sm font-medium">{result.luckyColor}</span>
+                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
+                <span className="text-gal-black text-sm font-medium">{result.luckyColor}</span>
               </div>}
               {result.luckyNumber != null && <div className="text-center">
-                <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
-                <span className="text-white text-sm font-medium">{result.luckyNumber}</span>
+                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
+                <span className="text-gal-black text-sm font-medium">{result.luckyNumber}</span>
               </div>}
               {result.luckyDirection && <div className="text-center">
-                <span className="text-white/40 text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
-                <span className="text-white text-sm font-medium">{result.luckyDirection}</span>
+                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
+                <span className="text-gal-black text-sm font-medium">{result.luckyDirection}</span>
               </div>}
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function FortuneTab() {
         <div className="px-4 pt-2">
           <button
             onClick={handleNewReading}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-white text-black h-12 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
+            className="w-full max-w-md mx-auto flex items-center justify-center bg-gal-black text-white h-12 rounded-gal-lg font-bold text-sm uppercase tracking-widest hover:bg-gal-accent hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
           >
             {t('fortune.newReading')}
           </button>
@@ -300,19 +300,19 @@ export default function FortuneTab() {
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl">
+      <section className="relative overflow-hidden rounded-gal-xl">
         <div
           className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
           style={{
-            backgroundImage: `linear-gradient(to top, var(--bg-hero-bottom) 10%, var(--bg-hero-mid) 50%, rgba(0, 0, 0, 0.2) 100%), url("https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80")`,
+            backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.95) 10%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%), url("https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80")`,
           }}
         >
           <div className="flex flex-col gap-3 max-w-2xl">
-            <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
+            <h1 className="text-gal-black text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
               {t('fortune.heroTitle1')} <br />
-              <span className="text-[var(--accent)] italic font-light">{t('fortune.heroTitle2')}</span>
+              <span className="text-gal-accent italic font-light">{t('fortune.heroTitle2')}</span>
             </h1>
-            <p className="text-white/70 text-sm font-light leading-relaxed max-w-xs mx-auto">
+            <p className="text-gal-body text-sm font-light leading-relaxed max-w-xs mx-auto">
               {t('fortune.heroDesc')}
             </p>
           </div>
@@ -323,41 +323,41 @@ export default function FortuneTab() {
       <section className="px-4">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-6">
-            <h3 className="text-white text-xl font-bold tracking-tight pb-1">{t('fortune.todayFortune')}</h3>
-            <div className="h-1 w-12 bg-[var(--accent)] mx-auto rounded-full" />
+            <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('fortune.todayFortune')}</h3>
+            <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full" />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-[var(--bg-panel)] backdrop-blur-xl rounded-2xl border border-white/10 p-6 space-y-6">
+            <div className="bg-white rounded-gal-xl border border-gal-border p-6 space-y-6 shadow-gal-card">
               <label className="block">
-                <p className="text-white/60 text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('fortune.birthYear')}</p>
+                <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('fortune.birthYear')}</p>
                 <select
                   value={birthYear}
                   onChange={(e) => {
                     setBirthYear(e.target.value);
                     if (e.target.value) localStorage.setItem(BIRTH_YEAR_KEY, e.target.value);
                   }}
-                  className="w-full rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[var(--accent)] border border-white/10 bg-white/5 h-14 px-4 text-lg font-medium transition-all focus:bg-white/10 appearance-none cursor-pointer"
+                  className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-4 text-lg font-medium transition-all focus:bg-white appearance-none cursor-pointer"
                   required
                 >
-                  <option value="" disabled className="bg-[var(--bg-primary)]">Select Year</option>
+                  <option value="" disabled className="bg-white">Select Year</option>
                   {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <option key={year} value={year} className="bg-[var(--bg-primary)]">{year}</option>
+                    <option key={year} value={year} className="bg-white">{year}</option>
                   ))}
                 </select>
               </label>
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm text-center">{error}</p>
+              <p className="text-red-500 text-sm text-center">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={!birthYear}
-              className={`w-full flex items-center justify-center rounded-full h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${birthYear
-                ? 'bg-[var(--accent)] text-white shadow-[0_0_15px_var(--accent-30)] border border-[var(--accent-50)] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]'
-                : 'bg-white/10 text-white/30 cursor-not-allowed'
+              className={`w-full flex items-center justify-center rounded-gal-xl h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${birthYear
+                ? 'bg-gal-accent text-white shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2'
+                : 'bg-gal-light text-gal-muted cursor-not-allowed'
                 }`}
             >
               {t('fortune.viewFortune')}

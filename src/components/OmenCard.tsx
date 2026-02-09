@@ -11,14 +11,14 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
   if (!omen) return null;
 
   return (
-    <div className="glass-panel p-6 md:p-8 animate-float">
+    <div className="glass-panel p-6 md:p-8 animate-fade-in">
       {/* 에너지 지표 */}
       <div className="flex justify-between items-center mb-6">
         <span className="data-label">{t('omenCard.energyFlow')}</span>
         <div className="flex items-center gap-2">
-          <div className="w-24 h-2 bg-mystic-700 rounded-full overflow-hidden">
+          <div className="w-24 h-2 bg-gal-light rounded-gal-md overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-cosmic-gold to-yellow-400 transition-all duration-1000"
+              className="h-full bg-gal-accent transition-all duration-1000 rounded-gal-md"
               style={{ width: `${energy}%` }}
             />
           </div>
@@ -30,8 +30,8 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
 
       {/* 메인 괘 */}
       <div className="text-center mb-8">
-        <div className="text-4xl mb-4">✨</div>
-        <p className="text-xl md:text-2xl mystic-text leading-relaxed text-shadow-glow font-mystic">
+        <div className="text-4xl mb-4">&#x2731;</div>
+        <p className="text-xl md:text-2xl text-gal-black leading-relaxed font-semibold">
           "{omen.main.message}"
         </p>
       </div>
@@ -41,14 +41,14 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
         {omen.details.map((detail, index) => (
           <div
             key={index}
-            className="bg-mystic-700/50 rounded-xl p-4 border border-cosmic-gold/10
-                       hover:border-cosmic-gold/30 transition-colors duration-300"
+            className="bg-gal-bg rounded-gal-lg p-4 border border-gal-border
+                       hover:border-gal-accent transition-colors duration-200"
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl">{detail.icon}</span>
               <span className="data-label">{detail.category}</span>
             </div>
-            <p className="text-gray-200 text-sm leading-relaxed">
+            <p className="text-gal-body text-sm leading-relaxed">
               {detail.message}
             </p>
           </div>
@@ -56,8 +56,8 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
       </div>
 
       {/* 타임스탬프 */}
-      <div className="mt-6 pt-4 border-t border-cosmic-gold/10 text-center">
-        <p className="text-gray-500 text-xs">
+      <div className="mt-6 pt-4 border-t border-gal-border text-center">
+        <p className="text-gal-muted text-xs">
           {omen.timestamp.toLocaleString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', {
             year: 'numeric',
             month: 'long',

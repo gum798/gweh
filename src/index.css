@@ -2,169 +2,160 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ───────────────────────────────────────────
+   Base — Clean White Gallery Foundation
+   ─────────────────────────────────────────── */
+
 @layer base {
   body {
-    background-color: var(--bg-primary);
-    @apply text-gray-100 min-h-screen;
-    font-family: 'Gowun Batang', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', serif;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    min-height: 100vh;
   }
 
-  /* Cosmic Dawn: deep radial gradient background with aurora */
-  [data-theme="cosmic"] body {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(30, 20, 60, 0.7) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(50, 30, 15, 0.35) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 40% at 85% 70%, rgba(20, 15, 50, 0.4) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 70%),
-      #06060f;
-    background-attachment: fixed;
-  }
-
-  /* Cosmic Dawn: animated aurora overlay */
-  [data-theme="cosmic"] body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 120% 40% at 25% 0%, rgba(120, 80, 200, 0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 100% 35% at 75% 0%, rgba(212, 175, 55, 0.06) 0%, transparent 55%);
-    animation: auroraShift 12s ease-in-out infinite alternate;
-  }
-
-  /* English Optical Adjustment: Increase base size to match Hangeul visual weight */
+  /* English Optical Adjustment */
   html[lang="en"] {
     font-size: 17px;
-    /* Slight bump from default ~16px */
   }
 }
 
+/* ───────────────────────────────────────────
+   Components — Gallery Design System
+   ─────────────────────────────────────────── */
+
 @layer components {
+  /* Clean white card (replaces glassmorphism) */
   .glass-panel {
-    background: var(--bg-panel);
-    @apply backdrop-blur-xl rounded-2xl;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Cosmic Dawn: advanced glassmorphism with subtle glow border */
-  [data-theme="cosmic"] .glass-panel {
-    background: linear-gradient(
-      135deg,
-      rgba(14, 10, 30, 0.6) 0%,
-      rgba(20, 15, 40, 0.45) 50%,
-      rgba(14, 10, 30, 0.6) 100%
-    );
-    border: 1px solid rgba(212, 175, 55, 0.1);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(212, 175, 55, 0.08),
-      0 0 0 0.5px rgba(212, 175, 55, 0.06);
-  }
-
-  .mystic-text {
-    color: var(--accent);
-    @apply font-mystic;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
   }
 
   .data-label {
-    @apply text-cosmic-silver/70 text-sm uppercase tracking-wider;
+    color: #999999;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .data-value {
-    @apply text-white text-lg font-medium;
+    color: #1a1a1a;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-radius: 4px;
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease-out;
+  }
+
+  .btn-primary:hover {
+    background-color: #2ea3f2;
+  }
+
+  .input-gallery {
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .input-gallery:focus {
+    border-color: #2ea3f2;
+    box-shadow: 0 0 0 1px #2ea3f2;
+    outline: none;
+  }
+
+  .card-gallery {
+    background-color: #ffffff;
+    border-radius: 4px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease-out;
+  }
+
+  .card-gallery:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  .section-divider {
+    width: 48px;
+    height: 1px;
+    background-color: #e5e5e5;
+    margin: 2rem auto;
   }
 }
 
-@layer utilities {
-  .text-shadow-glow {
-    text-shadow: 0 0 10px var(--text-glow);
-  }
-}
+/* ───────────────────────────────────────────
+   Animations — Minimal & Functional
+   ─────────────────────────────────────────── */
 
-/* ═══════════════════════════════════════════
-   Micro-Animations for Interactive Elements
-   ═══════════════════════════════════════════ */
-
-/* Buttons: smooth press + lift on hover */
 button {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.25s ease,
-              border-color 0.25s ease,
-              background-color 0.25s ease;
+  transition: transform 0.2s ease-out,
+              box-shadow 0.2s ease-out,
+              border-color 0.2s ease-out,
+              background-color 0.2s ease-out;
 }
 
 button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-/* Cards / panels: subtle lift on hover */
-.bg-\[var\(--bg-panel\)\] {
-  transition: transform 0.3s cubic-bezier(0.34, 1, 0.64, 1),
-              box-shadow 0.3s ease,
-              border-color 0.3s ease;
-}
-
-.bg-\[var\(--bg-panel\)\]:hover {
-  transform: translateY(-2px);
-}
-
-/* Glass panel hover lift */
 .glass-panel {
-  transition: transform 0.3s cubic-bezier(0.34, 1, 0.64, 1),
-              box-shadow 0.3s ease,
-              border-color 0.3s ease;
+  transition: transform 0.2s ease-out,
+              box-shadow 0.2s ease-out;
 }
 
 .glass-panel:hover {
   transform: translateY(-1px);
 }
 
-/* ═══════════════════════════════════════════
-   Mystical Ripple Effect
-   ═══════════════════════════════════════════ */
+/* Cosmic divider → simple line */
+.cosmic-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1px;
+  margin: 2rem auto;
+  max-width: 48px;
+  background-color: #e5e5e5;
+}
 
-.mystic-ripple {
+.cosmic-divider::before,
+.cosmic-divider::after {
+  display: none;
+}
+
+/* Nav tab — simple hover highlight */
+.nav-tab-glow {
   position: relative;
-  overflow: hidden;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-out;
 }
 
-.mystic-ripple::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--accent-30) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  pointer-events: none;
+.nav-tab-glow:hover {
+  background-color: rgba(46, 163, 242, 0.08);
 }
 
-.mystic-ripple:active::after {
-  width: 300%;
-  height: 300%;
-  opacity: 1;
-  animation: mysticRipple 0.6s ease-out forwards;
+.nav-tab-glow::before {
+  display: none;
 }
 
-@keyframes mysticRipple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0.6;
-  }
-  100% {
-    width: 300%;
-    height: 300%;
-    opacity: 0;
-  }
+.nav-tab-glow[aria-selected="true"] {
+  background-color: rgba(46, 163, 242, 0.12);
 }
 
-/* prefers-reduced-motion: disable animations */
+/* ───────────────────────────────────────────
+   Accessibility — Reduced Motion
+   ─────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -173,34 +164,40 @@ button:active:not(:disabled) {
   }
 }
 
-/* scrollbar-hide for navigation */
+/* ───────────────────────────────────────────
+   Scrollbar
+   ─────────────────────────────────────────── */
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
+  background: #f5f5f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
+  background: #2ea3f2;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
+  background: #1b8ad9;
 }
 
-/* Skeleton shimmer animation */
+/* ───────────────────────────────────────────
+   Shimmer — Skeleton Loading
+   ─────────────────────────────────────────── */
+
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
@@ -212,386 +209,4 @@ button:active:not(:disabled) {
 
 .animate-shimmer {
   animation: shimmer 1.5s ease-in-out infinite;
-}
-
-/* ═══════════════════════════════════════════
-   Cosmic Dawn — Enhanced Visual Effects
-   ═══════════════════════════════════════════ */
-
-/* Cosmic: elevated panels get inner gold highlight */
-[data-theme="cosmic"] .bg-\[var\(--bg-panel\)\] {
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(212, 175, 55, 0.06);
-}
-
-/* Cosmic: navigation bar glassmorphism — deeper frost */
-[data-theme="cosmic"] nav.sticky {
-  background: linear-gradient(
-    180deg,
-    rgba(14, 10, 30, 0.8) 0%,
-    rgba(10, 8, 22, 0.7) 100%
-  );
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(212, 175, 55, 0.1),
-    0 1px 0 rgba(212, 175, 55, 0.06);
-  border-color: rgba(212, 175, 55, 0.08);
-}
-
-/* ═══════════════════════════════════════════
-   Light Mode Global Overrides
-   ═══════════════════════════════════════════ */
-
-:root[data-mode="light"] {
-  color-scheme: light;
-}
-
-/* ─── Text color inversions ─── */
-[data-mode="light"] .text-white { color: var(--text-primary) !important; }
-[data-mode="light"] .text-white\/80 { color: var(--text-secondary) !important; }
-[data-mode="light"] .text-white\/70 { color: var(--text-secondary) !important; }
-[data-mode="light"] .text-white\/60 { color: var(--text-secondary) !important; }
-[data-mode="light"] .text-white\/50 { color: var(--text-muted) !important; }
-[data-mode="light"] .text-white\/40 { color: var(--text-muted) !important; }
-[data-mode="light"] .text-white\/30 { color: var(--text-faint) !important; }
-[data-mode="light"] .text-white\/20 { color: var(--text-faint) !important; }
-[data-mode="light"] .text-white\/10 { color: rgba(0,0,0,0.08) !important; }
-
-/* ─── Gray text → light-friendly ─── */
-[data-mode="light"] .text-gray-100 { color: var(--text-primary) !important; }
-[data-mode="light"] .text-gray-200 { color: var(--text-primary) !important; }
-[data-mode="light"] .text-gray-300 { color: var(--text-secondary) !important; }
-[data-mode="light"] .text-gray-400 { color: var(--text-muted) !important; }
-[data-mode="light"] .text-gray-500 { color: rgba(26,26,46,0.45) !important; }
-[data-mode="light"] .text-gray-600 { color: rgba(26,26,46,0.55) !important; }
-
-/* ─── Background overlays ─── */
-[data-mode="light"] .bg-white\/5 { background-color: var(--surface-overlay) !important; }
-[data-mode="light"] .bg-white\/10 { background-color: var(--surface-elevated) !important; }
-
-/* ─── Border inversions ─── */
-[data-mode="light"] .border-white\/10 { border-color: var(--border-default) !important; }
-[data-mode="light"] .border-white\/20 { border-color: rgba(0,0,0,0.12) !important; }
-[data-mode="light"] .border-white\/30 { border-color: rgba(0,0,0,0.15) !important; }
-
-/* ─── Modal overlays ─── */
-[data-mode="light"] .bg-black\/70 { background-color: rgba(0,0,0,0.35) !important; }
-
-/* ─── Dark background utilities ─── */
-[data-mode="light"] .bg-gray-800\/60 { background-color: rgba(0,0,0,0.08) !important; }
-[data-mode="light"] .bg-gray-800\/50 { background-color: rgba(0,0,0,0.06) !important; }
-
-/* ─── Mystic legacy colors ─── */
-[data-mode="light"] .bg-mystic-800\/80 { background-color: rgba(255,255,255,0.85) !important; }
-
-/* ─── Glass panel light mode ─── */
-[data-mode="light"] .glass-panel {
-  background: var(--bg-panel);
-  border-color: var(--glass-border);
-  box-shadow:
-    0 2px 12px rgba(0,0,0,0.06),
-    0 8px 32px rgba(0,0,0,0.04),
-    0 0 0 1px var(--accent-10),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-}
-
-/* ─── Cosmic gold text → accent-aware ─── */
-[data-mode="light"] .text-cosmic-gold { color: var(--accent) !important; }
-[data-mode="light"] .text-cosmic-silver\/70 { color: var(--text-muted) !important; }
-
-/* ─── Drop shadows for light ─── */
-[data-mode="light"] .shadow-cosmic-gold\/20 {
-  --tw-shadow-color: var(--accent-20);
-}
-
-/* ─── Amber text overrides (FaceHarmonyTab) ─── */
-[data-mode="light"] .text-amber-400 { color: var(--accent) !important; }
-[data-mode="light"] .text-amber-300 { color: var(--accent) !important; }
-[data-mode="light"] .text-amber-200 { color: var(--text-primary) !important; }
-[data-mode="light"] .text-amber-200\/90 { color: var(--text-primary) !important; }
-[data-mode="light"] .text-amber-200\/70 { color: var(--text-secondary) !important; }
-[data-mode="light"] .text-amber-200\/50 { color: var(--text-muted) !important; }
-[data-mode="light"] .text-amber-400\/60 { color: var(--text-muted) !important; }
-[data-mode="light"] .text-amber-400\/50 { color: var(--text-muted) !important; }
-[data-mode="light"] .text-amber-400\/40 { color: var(--text-faint) !important; }
-[data-mode="light"] .text-amber-500 { color: var(--accent) !important; }
-[data-mode="light"] .text-amber-500\/40 { color: var(--text-faint) !important; }
-[data-mode="light"] .text-amber-300\/90 { color: var(--accent) !important; }
-[data-mode="light"] .text-amber-300\/80 { color: var(--accent) !important; }
-[data-mode="light"] .text-amber-100\/80 { color: var(--text-secondary) !important; }
-
-/* ─── Amber border/bg → accent-aware ─── */
-[data-mode="light"] .border-amber-500\/10 { border-color: var(--accent-10) !important; }
-[data-mode="light"] .border-amber-500\/20 { border-color: var(--accent-20) !important; }
-[data-mode="light"] .border-amber-500\/30 { border-color: var(--accent-30) !important; }
-[data-mode="light"] .border-amber-400\/10 { border-color: var(--accent-10) !important; }
-[data-mode="light"] .border-amber-400\/20 { border-color: var(--accent-20) !important; }
-[data-mode="light"] .border-amber-400\/30 { border-color: var(--accent-30) !important; }
-[data-mode="light"] .border-amber-400\/40 { border-color: var(--accent-40) !important; }
-[data-mode="light"] .border-amber-400\/60 { border-color: var(--accent-50) !important; }
-[data-mode="light"] .bg-amber-400\/10 { background-color: var(--accent-10) !important; }
-[data-mode="light"] .bg-amber-400\/15 { background-color: var(--accent-10) !important; }
-[data-mode="light"] .bg-amber-400\/20 { background-color: var(--accent-20) !important; }
-
-/* ─── Light mode: panels and cards get visible depth ─── */
-[data-mode="light"] .bg-\[var\(--bg-panel\)\] {
-  box-shadow:
-    0 2px 12px rgba(0,0,0,0.05),
-    0 8px 28px rgba(0,0,0,0.04),
-    0 0 0 1px var(--accent-10),
-    inset 0 1px 0 rgba(255,255,255,0.8) !important;
-}
-
-/* ─── Light mode: navigation bar ─── */
-[data-mode="light"] nav.sticky {
-  background: var(--bg-panel) !important;
-  border-color: var(--glass-border) !important;
-  box-shadow:
-    0 4px 20px rgba(0,0,0,0.06),
-    0 0 0 1px var(--accent-10),
-    inset 0 1px 0 rgba(255,255,255,0.9) !important;
-}
-
-/* ─── Light mode: vibrant cosmic white background ─── */
-[data-mode="light"] body {
-  background:
-    radial-gradient(ellipse 90% 60% at 50% -10%, var(--accent-20) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 0% 50%, rgba(140,90,200,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 40% at 100% 80%, var(--accent-10) 0%, transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(200,160,50,0.04) 0%, transparent 60%),
-    var(--bg-primary) !important;
-  background-attachment: fixed;
-}
-
-/* ─── Shimmer for light ─── */
-[data-mode="light"] .animate-shimmer {
-  background-image: linear-gradient(to right, rgba(0,0,0,0.02), var(--accent-10), rgba(0,0,0,0.02));
-}
-
-/* ─── Light mode: accent-aware text shadow (softer glow) ─── */
-[data-mode="light"] .text-shadow-glow {
-  text-shadow: 0 0 12px var(--text-glow), 0 1px 2px rgba(0,0,0,0.08);
-}
-
-/* ─── Light mode: elevated hover state for cards ─── */
-[data-mode="light"] .bg-\[var\(--bg-panel\)\]:hover {
-  box-shadow:
-    0 4px 16px rgba(0,0,0,0.08),
-    0 12px 36px rgba(0,0,0,0.05),
-    0 0 0 1px var(--accent-20),
-    inset 0 1px 0 rgba(255,255,255,0.9) !important;
-}
-
-/* Light mode: disable aurora overlay */
-[data-mode="light"] body::before {
-  display: none;
-}
-
-/* ═══════════════════════════════════════════
-   Cosmic Dawn — Aurora Shift Animation
-   ═══════════════════════════════════════════ */
-
-@keyframes auroraShift {
-  0% {
-    opacity: 0.6;
-    filter: hue-rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-    filter: hue-rotate(15deg);
-  }
-  100% {
-    opacity: 0.7;
-    filter: hue-rotate(-10deg);
-  }
-}
-
-/* ═══════════════════════════════════════════
-   Cosmic Starfield — CSS-only star particles
-   ═══════════════════════════════════════════ */
-
-.cosmic-starfield {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.cosmic-starfield::before,
-.cosmic-starfield::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 25% 45%, rgba(212,175,55,0.3) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 40% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 70%, rgba(212,175,55,0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.35) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 85% 60%, rgba(212,175,55,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 90%, rgba(212,175,55,0.2) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 30% 55%, rgba(255,255,255,0.3) 0%, transparent 100%);
-  animation: starTwinkle 6s ease-in-out infinite alternate;
-}
-
-.cosmic-starfield::after {
-  background-image:
-    radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 20% 85%, rgba(212,175,55,0.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 60% 5%, rgba(212,175,55,0.2) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 75% 80%, rgba(255,255,255,0.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 95% 40%, rgba(212,175,55,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 45% 55%, rgba(255,255,255,0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 65% 25%, rgba(255,255,255,0.3) 0%, transparent 100%);
-  animation-delay: -3s;
-  animation-duration: 8s;
-}
-
-@keyframes starTwinkle {
-  0% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0.5; }
-}
-
-/* ═══════════════════════════════════════════
-   Cosmic Divider Ornament
-   ═══════════════════════════════════════════ */
-
-.cosmic-divider {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  height: 24px;
-  margin: 2rem 0;
-}
-
-.cosmic-divider::before,
-.cosmic-divider::after {
-  content: '';
-  flex: 1;
-  max-width: 160px;
-  height: 1px;
-}
-
-.cosmic-divider::before {
-  background: linear-gradient(90deg, transparent 0%, var(--accent-30) 100%);
-}
-
-.cosmic-divider::after {
-  background: linear-gradient(90deg, var(--accent-30) 0%, transparent 100%);
-}
-
-.cosmic-divider-gem {
-  width: 8px;
-  height: 8px;
-  transform: rotate(45deg);
-  background: var(--accent);
-  opacity: 0.5;
-  box-shadow: 0 0 12px var(--accent-glow), 0 0 4px var(--accent-30);
-  margin: 0 8px;
-  border-radius: 1px;
-  flex-shrink: 0;
-}
-
-/* ═══════════════════════════════════════════
-   Enhanced Glass Panel — Depth Layers
-   ═══════════════════════════════════════════ */
-
-[data-theme="cosmic"] .glass-panel-deep {
-  background: linear-gradient(
-    145deg,
-    rgba(14, 10, 30, 0.7) 0%,
-    rgba(25, 18, 50, 0.5) 30%,
-    rgba(14, 10, 30, 0.65) 70%,
-    rgba(10, 8, 25, 0.75) 100%
-  );
-  border: 1px solid rgba(212, 175, 55, 0.12);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(212, 175, 55, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-    0 0 0 0.5px rgba(212, 175, 55, 0.06);
-  backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
-}
-
-/* ═══════════════════════════════════════════
-   Footer Constellation Pattern
-   ═══════════════════════════════════════════ */
-
-.footer-constellation {
-  position: relative;
-  overflow: hidden;
-}
-
-.footer-constellation::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(1px 1px at 15% 30%, rgba(212,175,55,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 40% 60%, rgba(212,175,55,0.15) 0%, transparent 100%),
-    radial-gradient(1px 1px at 65% 20%, rgba(212,175,55,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 50%, rgba(212,175,55,0.15) 0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 80%, rgba(212,175,55,0.1) 0%, transparent 100%);
-  opacity: 0.6;
-}
-
-/* ═══════════════════════════════════════════
-   Header Logo Breath Animation
-   ═══════════════════════════════════════════ */
-
-@keyframes logoBreathe {
-  0%, 100% {
-    filter: drop-shadow(0 0 15px var(--accent-glow)) drop-shadow(0 0 30px rgba(212,175,55,0.15));
-    transform: scale(1);
-  }
-  50% {
-    filter: drop-shadow(0 0 25px var(--accent-glow)) drop-shadow(0 0 50px rgba(212,175,55,0.2));
-    transform: scale(1.02);
-  }
-}
-
-.logo-breathe {
-  animation: logoBreathe 4s ease-in-out infinite;
-}
-
-/* ═══════════════════════════════════════════
-   Navigation — Enhanced Tab Hover Glow
-   ═══════════════════════════════════════════ */
-
-.nav-tab-glow {
-  position: relative;
-}
-
-.nav-tab-glow::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: 0.75rem;
-  opacity: 0;
-  background: radial-gradient(ellipse at 50% 100%, var(--accent-20) 0%, transparent 70%);
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.nav-tab-glow:hover::before {
-  opacity: 1;
-}
-
-/* Active tab gets persistent glow */
-.nav-tab-glow[aria-selected="true"]::before {
-  opacity: 1;
-  background: radial-gradient(ellipse at 50% 100%, var(--accent-30) 0%, transparent 70%);
 }

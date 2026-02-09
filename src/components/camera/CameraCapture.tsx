@@ -161,7 +161,7 @@ export default function CameraCapture({
 
         if (predictions && predictions.length > 0) {
           setIsDetected(true);
-          drawMysticEffect(ctx, predictions[0], detectType, canvas.width, canvas.height);
+          drawDetectionEffect(ctx, predictions[0], detectType, canvas.width, canvas.height);
         } else {
           setIsDetected(false);
         }
@@ -219,26 +219,26 @@ export default function CameraCapture({
   return (
     <div className="glass-panel p-6 text-center">
       {instruction && (
-        <p className="text-gray-400 mb-4 text-sm">{instruction}</p>
+        <p className="text-gal-muted mb-4 text-sm">{instruction}</p>
       )}
 
       <div className="flex justify-center gap-2 mb-4">
         <button
           onClick={() => setMode('camera')}
-          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+          className={`px-4 py-2 rounded-gal-lg text-sm transition-colors ${
             mode === 'camera'
-              ? 'bg-cosmic-gold/20 text-cosmic-gold'
-              : 'text-gray-400 hover:text-cosmic-gold'
+              ? 'bg-gal-accent-light text-gal-accent'
+              : 'text-gal-muted hover:text-gal-accent'
           }`}
         >
           📷 {t('camera.cameraMode')}
         </button>
         <button
           onClick={() => setMode('upload')}
-          className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+          className={`px-4 py-2 rounded-gal-lg text-sm transition-colors ${
             mode === 'upload'
-              ? 'bg-cosmic-gold/20 text-cosmic-gold'
-              : 'text-gray-400 hover:text-cosmic-gold'
+              ? 'bg-gal-accent-light text-gal-accent'
+              : 'text-gal-muted hover:text-gal-accent'
           }`}
         >
           📁 {t('camera.uploadMode')}
@@ -247,7 +247,7 @@ export default function CameraCapture({
 
       {mode === 'camera' && !hasError ? (
         <div className="flex flex-col items-center gap-4">
-          <div className="relative rounded-2xl overflow-hidden border-2 border-cosmic-gold/30">
+          <div className="relative rounded-gal-xl overflow-hidden border-2 border-gal-accent/30">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -255,7 +255,7 @@ export default function CameraCapture({
               videoConstraints={videoConstraints}
               onUserMedia={handleUserMedia}
               onUserMediaError={handleUserMediaError}
-              className="rounded-2xl"
+              className="rounded-gal-xl"
               mirrored={true}
             />
             <canvas
@@ -264,17 +264,17 @@ export default function CameraCapture({
               style={{ transform: 'scaleX(-1)' }}
             />
             {(!isReady || isModelLoading) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-mystic-800/80">
-                <p className="text-gray-400">
+              <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+                <p className="text-gal-muted">
                   {isModelLoading ? t('camera.modelLoading') : t('camera.connecting')}
                 </p>
               </div>
             )}
             {isReady && !isModelLoading && detectType !== 'none' && (
-              <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs transition-all ${
+              <div className={`absolute top-3 left-3 px-3 py-1 rounded-gal-md text-xs transition-all ${
                 isDetected
-                  ? 'bg-cosmic-gold/30 text-cosmic-gold'
-                  : 'bg-gray-800/50 text-gray-400'
+                  ? 'bg-gal-accent-light text-gal-accent'
+                  : 'bg-gal-light text-gal-muted'
               }`}>
                 {isDetected
                   ? (detectType === 'face' ? t('camera.faceDetected') : t('camera.handDetected'))
@@ -287,10 +287,10 @@ export default function CameraCapture({
           <button
             onClick={capture}
             disabled={!isReady || isModelLoading}
-            className={`px-8 py-3 rounded-xl font-medium font-mystic transition-all ${
+            className={`px-8 py-3 rounded-gal-xl font-medium transition-all ${
               isReady && !isModelLoading
-                ? 'bg-gradient-to-r from-cosmic-gold to-yellow-500 text-mystic-900 hover:from-yellow-500 hover:to-cosmic-gold shadow-lg shadow-cosmic-gold/20'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                ? 'bg-gal-accent text-white hover:bg-gal-accent-dark shadow-gal-button'
+                : 'bg-gal-light text-gal-muted cursor-not-allowed'
             }`}
           >
             {displayCaptureLabel}
@@ -299,18 +299,18 @@ export default function CameraCapture({
       ) : (
         <div className="flex flex-col items-center gap-4">
           {hasError && (
-            <p className="text-orange-400 text-sm mb-2">
+            <p className="text-orange-500 text-sm mb-2">
               {t('camera.noAccess')}
             </p>
           )}
 
           <div
             onClick={triggerFileInput}
-            className="border-2 border-dashed border-cosmic-gold/30 rounded-2xl p-12 cursor-pointer
-                       hover:border-cosmic-gold/50 transition-colors"
+            className="border-2 border-dashed border-gal-accent/30 rounded-gal-xl p-12 cursor-pointer
+                       hover:border-gal-accent/50 transition-colors"
           >
             <div className="text-4xl mb-2">📷</div>
-            <p className="text-gray-400">{t('camera.clickToSelect')}</p>
+            <p className="text-gal-muted">{t('camera.clickToSelect')}</p>
           </div>
 
           <input
@@ -326,7 +326,7 @@ export default function CameraCapture({
   );
 }
 
-function drawMysticEffect(ctx, detection, type, width, height) {
+function drawDetectionEffect(ctx, detection, type, width, height) {
   const time = Date.now() * 0.003;
 
   if (type === 'face') {
@@ -359,7 +359,7 @@ function drawFaceEffect(ctx, face, time) {
   const radiusY = (maxY - minY) / 2 + 30;
   const radius = Math.max(radiusX, radiusY);
 
-  drawMysticCircle(ctx, centerX, centerY, radius, time);
+  drawDetectionCircle(ctx, centerX, centerY, radius, time);
 
   const importantPoints = [10, 152, 234, 454, 1];
   importantPoints.forEach((idx, i) => {
@@ -373,13 +373,13 @@ function drawHandEffect(ctx, hand, time) {
   const keypoints = hand.keypoints;
   if (!keypoints || keypoints.length === 0) return;
 
-  // 1. 뼈대 연결선 그리기 (신비로운 스타일)
+  // 1. 뼈대 연결선 그리기
   drawHandSkeleton(ctx, keypoints, time);
 
   // 2. 21개 키포인트 그리기
   drawHandKeypoints(ctx, keypoints, time);
 
-  // 3. 손바닥 영역에 신비로운 효과
+  // 3. 손바닥 영역에 효과
   drawPalmArea(ctx, keypoints, time);
 }
 
@@ -393,8 +393,8 @@ function drawHandSkeleton(ctx, keypoints, time) {
       // 그라데이션 라인
       const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
       const alpha = 0.6 + Math.sin(time * 2 + index * 0.2) * 0.2;
-      gradient.addColorStop(0, `rgba(212, 175, 55, ${alpha})`);
-      gradient.addColorStop(1, `rgba(255, 215, 0, ${alpha})`);
+      gradient.addColorStop(0, `rgba(46, 163, 242, ${alpha})`);
+      gradient.addColorStop(1, `rgba(26, 143, 216, ${alpha})`);
 
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
@@ -408,7 +408,7 @@ function drawHandSkeleton(ctx, keypoints, time) {
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
-      ctx.strokeStyle = `rgba(212, 175, 55, 0.3)`;
+      ctx.strokeStyle = `rgba(46, 163, 242, 0.3)`;
       ctx.lineWidth = 8;
       ctx.stroke();
     }
@@ -429,14 +429,14 @@ function drawHandKeypoints(ctx, keypoints, time) {
     // 외부 글로우
     ctx.beginPath();
     ctx.arc(point.x, point.y, size + 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(212, 175, 55, 0.2)';
+    ctx.fillStyle = 'rgba(46, 163, 242, 0.2)';
     ctx.fill();
 
     // 메인 포인트
     const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, size);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.5, 'rgba(255, 215, 0, 1)');
-    gradient.addColorStop(1, 'rgba(212, 175, 55, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(46, 163, 242, 1)');
+    gradient.addColorStop(1, 'rgba(26, 143, 216, 0.8)');
 
     ctx.beginPath();
     ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
@@ -452,7 +452,7 @@ function drawHandKeypoints(ctx, keypoints, time) {
     if (isWrist) {
       ctx.beginPath();
       ctx.arc(point.x, point.y, size + 8, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(212, 175, 55, ${0.3 + Math.sin(time * 2) * 0.2})`;
+      ctx.strokeStyle = `rgba(46, 163, 242, ${0.3 + Math.sin(time * 2) * 0.2})`;
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 4]);
       ctx.lineDashOffset = -time * 10;
@@ -480,22 +480,22 @@ function drawPalmArea(ctx, keypoints, time) {
     Math.pow(keypoints[9].y - keypoints[0].y, 2)
   ) * 0.7;
 
-  // 신비로운 중앙 심볼
+  // 중앙 심볼
   const symbolAlpha = 0.2 + Math.sin(time * 2) * 0.1;
   ctx.font = `${palmSize * 0.5}px serif`;
-  ctx.fillStyle = `rgba(212, 175, 55, ${symbolAlpha})`;
+  ctx.fillStyle = `rgba(46, 163, 242, ${symbolAlpha})`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('☯', centerX, centerY);
 
-  // 회전하는 룬 원
+  // 회전하는 원
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(time * 0.5);
 
   ctx.beginPath();
   ctx.arc(0, 0, palmSize * 0.8, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(212, 175, 55, 0.15)`;
+  ctx.strokeStyle = `rgba(46, 163, 242, 0.15)`;
   ctx.lineWidth = 1;
   ctx.setLineDash([8, 8]);
   ctx.stroke();
@@ -504,13 +504,13 @@ function drawPalmArea(ctx, keypoints, time) {
   ctx.restore();
 }
 
-function drawMysticCircle(ctx, x, y, radius, time) {
+function drawDetectionCircle(ctx, x, y, radius, time) {
   const pulseRadius = radius + Math.sin(time * 2) * 5;
 
   const gradient = ctx.createRadialGradient(x, y, pulseRadius * 0.8, x, y, pulseRadius * 1.3);
-  gradient.addColorStop(0, 'rgba(212, 175, 55, 0)');
-  gradient.addColorStop(0.5, 'rgba(212, 175, 55, 0.15)');
-  gradient.addColorStop(1, 'rgba(212, 175, 55, 0)');
+  gradient.addColorStop(0, 'rgba(46, 163, 242, 0)');
+  gradient.addColorStop(0.5, 'rgba(46, 163, 242, 0.15)');
+  gradient.addColorStop(1, 'rgba(46, 163, 242, 0)');
 
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius * 1.3, 0, Math.PI * 2);
@@ -519,7 +519,7 @@ function drawMysticCircle(ctx, x, y, radius, time) {
 
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)';
+  ctx.strokeStyle = 'rgba(46, 163, 242, 0.8)';
   ctx.lineWidth = 2;
   ctx.setLineDash([10, 5]);
   ctx.lineDashOffset = -time * 20;
@@ -528,7 +528,7 @@ function drawMysticCircle(ctx, x, y, radius, time) {
 
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius * 0.85, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+  ctx.strokeStyle = 'rgba(46, 163, 242, 0.4)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -539,12 +539,12 @@ function drawMysticCircle(ctx, x, y, radius, time) {
 
     ctx.beginPath();
     ctx.arc(x + dx, y + dy, 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+    ctx.fillStyle = 'rgba(46, 163, 242, 0.9)';
     ctx.fill();
   }
 
   ctx.font = `${radius * 0.3}px serif`;
-  ctx.fillStyle = `rgba(212, 175, 55, ${0.3 + Math.sin(time * 3) * 0.1})`;
+  ctx.fillStyle = `rgba(46, 163, 242, ${0.3 + Math.sin(time * 3) * 0.1})`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('☯', x, y);
@@ -559,7 +559,7 @@ function drawSparkle(ctx, x, y, time) {
   ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
   ctx.fill();
 
-  ctx.strokeStyle = `rgba(212, 175, 55, ${alpha * 0.7})`;
+  ctx.strokeStyle = `rgba(46, 163, 242, ${alpha * 0.7})`;
   ctx.lineWidth = 1;
 
   ctx.beginPath();

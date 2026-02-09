@@ -1,6 +1,3 @@
-// Autonomous verification with PTY at 2026-02-06 15:36
-// Claw Test Integration2
-// Testing direct execution
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
@@ -10,10 +7,8 @@ import { useAuth } from './contexts/AuthContext';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
-import { applyTheme, type ColorMode } from './lib/applyTheme';
-import type { ThemeKey } from './lib/themes';
 
-// 탭 컴포넌트 동적 로딩
+// Tab components (lazy-loaded)
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
 const FaceTab = lazy(() => import('./components/tabs/FaceTab'));
 const PalmTab = lazy(() => import('./components/tabs/PalmTab'));
@@ -36,19 +31,8 @@ function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [colorMode, setColorMode] = useState<ColorMode>(() =>
-    (localStorage.getItem('mystic_color_mode') as ColorMode) || 'light'
-  );
 
-  const toggleColorMode = useCallback(() => {
-    const next: ColorMode = colorMode === 'dark' ? 'light' : 'dark';
-    setColorMode(next);
-    localStorage.setItem('mystic_color_mode', next);
-    const currentTheme = (localStorage.getItem('theme') as ThemeKey) || 'cosmic';
-    applyTheme(currentTheme, next);
-  }, [colorMode]);
-
-  // 결제 완료 후 토스트 표시 (탭 이동 없음)
+  // Show toast after checkout completion (no tab switch)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('checkout_success') === 'true') {
@@ -61,7 +45,7 @@ function App() {
     }
   }, []);
 
-  // 토스트 자동 닫기
+  // Auto-dismiss toast
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 4000);
@@ -83,13 +67,10 @@ function App() {
     const skeletonFallback = <SkeletonOmenTab />;
     const defaultFallback = (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-[var(--accent-30)] shadow-[0_0_30px_var(--accent-glow)] animate-ping"></div>
-          <div className="h-20 w-20 rounded-full border border-[var(--accent-50)] flex items-center justify-center shadow-[0_0_15px_var(--accent-30)]">
-            <span className="text-3xl animate-pulse">✨</span>
-          </div>
+        <div className="h-16 w-16 rounded-gal-xl border border-gal-border flex items-center justify-center">
+          <div className="h-6 w-6 rounded-full border-2 border-gal-accent border-t-transparent animate-spin" />
         </div>
-        <p className="text-white/50 text-sm mt-6">Loading...</p>
+        <p className="text-gal-muted text-sm mt-6">Loading...</p>
       </div>
     );
 
@@ -148,27 +129,23 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)]">
-      {/* Cosmic starfield background layer */}
-      <div className="cosmic-starfield" aria-hidden="true" />
-
-      {/* 구독 배너 (floating badge) */}
+    <div className="min-h-screen bg-white">
+      {/* Subscription banner (floating badge) */}
       <SubscriptionBanner onLoginRequired={openAuthModal} />
 
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] animate-fade-in">
-          <div className="bg-[var(--accent)] text-white px-6 py-3 rounded-xl shadow-[0_0_20px_var(--accent-glow)] text-sm font-medium flex items-center gap-2">
-            <span>✨</span>
+          <div className="bg-gal-accent text-white px-6 py-3 rounded-gal-xl shadow-gal-card text-sm font-medium flex items-center gap-2">
             {toast}
-            <button onClick={() => setToast(null)} aria-label="Close" className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded">&times;</button>
+            <button onClick={() => setToast(null)} aria-label="Close" className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-gal-sm">&times;</button>
           </div>
         </div>
       )}
 
-      {/* 콘텐츠 */}
-      <div className="relative z-10 container mx-auto px-4 py-6 max-w-4xl">
-        {/* 헤더 */}
+      {/* Content */}
+      <div className="relative container mx-auto px-4 py-6 max-w-4xl">
+        {/* Header */}
         <header className="relative text-center mb-6">
           <div className="absolute left-0 top-4 flex gap-1.5">
             <button
@@ -179,16 +156,9 @@ function App() {
                 document.documentElement.lang = newLang;
               }}
               aria-label={i18n.language === 'ko' ? 'Switch to English' : '한국어로 전환'}
-              className="text-xs text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] hover:shadow-[0_0_12px_var(--accent-20)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-300 font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+              className="text-xs text-gal-muted hover:text-gal-black border border-gal-border hover:border-gal-accent min-w-[44px] min-h-[44px] flex items-center justify-center rounded-gal-xl transition-all duration-200 font-medium active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent"
             >
               {i18n.language === 'ko' ? 'EN' : 'KO'}
-            </button>
-            <button
-              onClick={toggleColorMode}
-              aria-label={colorMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="text-sm text-white/60 hover:text-white border border-white/10 hover:border-[var(--accent-50)] hover:shadow-[0_0_12px_var(--accent-20)] min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-            >
-              {colorMode === 'dark' ? '☀️' : '🌙'}
             </button>
           </div>
           <div className="absolute right-0 top-4">
@@ -196,79 +166,26 @@ function App() {
               <button
                 onClick={() => setProfileModalOpen(true)}
                 aria-label={tc('profile.birthDate') ? `Profile: ${user.email}` : user.email}
-                className="text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/30 min-h-[44px] px-3 flex items-center rounded-lg transition-all truncate max-w-[150px] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                className="text-xs text-gal-muted hover:text-gal-black border border-gal-border hover:border-gal-accent min-h-[44px] px-3 flex items-center rounded-gal-xl transition-all truncate max-w-[150px] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent"
               >
                 {user.email}
               </button>
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="text-xs text-[var(--accent)] hover:text-[var(--accent)] border border-[var(--accent-30)] hover:border-[var(--accent-50)] min-h-[44px] px-3 flex items-center rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                className="text-xs text-gal-accent hover:text-gal-accent-dark border border-gal-accent/30 hover:border-gal-accent min-h-[44px] px-3 flex items-center rounded-gal-xl transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent"
               >
                 {t('login')}
               </button>
             )}
           </div>
-          <div className="relative inline-block logo-breathe">
-            {/* Rotating mandala aura behind logo */}
-            <svg
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 md:w-48 md:h-48 pointer-events-none animate-mandala-spin"
-              viewBox="0 0 200 200"
-              fill="none"
-              aria-hidden="true"
-            >
-              <defs>
-                <radialGradient id="mandala-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-              <circle cx="100" cy="100" r="90" fill="url(#mandala-glow)" />
-              {/* Outer ring petals */}
-              {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
-                <ellipse
-                  key={deg}
-                  cx="100"
-                  cy="100"
-                  rx="6"
-                  ry="45"
-                  transform={`rotate(${deg} 100 100)`}
-                  stroke="var(--accent)"
-                  strokeWidth="0.5"
-                  strokeOpacity="0.2"
-                  fill="none"
-                />
-              ))}
-              {/* Inner ring petals */}
-              {[15, 45, 75, 105, 135, 165, 195, 225, 255, 285, 315, 345].map((deg) => (
-                <ellipse
-                  key={deg}
-                  cx="100"
-                  cy="100"
-                  rx="4"
-                  ry="30"
-                  transform={`rotate(${deg} 100 100)`}
-                  stroke="var(--accent)"
-                  strokeWidth="0.4"
-                  strokeOpacity="0.12"
-                  fill="none"
-                />
-              ))}
-              {/* Center circle */}
-              <circle cx="100" cy="100" r="18" stroke="var(--accent)" strokeWidth="0.6" strokeOpacity="0.2" fill="none" />
-              <circle cx="100" cy="100" r="50" stroke="var(--accent)" strokeWidth="0.4" strokeOpacity="0.1" fill="none" strokeDasharray="4 6" />
-            </svg>
-            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter mb-1 px-16 relative">
-              <span className="absolute inset-0 blur-2xl opacity-30 bg-[var(--accent)] rounded-full scale-150 animate-pulse-slow pointer-events-none" />
-              <span className="relative drop-shadow-[0_0_20px_var(--accent-glow)]">
-                MYSTIC <span className="text-[var(--accent)] drop-shadow-[0_0_12px_var(--accent-glow)]">AI</span>
-              </span>
+          <div className="inline-block pt-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-gal-black tracking-tight mb-1 px-16">
+              GWEH <span className="text-gal-accent">AI</span>
             </h1>
           </div>
-          <p className="text-white/40 text-xs uppercase tracking-[0.35em] mt-1.5">
-            <span className="inline-block bg-gradient-to-r from-[var(--accent-30)] via-[var(--accent)] to-[var(--accent-30)] bg-[length:200%_100%] animate-shimmer-gold bg-clip-text text-transparent font-medium">
-              Unveil Your Destiny
-            </span>
+          <p className="text-gal-muted text-xs uppercase tracking-[0.25em] mt-1">
+            Unveil Your Destiny
           </p>
         </header>
 
@@ -276,10 +193,10 @@ function App() {
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
 
-        {/* 네비게이션 */}
+        {/* Navigation */}
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-        {/* 탭 콘텐츠 */}
+        {/* Tab content */}
         <main>
           <div key={activeTab} className="animate-tab-enter">
             {renderTab()}
@@ -287,11 +204,9 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="mt-16 pb-10 footer-constellation">
-          {/* Cosmic divider ornament */}
-          <div className="cosmic-divider" aria-hidden="true">
-            <div className="cosmic-divider-gem" />
-          </div>
+        <footer className="mt-16 pb-10">
+          {/* Simple divider */}
+          <div className="section-divider mx-auto mb-8" aria-hidden="true" />
 
           {/* Social links */}
           <div className="flex justify-center gap-3 mb-5">
@@ -304,19 +219,17 @@ function App() {
                 key={social.label}
                 href="#"
                 aria-label={social.label}
-                className="w-9 h-9 rounded-full border border-white/10 hover:border-[var(--accent-40)] flex items-center justify-center text-white/25 hover:text-[var(--accent)] transition-all duration-300 hover:shadow-[0_0_12px_var(--accent-20)] hover:scale-110 active:scale-95 group"
+                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent flex items-center justify-center text-gal-muted hover:text-gal-accent transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="transition-transform duration-300 group-hover:scale-110">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d={social.path} />
                 </svg>
               </a>
             ))}
           </div>
 
-          <p className="text-[10px] text-white/20 uppercase tracking-[0.4em] text-center">
-            <span className="bg-gradient-to-r from-white/10 via-white/25 to-white/10 bg-clip-text text-transparent">
-              © 2026 MYSTIC AI
-            </span>
+          <p className="text-[10px] text-gal-muted uppercase tracking-[0.3em] text-center">
+            &copy; 2026 GWEH AI
           </p>
         </footer>
       </div>
@@ -325,4 +238,3 @@ function App() {
 }
 
 export default App;
-// Manual push test by ClawBot

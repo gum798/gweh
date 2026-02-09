@@ -7,16 +7,16 @@ interface ProgressBarProps {
 export function ProgressBar({ progress, status, showPercentage = true }: ProgressBarProps) {
   return (
     <div className="w-full max-w-xs space-y-2">
-      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-gal-light rounded-gal-md overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-50)] transition-all duration-300 ease-out rounded-full"
+          className="h-full bg-gal-accent transition-all duration-300 ease-out rounded-gal-md"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         />
       </div>
       <div className="flex justify-between items-center text-sm">
-        {status && <span className="text-white/50">{status}</span>}
+        {status && <span className="text-gal-muted">{status}</span>}
         {showPercentage && (
-          <span className="text-[var(--accent)] font-bold">
+          <span className="text-gal-accent font-bold">
             {Math.round(progress)}%
           </span>
         )}
@@ -44,7 +44,7 @@ export function CircularProgress({ progress, size = 80, strokeWidth = 4 }: Circu
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(255, 255, 255, 0.1)"
+          stroke="#e5e5e5"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -53,21 +53,18 @@ export function CircularProgress({ progress, size = 80, strokeWidth = 4 }: Circu
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="var(--accent)"
+          stroke="#2ea3f2"
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           className="transition-all duration-300 ease-out"
-          style={{
-            filter: 'drop-shadow(0 0 8px var(--accent-glow))',
-          }}
         />
       </svg>
       {/* Center content */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[var(--accent)] font-bold text-lg">
+        <span className="text-gal-accent font-bold text-lg">
           {Math.round(progress)}%
         </span>
       </div>

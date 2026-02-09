@@ -1,42 +1,30 @@
-import { themes, lightOverrides, ThemeKey, DEFAULT_THEME } from './themes';
+import { themes, ThemeKey, DEFAULT_THEME } from './themes';
 
-export type ColorMode = 'dark' | 'light';
+export type ColorMode = 'light';
 
 /**
- * Apply a theme by setting CSS custom properties on :root.
- * Call once at startup. Call again to switch themes or color modes at runtime.
+ * Apply the gallery theme by setting CSS custom properties on :root.
+ * Always applies light mode with the gallery theme.
  */
-export function applyTheme(key: ThemeKey = DEFAULT_THEME, mode: ColorMode = 'light'): void {
+export function applyTheme(key: ThemeKey = DEFAULT_THEME, _mode: ColorMode = 'light'): void {
   const theme = themes[key];
   if (!theme) {
     console.warn(`[Theme] Unknown theme "${key}", falling back to "${DEFAULT_THEME}"`);
-    applyTheme(DEFAULT_THEME, mode);
+    applyTheme(DEFAULT_THEME);
     return;
   }
 
   const root = document.documentElement;
-  root.setAttribute('data-theme', key);
-  root.setAttribute('data-mode', mode);
+  root.setAttribute('data-theme', 'gallery');
+  root.setAttribute('data-mode', 'light');
 
-  // 1. Apply base theme
+  // Apply theme CSS custom properties
   for (const [prop, value] of Object.entries(theme)) {
     if (prop.startsWith('--')) {
       root.style.setProperty(prop, value);
     }
   }
 
-  // 2. Apply light mode overrides
-  if (mode === 'light') {
-    const overrides = lightOverrides[key];
-    if (overrides) {
-      for (const [prop, value] of Object.entries(overrides)) {
-        if (prop.startsWith('--')) {
-          root.style.setProperty(prop, value as string);
-        }
-      }
-    }
-  }
-
-  // 3. Set color-scheme
-  root.style.colorScheme = mode;
+  // Always light mode
+  root.style.colorScheme = 'light';
 }
