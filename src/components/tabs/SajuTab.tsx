@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
 import { useAuth } from '../../contexts/AuthContext';
+import { lunarToSolar, getLunarMonthDays } from '../../utils/lunarCalendar';
+
+type CalendarType = 'solar' | 'lunar';
 
 const ELEMENT_COLORS = {
   목: 'text-emerald-600',
@@ -28,6 +31,12 @@ export default function SajuTab() {
   const { session, loading: authLoading } = useAuth();
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('12');
+  const [calendarType, setCalendarType] = useState<CalendarType>('solar');
+  const [lunarYear, setLunarYear] = useState('');
+  const [lunarMonth, setLunarMonth] = useState('');
+  const [lunarDay, setLunarDay] = useState('');
+  const [isLeapMonth, setIsLeapMonth] = useState(false);
+  const [lunarError, setLunarError] = useState('');
   const [result, setResult] = useState(null);
   const [ready, setReady] = useState(false);
   const autoSubmitted = useRef(false);
@@ -43,6 +52,11 @@ export default function SajuTab() {
         if (parsed.birthDate) {
           setBirthDate(parsed.birthDate);
           if (parsed.birthHour != null) setBirthHour(String(parsed.birthHour));
+          if (parsed.calendarType) setCalendarType(parsed.calendarType);
+          if (parsed.lunarYear) setLunarYear(String(parsed.lunarYear));
+          if (parsed.lunarMonth) setLunarMonth(String(parsed.lunarMonth));
+          if (parsed.lunarDay) setLunarDay(String(parsed.lunarDay));
+          if (parsed.isLeapMonth) setIsLeapMonth(parsed.isLeapMonth);
           setReady(true);
           return;
         }
@@ -57,9 +71,11 @@ export default function SajuTab() {
           if (d.profile?.birth_date) {
             setBirthDate(d.profile.birth_date);
             if (d.profile?.birth_hour != null) setBirthHour(String(d.profile.birth_hour));
+            if (d.profile?.calendar_type) setCalendarType(d.profile.calendar_type);
             localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify({
               birthDate: d.profile.birth_date,
               birthHour: d.profile.birth_hour ?? 12,
+              calendarType: d.profile.calendar_type || 'solar',
             }));
             return;
           }
@@ -91,7 +107,32 @@ export default function SajuTab() {
     })),
   [t]);
 
-  const saveBirthToProfile = useCallback((date: string, hour: number) => {
+  // 음력 연도 옵션 (1920~현재)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = useMemo(() => {
+    const years = [];
+    for (let y = currentYear; y >= 1920; y--) years.push(y);
+    return years;
+  }, [currentYear]);
+
+  const monthOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
+
+  const dayOptions = useMemo(() => {
+    if (lunarYear && lunarMonth) {
+      const maxDays = getLunarMonthDays(parseInt(lunarYear, 10), parseInt(lunarMonth, 10), isLeapMonth);
+      return Array.from({ length: maxDays }, (_, i) => i + 1);
+    }
+    return Array.from({ length: 30 }, (_, i) => i + 1);
+  }, [lunarYear, lunarMonth, isLeapMonth]);
+
+  // 선택된 일이 최대 일수를 초과하면 보정
+  useEffect(() => {
+    if (lunarDay && dayOptions.length > 0 && parseInt(lunarDay, 10) > dayOptions.length) {
+      setLunarDay(String(dayOptions.length));
+    }
+  }, [dayOptions, lunarDay]);
+
+  const saveBirthToProfile = useCallback((date: string, hour: number, calType: CalendarType) => {
     if (!session?.access_token) return;
     fetch('/api/profile', {
       method: 'POST',
@@ -99,7 +140,7 @@ export default function SajuTab() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ birth_date: date, birth_hour: hour }),
+      body: JSON.stringify({ birth_date: date, birth_hour: hour, calendar_type: calType }),
     }).catch(() => {});
   }, [session?.access_token]);
 
@@ -111,27 +152,70 @@ export default function SajuTab() {
       if (date > new Date()) return;
       const hour = parseInt(birthHour, 10);
       setResult(interpretSaju(calculateSaju(date, hour)));
-      saveBirthToProfile(birthDate, hour);
+      saveBirthToProfile(birthDate, hour, calendarType);
     }
-  }, [ready, birthDate, birthHour]);
+  }, [ready, birthDate, birthHour, calendarType, saveBirthToProfile]);
+
+  // 음력 날짜를 양력으로 변환하여 birthDate에 설정
+  const resolveBirthDate = useCallback((): string | null => {
+    if (calendarType === 'solar') return birthDate || null;
+
+    if (!lunarYear || !lunarMonth || !lunarDay) return null;
+
+    const solarDate = lunarToSolar(
+      parseInt(lunarYear, 10),
+      parseInt(lunarMonth, 10),
+      parseInt(lunarDay, 10),
+      isLeapMonth
+    );
+
+    if (!solarDate) {
+      setLunarError(tc('saju.lunarError'));
+      return null;
+    }
+
+    setLunarError('');
+    return solarDate;
+  }, [calendarType, birthDate, lunarYear, lunarMonth, lunarDay, isLeapMonth, tc]);
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
-    if (!birthDate) return;
 
-    const date = new Date(birthDate);
+    const resolvedDate = resolveBirthDate();
+    if (!resolvedDate) return;
+
+    const date = new Date(resolvedDate);
     if (date > new Date()) return;
     const hour = parseInt(birthHour, 10);
 
     setResult(interpretSaju(calculateSaju(date, hour)));
-    localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify({ birthDate, birthHour: hour }));
-    saveBirthToProfile(birthDate, hour);
-  }, [birthDate, birthHour, saveBirthToProfile]);
+
+    const saveData: any = {
+      birthDate: resolvedDate,
+      birthHour: hour,
+      calendarType,
+    };
+    if (calendarType === 'lunar') {
+      saveData.lunarYear = parseInt(lunarYear, 10);
+      saveData.lunarMonth = parseInt(lunarMonth, 10);
+      saveData.lunarDay = parseInt(lunarDay, 10);
+      saveData.isLeapMonth = isLeapMonth;
+    }
+
+    localStorage.setItem(SAJU_INPUT_KEY, JSON.stringify(saveData));
+    saveBirthToProfile(resolvedDate, hour, calendarType);
+  }, [birthDate, birthHour, calendarType, lunarYear, lunarMonth, lunarDay, isLeapMonth, resolveBirthDate, saveBirthToProfile]);
 
   const handleReset = useCallback(() => {
     setResult(null);
     setBirthDate('');
     setBirthHour('12');
+    setCalendarType('solar');
+    setLunarYear('');
+    setLunarMonth('');
+    setLunarDay('');
+    setIsLeapMonth(false);
+    setLunarError('');
     localStorage.removeItem(SAJU_INPUT_KEY);
     autoSubmitted.current = false;
   }, []);
@@ -169,16 +253,129 @@ export default function SajuTab() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="bg-white rounded-gal-xl border border-gal-border p-6 space-y-6 shadow-gal-card">
+
+                {/* Calendar Type Toggle */}
+                <div>
+                  <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-3">{tc('saju.calendarType')}</p>
+                  <div className="relative flex bg-gal-bg rounded-gal-lg p-1 border border-gal-border">
+                    <div
+                      className="absolute top-1 bottom-1 rounded-gal-md bg-gal-accent shadow-gal-button transition-all duration-300 ease-out"
+                      style={{
+                        left: calendarType === 'solar' ? '4px' : '50%',
+                        width: 'calc(50% - 4px)',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCalendarType('solar')}
+                      className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-3 rounded-gal-md text-sm font-semibold transition-colors duration-200 ${
+                        calendarType === 'solar' ? 'text-white' : 'text-gal-muted hover:text-gal-body'
+                      }`}
+                    >
+                      <span className="text-base">&#9788;</span>
+                      {tc('saju.solar')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCalendarType('lunar')}
+                      className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-3 rounded-gal-md text-sm font-semibold transition-colors duration-200 ${
+                        calendarType === 'lunar' ? 'text-white' : 'text-gal-muted hover:text-gal-body'
+                      }`}
+                    >
+                      <span className="text-base">&#9790;</span>
+                      {tc('saju.lunar')}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Birth Date Input */}
                 <label className="block">
                   <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-2">{tc('saju.birthDate')}</p>
-                  <input
-                    type="date"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                    className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-white"
-                    required
-                  />
+
+                  {calendarType === 'solar' ? (
+                    <input
+                      type="date"
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      max={new Date().toISOString().split('T')[0]}
+                      className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-white"
+                      required
+                    />
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-3 gap-2">
+                        {/* 음력 연도 */}
+                        <div className="relative">
+                          <select
+                            value={lunarYear}
+                            onChange={(e) => setLunarYear(e.target.value)}
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            required
+                          >
+                            <option value="" disabled>{tc('saju.year')}</option>
+                            {yearOptions.map(y => (
+                              <option key={y} value={y}>{y}</option>
+                            ))}
+                          </select>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gal-muted text-xs pointer-events-none">{tc('saju.yearUnit')}</span>
+                        </div>
+                        {/* 음력 월 */}
+                        <div className="relative">
+                          <select
+                            value={lunarMonth}
+                            onChange={(e) => setLunarMonth(e.target.value)}
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            required
+                          >
+                            <option value="" disabled>{tc('saju.month')}</option>
+                            {monthOptions.map(m => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gal-muted text-xs pointer-events-none">{tc('saju.monthUnit')}</span>
+                        </div>
+                        {/* 음력 일 */}
+                        <div className="relative">
+                          <select
+                            value={lunarDay}
+                            onChange={(e) => setLunarDay(e.target.value)}
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            required
+                          >
+                            <option value="" disabled>{tc('saju.day')}</option>
+                            {dayOptions.map(d => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gal-muted text-xs pointer-events-none">{tc('saju.dayUnit')}</span>
+                        </div>
+                      </div>
+
+                      {/* 윤달 토글 */}
+                      <button
+                        type="button"
+                        onClick={() => setIsLeapMonth(prev => !prev)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-gal-md text-xs font-medium transition-all ${
+                          isLeapMonth
+                            ? 'bg-gal-accent/10 text-gal-accent border border-gal-accent/30'
+                            : 'bg-gal-bg text-gal-muted border border-gal-border hover:text-gal-body'
+                        }`}
+                      >
+                        <div className={`w-8 h-[18px] rounded-full relative transition-colors ${
+                          isLeapMonth ? 'bg-gal-accent' : 'bg-gal-border'
+                        }`}>
+                          <div className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform ${
+                            isLeapMonth ? 'translate-x-[16px]' : 'translate-x-[2px]'
+                          }`} />
+                        </div>
+                        {tc('saju.leapMonth')}
+                      </button>
+
+                      {lunarError && (
+                        <p className="text-red-500 text-xs pl-1">{lunarError}</p>
+                      )}
+                    </div>
+                  )}
                 </label>
 
                 <label className="block">

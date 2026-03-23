@@ -18,7 +18,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number } | null>(null);
+  const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number; calendar_type?: string } | null>(null);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -128,7 +128,14 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             {profile?.birth_date && (
               <div className="flex justify-between items-center">
                 <span className="text-gal-muted text-sm">{tc('profile.birthDate')}</span>
-                <span className="text-gal-black text-sm">{profile.birth_date}</span>
+                <span className="text-gal-black text-sm">
+                  {profile.birth_date}
+                  {profile.calendar_type && (
+                    <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-gal-bg text-gal-muted border border-gal-border">
+                      {profile.calendar_type === 'lunar' ? tc('saju.lunar') : tc('saju.solar')}
+                    </span>
+                  )}
+                </span>
               </div>
             )}
             {profile?.birth_hour != null && (
