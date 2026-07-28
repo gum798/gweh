@@ -571,10 +571,23 @@ function redactQuery(s: string): string {
   return s.replace(/\?[^\s]*/g, '?…');
 }
 
+// 프로브 하나가 연결 슬롯을 붙잡을 수 있는 상한.
+// 이것은 '크론이 얼마나 기다려도 되는가'라는 답 없는 질문이 아니다(그건 waitUntil 이
+// 이미 해결했다). '살아있는지 묻는 요청 하나가 얼마나 오래 매달려도 되는가'이고,
+// 그 답은 10초면 충분하다. 부수 효과로 응답하지 않는 의존성도 이제 감지된다 —
+// 타임아웃은 TimeoutError 로 던져지고 아래 catch 가 ok: false 로 바꿔 경보를 울린다.
+const PROBE_TIMEOUT_MS = 10_000;
+
 async function probe(name: string, fn: () => Promise<Response>): Promise<CheckResult> {
   try {
     const res = await fn();
-    if (res.ok) return { name, ok: true, detail: `HTTP ${res.status}` };
+    if (res.ok) {
+      // 성공 본문은 쓸 데가 없지만, 읽지 않고 버려두면 연결 슬롯을 계속 붙잡는다.
+      // Workers 는 invocation 당 동시 연결 6개가 상한이고 셀프체크는 그 슬롯을
+      // runDailyCron 과 나눠 쓴다. 즉시 반납한다.
+      await res.body?.cancel();
+      return { name, ok: true, detail: `HTTP ${res.status}` };
+    }
     const body = (await res.text()).slice(0, 300);
     return { name, ok: false, detail: redactQuery(`HTTP ${res.status} — ${body}`) };
   } catch (err) {
@@ -616,6 +629,7 @@ async function runSelfCheck(env: Env): Promise<CheckResult[]> {
         contents: [{ parts: [{ text: 'ping' }] }],
         generationConfig: { maxOutputTokens: 1 },
       }),
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
     })),
     // 이번에 죽었던 것 2: Supabase 프로젝트.
     probe('Supabase', () => fetch(
@@ -625,13 +639,16 @@ async function runSelfCheck(env: Env): Promise<CheckResult[]> {
           'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
           'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
+        signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
       }
     )),
     probe('Polar', () => fetch(`${polarBase}/v1/subscriptions/?limit=1`, {
       headers: { 'Authorization': `Bearer ${polarToken}` },
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
     })),
     probe('OpenWeather', () => fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=37.5665&lon=126.978&appid=${env.VITE_OPENWEATHER_API_KEY}&units=metric`
+      `https://api.openweathermap.org/data/2.5/weather?lat=37.5665&lon=126.978&appid=${env.VITE_OPENWEATHER_API_KEY}&units=metric`,
+      { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) }
     )),
     // NASA: 이 Worker 는 NASA 를 호출하지 않는다. 제품에서 NASA 를 쓰는 것은
     // 프런트엔드이고(src/utils/api.ts), 거기서 쓰는 키는 VITE_NASA_API_KEY 로 별개다.
@@ -640,10 +657,14 @@ async function runSelfCheck(env: Env): Promise<CheckResult[]> {
     // 로 나가므로 429 가 언젠가 반드시 뜬다. 그 순간 이 장치는 늑대 소년이 되고,
     // 늑대 소년이 된 감지 장치는 없는 것보다 나쁘다.
     nasaKey
-      ? probe('NASA', () => fetch(`https://api.nasa.gov/planetary/apod?api_key=${nasaKey}`))
+      ? probe('NASA', () => fetch(
+          `https://api.nasa.gov/planetary/apod?api_key=${nasaKey}`,
+          { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) }
+        ))
       : skipped('NASA', 'NASA_API_KEY 미설정'),
     probe('USGS', () => fetch(
-      `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${yesterday}&endtime=${today}&minmagnitude=4`
+      `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${yesterday}&endtime=${today}&minmagnitude=4`,
+      { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) }
     )),
   ]);
 }
@@ -679,8 +700,11 @@ async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<vo
         <p style="font-family:sans-serif;color:#666;">${new Date().toISOString()}</p>
         <table style="border-collapse:collapse;font-family:sans-serif;">${rows}</table>
         <p style="font-family:sans-serif;color:#666;font-size:12px;">
-          Gemini 실패라면 모델 퇴역일 가능성이 높습니다.
-          Cloudflare 대시보드에서 GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구됩니다.
+          Gemini 가 <b>404 / not found / no longer available</b> 이면 모델 퇴역입니다.
+          Cloudflare 대시보드에서 GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구됩니다.<br>
+          Gemini 가 <b>400 이면서 max_output_tokens / thinking</b> 을 언급하면 모델이 아니라
+          셀프체크 프로브의 문제입니다. 모델을 바꾸지 마십시오 —
+          worker.ts 의 Gemini 프로브 maxOutputTokens 값을 올려야 합니다.
         </p>`,
     }),
   });
@@ -696,11 +720,17 @@ export default {
     // 감시 장치가 서비스를 죽이면 안 된다.
     //
     // try/catch 만으로는 그 약속을 지킬 수 없다. try/catch 는 '던져지는 것'을 잡지
-    // '멈추는 것'을 잡지 못한다. 프로브의 fetch 에는 타임아웃이 없으므로, 응답하지
-    // 않는 엔드포인트 하나가 await 를 붙잡으면 구독자 메일이 통째로 나가지 않는다.
-    // 죽은 의존성을 감시하는 장치가 죽은 의존성 때문에 서비스를 멈추는 셈이다.
-    // ctx.waitUntil 로 넘겨 실행 자체를 분리한다 — 아래 runDailyCron 은 셀프체크의
-    // 완료를 기다리지 않고 즉시 시작하며, 셀프체크는 런타임이 정리해 준다.
+    // '멈추는 것'을 잡지 못한다. 그래서 두 겹으로 막는다.
+    //
+    //   1. ctx.waitUntil — 아래 runDailyCron 은 셀프체크의 완료를 기다리지 않는다.
+    //      순서상의 의존이 없으므로 셀프체크가 아무리 오래 걸려도 발송은 즉시 시작된다.
+    //   2. 프로브별 AbortSignal.timeout — waitUntil 이 분리하지 못하는 자원이 하나
+    //      남는다. Workers 는 invocation 당 동시 연결 6개가 상한인데, 이제 셀프체크와
+    //      runDailyCron 이 그 슬롯을 '동시에' 나눠 쓴다. 멈춘 프로브가 슬롯을 계속
+    //      붙잡으면 발송 쪽 fetch 가 큐에서 대기하게 된다. 그래서 각 프로브에 상한을
+    //      둔다. 지연이 0 인 것이 아니라, 지연이 유한하고 짧게 묶여 있는 것이다.
+    //
+    // (compatibility_date = "2024-01-01" 에서 AbortSignal.timeout 동작 확인함)
     if (new Date().getUTCHours() === 0) {
       ctx.waitUntil((async () => {
         try {
