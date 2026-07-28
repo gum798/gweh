@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import i18next from 'i18next';
+import { DetectionError } from './detectionError';
 import { detectPalmLines } from '../utils/palmLineDetector';
 import { analyzeFingerGesture } from '../utils/fingerGestureAnalyzer';
 
@@ -53,7 +54,7 @@ export function useHandDetection() {
       return model;
     } catch (err) {
       console.error('Hand detection model load error:', err);
-      throw new Error(i18next.t('error.handModel'));
+      throw new DetectionError(i18next.t('error.handModel'));
     }
   }, []);
 
@@ -78,7 +79,7 @@ export function useHandDetection() {
       const predictions = await model.estimateHands(img);
 
       if (!predictions || predictions.length === 0) {
-        throw new Error(i18next.t('error.handModel'));
+        throw new DetectionError(i18next.t('error.handNotDetected'));
       }
 
       const hand = predictions[0];
@@ -115,7 +116,14 @@ export function useHandDetection() {
         imageHeight: img.height,
       };
     } catch (err) {
-      setError(err.message || i18next.t('error.handModel'));
+      if (err instanceof DetectionError) {
+        setError(err.message);
+      } else {
+        console.error('Hand analysis unexpected error:', err);
+        setError(i18next.t('error.handUnexpected', {
+          detail: err instanceof Error ? err.message : String(err),
+        }));
+      }
       setIsLoading(false);
       return null;
     }

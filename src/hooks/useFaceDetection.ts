@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import i18next from 'i18next';
+import { DetectionError } from './detectionError';
 
 // TensorFlow 동적 import (bundle-defer-third-party)
 type TFModule = typeof import('@tensorflow/tfjs');
@@ -52,7 +53,7 @@ export function useFaceDetection() {
       return model;
     } catch (err) {
       console.error('Face detection model load error:', err);
-      throw new Error(i18next.t('error.faceModel'));
+      throw new DetectionError(i18next.t('error.faceModel'));
     }
   }, []);
 
@@ -75,7 +76,7 @@ export function useFaceDetection() {
       return model;
     } catch (err) {
       console.error('Multi-face detection model load error:', err);
-      throw new Error(i18next.t('error.faceModel'));
+      throw new DetectionError(i18next.t('error.faceModel'));
     }
   }, []);
 
@@ -100,7 +101,7 @@ export function useFaceDetection() {
       const predictions = await model.estimateFaces(img);
 
       if (!predictions || predictions.length === 0) {
-        throw new Error(i18next.t('error.faceModel'));
+        throw new DetectionError(i18next.t('error.faceNotDetected'));
       }
 
       const face = predictions[0];
@@ -127,7 +128,14 @@ export function useFaceDetection() {
         imageHeight: img.height,
       };
     } catch (err) {
-      setError(err.message || i18next.t('error.faceModel'));
+      if (err instanceof DetectionError) {
+        setError(err.message);
+      } else {
+        console.error('Face analysis unexpected error:', err);
+        setError(i18next.t('error.faceUnexpected', {
+          detail: err instanceof Error ? err.message : String(err),
+        }));
+      }
       setIsLoading(false);
       return null;
     }
@@ -152,7 +160,7 @@ export function useFaceDetection() {
       const predictions = await model.estimateFaces(img);
 
       if (!predictions || predictions.length < 2) {
-        throw new Error('두 얼굴을 감지할 수 없습니다. 두 사람이 함께 나온 사진을 사용해주세요.');
+        throw new DetectionError(i18next.t('error.facesNotDetected'));
       }
 
       const canvas = document.createElement('canvas');
@@ -182,7 +190,14 @@ export function useFaceDetection() {
       setIsLoading(false);
       return faces;
     } catch (err) {
-      setError(err.message || i18next.t('error.faceModel'));
+      if (err instanceof DetectionError) {
+        setError(err.message);
+      } else {
+        console.error('Face analysis unexpected error:', err);
+        setError(i18next.t('error.faceUnexpected', {
+          detail: err instanceof Error ? err.message : String(err),
+        }));
+      }
       setIsLoading(false);
       return null;
     }
