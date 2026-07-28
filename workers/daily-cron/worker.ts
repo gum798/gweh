@@ -559,6 +559,16 @@ interface CheckResult {
   name: string;
   ok: boolean;
   detail: string;
+  skipped?: boolean;
+}
+
+// detail 은 /selfcheck 로 익명 호출자에게 그대로 반환되고 메일로도 나간다.
+// 프로브 URL 중 셋(Gemini ?key=, NASA ?api_key=, OpenWeather ?appid=)은
+// 쿼리스트링에 자격증명을 싣는다. 제공자의 에러 '본문'은 대개 안전하지만
+// 런타임 예외 메시지는 요청 URL 을 통째로 포함할 수 있다. 저장 전에 자른다.
+// 파라미터 이름을 열거하지 않는다 — 새 파라미터가 생기면 그 순간 새는 구조다.
+function redactQuery(s: string): string {
+  return s.replace(/\?[^\s]*/g, '?…');
 }
 
 async function probe(name: string, fn: () => Promise<Response>): Promise<CheckResult> {
@@ -566,10 +576,16 @@ async function probe(name: string, fn: () => Promise<Response>): Promise<CheckRe
     const res = await fn();
     if (res.ok) return { name, ok: true, detail: `HTTP ${res.status}` };
     const body = (await res.text()).slice(0, 300);
-    return { name, ok: false, detail: `HTTP ${res.status} — ${body}` };
+    return { name, ok: false, detail: redactQuery(`HTTP ${res.status} — ${body}`) };
   } catch (err) {
-    return { name, ok: false, detail: `예외: ${err instanceof Error ? err.message : String(err)}` };
+    return { name, ok: false, detail: redactQuery(`예외: ${err instanceof Error ? err.message : String(err)}`) };
   }
+}
+
+// 설정되지 않은 선택적 의존성은 '실패'가 아니라 '건너뜀'이다.
+// ok: true 를 유지해야 failures.filter 가 깨끗하고, 경보가 울리지 않는다.
+function skipped(name: string, reason: string): CheckResult {
+  return { name, ok: true, detail: `건너뜀 — ${reason}`, skipped: true };
 }
 
 async function runSelfCheck(env: Env): Promise<CheckResult[]> {
@@ -579,9 +595,20 @@ async function runSelfCheck(env: Env): Promise<CheckResult[]> {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const nasaKey = env.NASA_API_KEY;
 
   return Promise.all([
     // 이번에 죽었던 것 1: Gemini 모델. 최소 토큰으로 존재만 확인한다.
+    //
+    // 이 프로브가 보는 것은 '모델이 존재하고 키가 유효한가'뿐이다. maxOutputTokens: 1
+    // 이면 thinking 계열 모델은 답을 내기 전에 예산을 소진하지만, 그때도 HTTP 200 이
+    // 오므로 통과한다 — 의도한 동작이다. 응답의 품질은 검사 대상이 아니다.
+    //
+    // 오진 주의: 실패가 HTTP 400 이고 본문에 max_output_tokens / thinking 이 보이면
+    // 그것은 모델 퇴역이 아니라 이 프로브의 버그다. thinking 예산을 끌 수 없는
+    // 모델로 GEMINI_MODEL 을 바꾸면 이 1 이라는 값이 거부될 수 있다. 그때 필요한 것은
+    // 모델 교체가 아니라 아래 maxOutputTokens 상향이다.
+    // 진짜 퇴역은 400 이 아니라 404 / not found / no longer available 로 나타난다.
     probe('Gemini', () => fetch(geminiEndpoint(env), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -606,9 +633,15 @@ async function runSelfCheck(env: Env): Promise<CheckResult[]> {
     probe('OpenWeather', () => fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=37.5665&lon=126.978&appid=${env.VITE_OPENWEATHER_API_KEY}&units=metric`
     )),
-    probe('NASA', () => fetch(
-      `https://api.nasa.gov/planetary/apod?api_key=${env.NASA_API_KEY || 'DEMO_KEY'}`
-    )),
+    // NASA: 이 Worker 는 NASA 를 호출하지 않는다. 제품에서 NASA 를 쓰는 것은
+    // 프런트엔드이고(src/utils/api.ts), 거기서 쓰는 키는 VITE_NASA_API_KEY 로 별개다.
+    // 즉 이 프로브가 통과해도 제품이 실제로 의존하는 키의 상태는 알 수 없다.
+    // DEMO_KEY 로 대체하지 않는다 — 소스 IP 당 시간 30회 제한인데 Workers 는 공용 IP
+    // 로 나가므로 429 가 언젠가 반드시 뜬다. 그 순간 이 장치는 늑대 소년이 되고,
+    // 늑대 소년이 된 감지 장치는 없는 것보다 나쁘다.
+    nasaKey
+      ? probe('NASA', () => fetch(`https://api.nasa.gov/planetary/apod?api_key=${nasaKey}`))
+      : skipped('NASA', 'NASA_API_KEY 미설정'),
     probe('USGS', () => fetch(
       `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${yesterday}&endtime=${today}&minmagnitude=4`
     )),
@@ -661,21 +694,30 @@ export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     // 셀프체크는 하루 1회(UTC 0시)만. 그리고 무슨 일이 있어도 본래 cron 을 막지 않는다.
     // 감시 장치가 서비스를 죽이면 안 된다.
+    //
+    // try/catch 만으로는 그 약속을 지킬 수 없다. try/catch 는 '던져지는 것'을 잡지
+    // '멈추는 것'을 잡지 못한다. 프로브의 fetch 에는 타임아웃이 없으므로, 응답하지
+    // 않는 엔드포인트 하나가 await 를 붙잡으면 구독자 메일이 통째로 나가지 않는다.
+    // 죽은 의존성을 감시하는 장치가 죽은 의존성 때문에 서비스를 멈추는 셈이다.
+    // ctx.waitUntil 로 넘겨 실행 자체를 분리한다 — 아래 runDailyCron 은 셀프체크의
+    // 완료를 기다리지 않고 즉시 시작하며, 셀프체크는 런타임이 정리해 준다.
     if (new Date().getUTCHours() === 0) {
-      try {
-        const results = await runSelfCheck(env);
-        const failures = results.filter(r => !r.ok);
-        if (failures.length > 0) {
-          console.error('Self-check failures:', JSON.stringify(failures));
-          await sendSelfCheckAlert(env, failures);
-        } else {
-          // 정상일 때는 메일을 보내지 않는다. 매일 오는 '정상' 알림은
-          // 사흘이면 읽지 않게 되고, 그러면 감지 장치가 무력해진다.
-          console.log('Self-check: all dependencies OK');
+      ctx.waitUntil((async () => {
+        try {
+          const results = await runSelfCheck(env);
+          const failures = results.filter(r => !r.ok);
+          if (failures.length > 0) {
+            console.error('Self-check failures:', JSON.stringify(failures));
+            await sendSelfCheckAlert(env, failures);
+          } else {
+            // 정상일 때는 메일을 보내지 않는다. 매일 오는 '정상' 알림은
+            // 사흘이면 읽지 않게 되고, 그러면 감지 장치가 무력해진다.
+            console.log('Self-check: all dependencies OK');
+          }
+        } catch (err) {
+          console.error('Self-check itself threw:', err);
         }
-      } catch (err) {
-        console.error('Self-check itself threw:', err);
-      }
+      })());
     }
 
     await runDailyCron(env, false);
