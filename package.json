@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "typecheck:functions": "tsc --noEmit -p functions/tsconfig.json",
+    "typecheck:worker": "tsc --noEmit -p workers/daily-cron/tsconfig.json",
+    "typecheck": "npm run typecheck:functions; fn=$?; npm run typecheck:worker; wk=$?; exit $(( fn || wk ))",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -37,6 +40,7 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "wrangler": "4.61.0"
   }
 }

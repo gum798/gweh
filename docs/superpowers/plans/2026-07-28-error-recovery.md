@@ -65,9 +65,13 @@ git checkout -b fix/error-recovery
 
 `wrangler`는 선택이 아니다. `workers/daily-cron/`은 Pages 빌드와 별개로 `wrangler deploy`가 필요하고, Task 7의 실패 주입 검증(V10)도 `wrangler dev`를 쓴다.
 
+**정확한 버전을 고정해야 한다.** `wrangler@^4.61.0`이나 `~4.61.0`은 모두 ERESOLVE로 실패한다 — `^`는 최신 4.x(4.114.0)를 고르는데 그건 `@cloudflare/workers-types@^5`를 요구하고, `~`가 고르는 4.61.1은 peer 하한을 `^4.20260128.0`으로 올린다. 저장소 핀(`^4.20260124.0`)과 호환되는 창은 **정확히 4.61.0 한 버전뿐**이다.
+
 ```bash
-npm install --save-dev wrangler
+npm install --save-dev --save-exact wrangler@4.61.0
 ```
+
+`--save-exact`가 필요하다. 없으면 npm이 `"^4.61.0"`을 써넣어 락파일 없는 설치에서 다시 깨진다.
 
 - [ ] **Step 3: `shared/gemini.ts` 생성**
 
@@ -104,7 +108,7 @@ export function geminiEndpoint(env: GeminiEnv): string {
 
 - [ ] **Step 4: `functions/tsconfig.json`이 상위 디렉터리를 보게 한다**
 
-현재 `include`가 `["./**/*.ts"]`라 `../shared/`를 타입 검사 대상에 포함하지 않는다. `workers/daily-cron/tsconfig.json`(Task 3)과 같은 문제다. 전체를 아래로 교체한다:
+현재 `include`가 `["./**/*.ts"]`라 `../shared/`를 타입 검사 대상에 포함하지 않는다. 전체를 아래로 교체한다:
 
 ```json
 {
@@ -354,14 +358,14 @@ worker는 Pages와 **별개로 배포**된다. Pages 프리뷰 배포에 포함�
 
 **Files:**
 - Modify: `workers/daily-cron/worker.ts:4-13` (Env), `:251`, `:304`
-- Modify: `workers/daily-cron/tsconfig.json`
+- Create: `workers/daily-cron/tsconfig.json` (존재하지 않음)
 
 **Interfaces:**
 - Consumes: `geminiEndpoint(env)` from Task 1
 
-- [ ] **Step 1: worker tsconfig가 상위 디렉터리를 보게 한다**
+- [ ] **Step 1: worker tsconfig를 생성한다**
 
-`workers/daily-cron/tsconfig.json`의 `include`가 `["./**/*.ts"]`라 `../../shared/`를 포함하지 않는다. 전체를 아래로 교체한다:
+`workers/daily-cron/`에는 `worker.ts`와 `wrangler.toml`뿐이며 **tsconfig.json이 없다.** (초기 계획은 이 파일이 있다고 잘못 기술했다 — `functions/tsconfig.json`과 혼동한 오류다.) 즉 이 워커는 지금까지 타입 검사를 전혀 받지 않았다. 아래 내용으로 **새로 만든다**:
 
 ```json
 {
@@ -579,13 +583,15 @@ async function verifySubscription(env: Env, accessToken: string): Promise<Subscr
     }
 ```
 
-- [ ] **Step 3: 미지원 필터가 남아있지 않은지 확인**
+- [ ] **Step 3: 미지원 필터가 Polar URL에 남아있지 않은지 확인**
+
+주의: 맨몸 `grep customer_email`은 쓸 수 없다. `customer_email`은 **정당한 용도**로도 쓰인다 — `checkout.ts:61`·`subscribe.ts:60`의 체크아웃 요청 **본문 필드**, `polar-webhook.ts:11,56`의 인바운드 웹훅 **페이로드 필드**. 이들을 지우면 결제가 깨진다. 문제는 오직 **URL 쿼리 필터로 쓰인 경우**다.
 
 ```bash
-grep -rn "customer_email\|active=true" functions/
+grep -rnE '\$\{apiBaseUrl\}/v1/[^`]*(customer_email|active=true)' functions/
 ```
 
-기대 출력: **아무것도 없음.**
+기대 출력: **아무것도 없음.** (`daily-style.ts`의 설명 주석에 옛 쿼리 문자열이 남는 것은 의도된 것이며 이 패턴에 걸리지 않는다.)
 
 - [ ] **Step 4: 커밋 및 배포**
 
@@ -885,13 +891,20 @@ import { DetectionError } from './detectionError';
 npm run build
 ```
 
-기대: 성공. `vite build`는 타입 검사를 하지 않으므로 추가로:
+기대: 성공. `vite build`는 타입 검사를 하지 않는다.
+
+**주의 — 루트 `npx tsc --noEmit`은 쓸 수 없다.** `tsconfig.json:30`의 프로젝트 참조가 `tsconfig.node.json`을 가리키는데 그 파일에 `composite: true`가 없어 TS6306/TS6310으로 **즉시 중단되며 `src/`를 전혀 검사하지 않는다.** 즉 이 저장소에는 프론트엔드 타입 검사 경로가 아예 없다(사전 결함, 이 계획의 범위 밖).
+
+대신 변경한 파일만 직접 검사한다:
 
 ```bash
-npx tsc --noEmit
+npx tsc --noEmit --skipLibCheck --jsx react-jsx \
+  --target ES2020 --module ESNext --moduleResolution bundler \
+  --lib ES2020,DOM,DOM.Iterable \
+  src/hooks/detectionError.ts src/hooks/useFaceDetection.ts src/hooks/useHandDetection.ts
 ```
 
-`tsconfig.json`의 `strict: false` 때문에 촘촘한 그물은 아니지만, 임포트 경로 오타와 미정의 심볼은 잡힌다. 기존에 없던 에러가 새로 생기지 않았는지만 확인한다.
+임포트 경로 오타와 미정의 심볼을 잡는 것이 목적이다. 기존에 없던 에러가 새로 생기지 않았는지만 확인한다.
 
 - [ ] **Step 13: 커밋 및 배포**
 
@@ -1032,14 +1045,29 @@ Step 4가 이미 200이었다면 이 단계는 건너뛴다.
 
 - [ ] **Step 7: V12 — 최종 확인**
 
+**테이블 존재 확인만으로는 부족하다.** 테이블이 예전에 유니크 제약 없이 만들어졌다면 `CREATE TABLE IF NOT EXISTS`가 조용히 no-op 하고 제약은 끝내 추가되지 않는다 — 이 마이그레이션이 막으려던 바로 그 실패 모드인데 존재 확인 curl은 200을 반환한다. **제약 자체를 확인해야 한다.**
+
+Supabase 대시보드 → SQL Editor 에서:
+
+```sql
+SELECT conname, pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE conrelid = 'fashion_usage'::regclass AND contype = 'u';
+```
+
+기대: `UNIQUE (user_id, used_date)` 1행. **0행이면** 테이블은 있으나 제약이 없는 상태이므로 아래를 실행한다:
+
+```sql
+ALTER TABLE fashion_usage ADD CONSTRAINT fashion_usage_user_id_used_date_key UNIQUE (user_id, used_date);
+```
+
+(중복 행이 이미 쌓여 있으면 이 문장이 실패한다. 그 경우 중복을 먼저 정리해야 하며, 그 사실 자체가 제한이 무력했다는 증거다.)
+
 ```bash
-curl -s -o /dev/null -w "fashion_usage: %{http_code}\n" \
-  "$SUPA/rest/v1/fashion_usage?select=id&limit=1" \
-  -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY"
 ls -1 supabase/migrations/
 ```
 
-기대: `200`, 그리고 마이그레이션 목록에 `005_fashion_usage.sql` 존재.
+기대: 목록에 `005_fashion_usage.sql` 존재.
 
 - [ ] **Step 8: 커밋**
 
@@ -1345,11 +1373,13 @@ cd workers/daily-cron && npx wrangler deploy && cd ../..
 
 - [ ] **Step 1: 하드코딩 잔여물 최종 확인**
 
+**패턴이 정확해야 한다.** 앞선 태스크들이 수정 내용을 설명하는 주석에 옛 문자열을 남겼으므로(의도된 것이다), 맨몸 grep은 영구히 오탐한다. 실제 코드에서만 잡는다.
+
 ```bash
-echo "--- 퇴역 모델명 ---"
-grep -rn "gemini-2\.0" functions/ workers/ shared/ && echo "!!! 남아있음 !!!" || echo "OK"
-echo "--- 미지원 Polar 필터 ---"
-grep -rn "customer_email\|active=true" functions/ && echo "!!! 남아있음 !!!" || echo "OK"
+echo "--- 퇴역 모델명 (문자열 리터럴만) ---"
+grep -rnE "['\"\`]gemini-2\.0" functions/ workers/ shared/ && echo "!!! 남아있음 !!!" || echo "OK"
+echo "--- 미지원 Polar 필터 (URL 쿼리만) ---"
+grep -rnE '\$\{apiBaseUrl\}/v1/[^`]*(customer_email|active=true)' functions/ && echo "!!! 남아있음 !!!" || echo "OK"
 echo "--- 임시 검증 코드 ---"
 grep -rn "TEMPORARY" functions/ workers/ src/ shared/ && echo "!!! 남아있음 !!!" || echo "OK"
 echo "--- 로컬 시크릿 파일 ---"
@@ -1362,6 +1392,60 @@ ls workers/daily-cron/.dev.vars 2>/dev/null && echo "!!! 제거 필요 !!!" || e
 
 ```bash
 npm run build && echo "BUILD OK"
+```
+
+- [ ] **Step 2a: 타입 검사를 스크립트로 연결**
+
+Task 3 리뷰 지적: `functions/tsconfig.json`과 새로 만든 `workers/daily-cron/tsconfig.json` 둘 다 **어떤 npm 스크립트에도 연결되어 있지 않다.** 사람이 직접 명령을 칠 때만 돌아가므로 회귀 방지 가치가 0으로 수렴한다. 아무도 실행하지 않는 게이트는 게이트가 아니다.
+
+`package.json`의 `scripts`에 추가한다:
+
+```json
+    "typecheck": "tsc --noEmit -p functions/tsconfig.json && tsc --noEmit -p workers/daily-cron/tsconfig.json",
+```
+
+루트 `tsconfig.json`은 의도적으로 제외한다 — 프로젝트 참조 결함(TS6306/TS6310)으로 즉시 중단되어 `src/`를 검사하지 못하는 상태이며, 그 수정은 이 계획의 범위 밖이다.
+
+```bash
+npm run typecheck
+```
+
+기대: `functions/`의 기존 `TS18046` 4건만 출력되고 그 외 신규 에러 없음.
+
+- [ ] **Step 2b: 문서에 남은 퇴역 모델명·누락 환경변수 정리**
+
+Task 2 리뷰에서 발견된 문서 부채다. 코드는 고쳤는데 문서가 옛 사실을 말하고 있으면 다음 사람이 속는다.
+
+`CLAUDE.md:99` — 퇴역한 모델명을 명시하고 있다. 찾을 코드:
+
+```
+- **Gemini (`gemini-2.0-flash`), server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
+```
+
+바꿀 코드:
+
+```
+- **Gemini, server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
+```
+
+그리고 같은 단락 끝에 아래 문장을 덧붙인다:
+
+```
+  모델명은 `shared/gemini.ts`의 `DEFAULT_GEMINI_MODEL` 한 곳에만 있으며, 런타임에
+  `GEMINI_MODEL` 환경변수가 그것을 덮어쓴다. 모델이 퇴역하면 배포 없이 대시보드에서 교체한다.
+```
+
+`.env.example` — `GEMINI_API_KEY` 줄 다음에 아래를 추가한다. 이 레버의 존재를 운영자가 알아야 이중 구조가 작동한다:
+
+```
+# Gemini 모델 오버라이드 (선택)
+# 모델이 퇴역했을 때 코드 수정·배포 없이 여기서 교체한다.
+# 미설정 시 shared/gemini.ts 의 DEFAULT_GEMINI_MODEL 사용
+GEMINI_MODEL=
+```
+
+```bash
+grep -rn "gemini-2\.0" CLAUDE.md .env.example && echo "!!! 남아있음 !!!" || echo "OK"
 ```
 
 - [ ] **Step 3: V1~V12 결과표 작성**

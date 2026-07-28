@@ -269,7 +269,7 @@ function AvatarCircle({
 // ═══════════════════════════════════════════════════════════════
 export default function FaceHarmonyTab() {
   const { t } = useTranslation();
-  const { detectFace, detectMultipleFaces, isLoading } = useFaceDetection();
+  const { detectFace, detectMultipleFaces, isLoading, error: detectionError } = useFaceDetection();
 
   const [mode, setMode] = useState<'idle' | 'capture-a' | 'capture-b' | 'analyzing' | 'result'>('idle');
   const [inputMode, setInputMode] = useState<'separate' | 'single'>('separate');
@@ -286,7 +286,7 @@ export default function FaceHarmonyTab() {
     setError(null);
     const faceData = await detectFace(imageSrc);
     if (!faceData) {
-      setError('얼굴을 감지할 수 없습니다. 다시 시도해주세요.');
+      // 구체적인 실패 사유는 훅의 error 상태에 담겨 있고, 렌더 시점에 표시된다.
       setMode('idle');
       return;
     }
@@ -346,7 +346,7 @@ export default function FaceHarmonyTab() {
 
     const faces = await detectMultipleFaces(imageSrc);
     if (!faces || faces.length < 2) {
-      setError('두 얼굴을 감지할 수 없습니다. 두 사람이 함께 나온 사진을 사용해주세요.');
+      // 구체적인 실패 사유는 훅의 error 상태에 담겨 있고, 렌더 시점에 표시된다.
       setMode('idle');
       return;
     }
@@ -701,9 +701,9 @@ export default function FaceHarmonyTab() {
       </section>
 
       {/* Error message */}
-      {error && (
+      {(detectionError || error) && (
         <div className="mx-4 bg-red-50 rounded-gal-xl border border-red-200 p-4 text-center text-red-600 text-sm animate-fade-in">
-          {error}
+          {detectionError || error}
         </div>
       )}
 

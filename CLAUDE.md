@@ -18,14 +18,23 @@ npm run dev        # Vite dev server — Pages Functions in functions/ are NOT s
 npm run build      # vite build (no typecheck step)
 npm run preview
 npm run lint       # eslint
+npm run typecheck  # tsc on functions/ + workers/daily-cron/ (both run; fails if either does)
 ```
 
 - There is **no test suite** and no test runner configured.
 - `eslint.config.js` only matches `**/*.{js,jsx}`. Every file under `src/` is `.ts`/`.tsx`, so `npm run lint`
   covers only the root `*.config.js` files — it will not catch anything in application code.
-  Typecheck manually with `npx tsc --noEmit` (`tsconfig.json` has `strict: false`, so it is a weak net).
-- `vite dev` does not serve `functions/api/*`; those need Cloudflare's local runtime. `wrangler` is not a
-  project dependency, so either install it or test those endpoints against a deployed preview.
+- **`src/` currently has no working type gate.** Running `tsc` bare at the repo root does *not* check it: the
+  root `tsconfig.json` references `tsconfig.node.json`, which lacks `composite: true`, so tsc aborts with
+  TS6306/TS6310 before reading `src/`. `npm run typecheck` therefore covers only `functions/` and
+  `workers/daily-cron/` — deliberately, since adding the root config would just reintroduce that abort.
+  It currently reports 4 known pre-existing `TS18046` errors in `functions/api/`.
+- `vite dev` does not serve `functions/api/*`; those need Cloudflare's local runtime. `wrangler` **is** a
+  devDependency. `wrangler dev` runs the worker locally against `workerd` with **no Cloudflare login**;
+  only `wrangler deploy` and `wrangler secret put` require auth.
+- `wrangler` is pinned to exactly `4.61.0` — **do not loosen this pin.** It is the only version compatible
+  with `@cloudflare/workers-types@^4.20260124.0`: `^4.61.0` resolves to 4.114.0 (peer wants workers-types
+  **v5**) and `~4.61.0` picks 4.61.1 (peer floor rises to `^4.20260128.0`). Either breaks `npm ci`.
 - `functions/` and `workers/` have their own tsconfig with `strict: true` and `@cloudflare/workers-types`.
 
 ## Deployment
@@ -38,6 +47,12 @@ and `App.tsx` reads `window.location.hash` to pick the active tab.
 
 The cron worker in `workers/daily-cron/` is a **separate** Cloudflare Worker, deployed independently
 (`wrangler deploy` from that directory), not part of the Pages build.
+
+That worker also runs a **daily dependency self-check**. It rides inside the existing hourly cron but fires
+only at UTC 00:00, probing six external dependencies (Gemini, Supabase, Polar, OpenWeather, NASA, USGS) and
+emailing `ALERT_EMAIL` via Resend **only when something fails** — silence means healthy. It is wrapped in
+`ctx.waitUntil` with a per-probe `AbortSignal.timeout`, so it can neither delay nor break the subscriber
+mail it rides on. `GET /selfcheck` on the worker triggers it manually (add `?notify=true` to also send mail).
 
 ## Architecture
 
@@ -96,10 +111,14 @@ Two distinct sources of "readings", and they are not interchangeable:
   `physiognomy.ts` (748 lines; MediaPipe landmark → 삼정/오관/십이궁 features + `analyzeFaceHarmony`),
   `palmReading.ts` + `palmLineDetector.ts` + `fingerGestureAnalyzer.ts`, `personalColor.ts`, `omenGenerator.ts`,
   `fashionRecommend.ts`. These run offline and are the fallback when no session/AI is available.
-- **Gemini (`gemini-2.0-flash`), server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
+- **Gemini, server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
   `daily-style.ts`. Prompts are long inline Korean template literals that specify an exact JSON schema;
   requests set `responseMimeType: 'application/json'` and responses are still defensively stripped of
   ```` ```json ```` fences and unwrapped from a possible array before parsing.
+  모델명은 `shared/gemini.ts`의 `DEFAULT_GEMINI_MODEL` 한 곳에만 있으며, 런타임에
+  `GEMINI_MODEL` 환경변수가 그것을 덮어쓴다. 모델이 퇴역하면 배포 없이 환경변수만 교체하면 되지만,
+  **Pages 와 `workers/daily-cron` Worker 는 변수 저장소가 분리되어 있어 양쪽에 각각 설정해야 한다** —
+  Worker 만 바꾸면 셀프체크는 통과하면서 Pages Functions 쪽 호출부는 계속 죽어 있다.
 
 **`rule/*.md` is the domain spec** for the deterministic side — research write-ups on 관상 (`face.md`), 손금
 (`palm.md`), 사주 (`saju.md`), 징조 (`oracle.md`), 퍼스널컬러/코디 (`fashion.md`), including the MediaPipe landmark
