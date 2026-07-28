@@ -1375,6 +1375,42 @@ ls workers/daily-cron/.dev.vars 2>/dev/null && echo "!!! 제거 필요 !!!" || e
 npm run build && echo "BUILD OK"
 ```
 
+- [ ] **Step 2b: 문서에 남은 퇴역 모델명·누락 환경변수 정리**
+
+Task 2 리뷰에서 발견된 문서 부채다. 코드는 고쳤는데 문서가 옛 사실을 말하고 있으면 다음 사람이 속는다.
+
+`CLAUDE.md:99` — 퇴역한 모델명을 명시하고 있다. 찾을 코드:
+
+```
+- **Gemini (`gemini-2.0-flash`), server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
+```
+
+바꿀 코드:
+
+```
+- **Gemini, server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
+```
+
+그리고 같은 단락 끝에 아래 문장을 덧붙인다:
+
+```
+  모델명은 `shared/gemini.ts`의 `DEFAULT_GEMINI_MODEL` 한 곳에만 있으며, 런타임에
+  `GEMINI_MODEL` 환경변수가 그것을 덮어쓴다. 모델이 퇴역하면 배포 없이 대시보드에서 교체한다.
+```
+
+`.env.example` — `GEMINI_API_KEY` 줄 다음에 아래를 추가한다. 이 레버의 존재를 운영자가 알아야 이중 구조가 작동한다:
+
+```
+# Gemini 모델 오버라이드 (선택)
+# 모델이 퇴역했을 때 코드 수정·배포 없이 여기서 교체한다.
+# 미설정 시 shared/gemini.ts 의 DEFAULT_GEMINI_MODEL 사용
+GEMINI_MODEL=
+```
+
+```bash
+grep -rn "gemini-2\.0" CLAUDE.md .env.example && echo "!!! 남아있음 !!!" || echo "OK"
+```
+
 - [ ] **Step 3: V1~V12 결과표 작성**
 
 각 항목의 통과 여부와, 건너뛴 항목은 그 사유를 적는다. 특히 V7(구독 계정)과 V8(카메라 재현)은 계정·기기 사정으로 건너뛸 수 있으므로 **건너뛴 사실을 반드시 남긴다.** 조용히 빠뜨리면 "전부 검증됨"으로 오해된다.
