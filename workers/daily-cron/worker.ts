@@ -550,8 +550,134 @@ async function runDailyCron(env: Env, forceAll = false, resend = false, regenera
     }
 }
 
+// ─── 셀프체크 ────────────────────────────────────────────────────────────
+// 2026-03~07 사이 Gemini 모델 퇴역과 Supabase 프로젝트 정지가 각각 발생했으나
+// 감지 장치가 없어 4개월간 아무도 몰랐다. 그때 원인을 찾는 데 쓴 것은 curl 몇 번이
+// 전부였다. 그 curl 을 하루 한 번 자동으로 돌린다.
+
+interface CheckResult {
+  name: string;
+  ok: boolean;
+  detail: string;
+}
+
+async function probe(name: string, fn: () => Promise<Response>): Promise<CheckResult> {
+  try {
+    const res = await fn();
+    if (res.ok) return { name, ok: true, detail: `HTTP ${res.status}` };
+    const body = (await res.text()).slice(0, 300);
+    return { name, ok: false, detail: `HTTP ${res.status} — ${body}` };
+  } catch (err) {
+    return { name, ok: false, detail: `예외: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+async function runSelfCheck(env: Env): Promise<CheckResult[]> {
+  const isSandbox = env.POLAR_SANDBOX === 'true';
+  const polarToken = isSandbox ? env.POLAR_SANDBOX_ACCESS_TOKEN : env.POLAR_ACCESS_TOKEN;
+  const polarBase = isSandbox ? 'https://sandbox-api.polar.sh' : 'https://api.polar.sh';
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  return Promise.all([
+    // 이번에 죽었던 것 1: Gemini 모델. 최소 토큰으로 존재만 확인한다.
+    probe('Gemini', () => fetch(geminiEndpoint(env), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: 'ping' }] }],
+        generationConfig: { maxOutputTokens: 1 },
+      }),
+    })),
+    // 이번에 죽었던 것 2: Supabase 프로젝트.
+    probe('Supabase', () => fetch(
+      `${env.SUPABASE_URL}/rest/v1/user_profiles?select=user_id&limit=1`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    )),
+    probe('Polar', () => fetch(`${polarBase}/v1/subscriptions/?limit=1`, {
+      headers: { 'Authorization': `Bearer ${polarToken}` },
+    })),
+    probe('OpenWeather', () => fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=37.5665&lon=126.978&appid=${env.VITE_OPENWEATHER_API_KEY}&units=metric`
+    )),
+    probe('NASA', () => fetch(
+      `https://api.nasa.gov/planetary/apod?api_key=${env.NASA_API_KEY || 'DEMO_KEY'}`
+    )),
+    probe('USGS', () => fetch(
+      `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${yesterday}&endtime=${today}&minmagnitude=4`
+    )),
+  ]);
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<void> {
+  if (!env.ALERT_EMAIL) {
+    console.error('Self-check failed but ALERT_EMAIL is not configured:', JSON.stringify(failures));
+    return;
+  }
+
+  const rows = failures.map(f =>
+    `<tr>
+      <td style="padding:8px 12px;border:1px solid #ddd;font-weight:bold;">${escapeHtml(f.name)}</td>
+      <td style="padding:8px 12px;border:1px solid #ddd;font-family:monospace;font-size:12px;">${escapeHtml(f.detail)}</td>
+    </tr>`
+  ).join('');
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Mystic AI <onboarding@resend.dev>',
+      to: [env.ALERT_EMAIL],
+      subject: `[GWEH] 외부 의존성 이상 ${failures.length}건`,
+      html: `<h2 style="font-family:sans-serif;">GWEH 셀프체크 실패</h2>
+        <p style="font-family:sans-serif;color:#666;">${new Date().toISOString()}</p>
+        <table style="border-collapse:collapse;font-family:sans-serif;">${rows}</table>
+        <p style="font-family:sans-serif;color:#666;font-size:12px;">
+          Gemini 실패라면 모델 퇴역일 가능성이 높습니다.
+          Cloudflare 대시보드에서 GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구됩니다.
+        </p>`,
+    }),
+  });
+
+  if (!res.ok) {
+    console.error('Self-check alert email failed:', res.status, await res.text());
+  }
+}
+
 export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    // 셀프체크는 하루 1회(UTC 0시)만. 그리고 무슨 일이 있어도 본래 cron 을 막지 않는다.
+    // 감시 장치가 서비스를 죽이면 안 된다.
+    if (new Date().getUTCHours() === 0) {
+      try {
+        const results = await runSelfCheck(env);
+        const failures = results.filter(r => !r.ok);
+        if (failures.length > 0) {
+          console.error('Self-check failures:', JSON.stringify(failures));
+          await sendSelfCheckAlert(env, failures);
+        } else {
+          // 정상일 때는 메일을 보내지 않는다. 매일 오는 '정상' 알림은
+          // 사흘이면 읽지 않게 되고, 그러면 감지 장치가 무력해진다.
+          console.log('Self-check: all dependencies OK');
+        }
+      } catch (err) {
+        console.error('Self-check itself threw:', err);
+      }
+    }
+
     await runDailyCron(env, false);
   },
 
@@ -565,6 +691,18 @@ export default {
       const regenerate = url.searchParams.get('regenerate') === 'true';
       const result = await runDailyCron(env, forceAll, resend, regenerate);
       return new Response(JSON.stringify({ result }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // /selfcheck 로 셀프체크만 수동 실행 (검증용)
+    if (url.pathname === '/selfcheck') {
+      const results = await runSelfCheck(env);
+      const failures = results.filter(r => !r.ok);
+      if (failures.length > 0 && url.searchParams.get('notify') === 'true') {
+        await sendSelfCheckAlert(env, failures);
+      }
+      return new Response(JSON.stringify({ results, failureCount: failures.length }, null, 2), {
         headers: { 'Content-Type': 'application/json' },
       });
     }
