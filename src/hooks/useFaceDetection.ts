@@ -53,7 +53,9 @@ export function useFaceDetection() {
       return model;
     } catch (err) {
       console.error('Face detection model load error:', err);
-      throw new DetectionError(i18next.t('error.faceModel'));
+      throw new DetectionError(i18next.t('error.faceModel', {
+        detail: err instanceof Error ? err.message : String(err),
+      }));
     }
   }, []);
 
@@ -76,7 +78,9 @@ export function useFaceDetection() {
       return model;
     } catch (err) {
       console.error('Multi-face detection model load error:', err);
-      throw new DetectionError(i18next.t('error.faceModel'));
+      throw new DetectionError(i18next.t('error.faceModel', {
+        detail: err instanceof Error ? err.message : String(err),
+      }));
     }
   }, []);
 
@@ -93,7 +97,10 @@ export function useFaceDetection() {
 
       await new Promise((resolve, reject) => {
         img.onload = resolve;
-        img.onerror = reject;
+        img.onerror = (event) => {
+          const kind = typeof event === 'string' ? event : event.type;
+          reject(new Error(`Image load failed (${kind}) src=${String(imageSrc).slice(0, 60)}`));
+        };
         img.src = imageSrc;
       });
 
@@ -153,7 +160,10 @@ export function useFaceDetection() {
 
       await new Promise((resolve, reject) => {
         img.onload = resolve;
-        img.onerror = reject;
+        img.onerror = (event) => {
+          const kind = typeof event === 'string' ? event : event.type;
+          reject(new Error(`Image load failed (${kind}) src=${String(imageSrc).slice(0, 60)}`));
+        };
         img.src = imageSrc;
       });
 

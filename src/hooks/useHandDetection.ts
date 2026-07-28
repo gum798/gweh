@@ -54,7 +54,9 @@ export function useHandDetection() {
       return model;
     } catch (err) {
       console.error('Hand detection model load error:', err);
-      throw new DetectionError(i18next.t('error.handModel'));
+      throw new DetectionError(i18next.t('error.handModel', {
+        detail: err instanceof Error ? err.message : String(err),
+      }));
     }
   }, []);
 
@@ -71,7 +73,10 @@ export function useHandDetection() {
 
       await new Promise((resolve, reject) => {
         img.onload = resolve;
-        img.onerror = reject;
+        img.onerror = (event) => {
+          const kind = typeof event === 'string' ? event : event.type;
+          reject(new Error(`Image load failed (${kind}) src=${String(imageSrc).slice(0, 60)}`));
+        };
         img.src = imageSrc;
       });
 
