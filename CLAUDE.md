@@ -96,10 +96,12 @@ Two distinct sources of "readings", and they are not interchangeable:
   `physiognomy.ts` (748 lines; MediaPipe landmark → 삼정/오관/십이궁 features + `analyzeFaceHarmony`),
   `palmReading.ts` + `palmLineDetector.ts` + `fingerGestureAnalyzer.ts`, `personalColor.ts`, `omenGenerator.ts`,
   `fashionRecommend.ts`. These run offline and are the fallback when no session/AI is available.
-- **Gemini (`gemini-2.0-flash`), server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
+- **Gemini, server-side** — `fortune.ts`, `personal-omen.ts`, `fashion-consult.ts`,
   `daily-style.ts`. Prompts are long inline Korean template literals that specify an exact JSON schema;
   requests set `responseMimeType: 'application/json'` and responses are still defensively stripped of
   ```` ```json ```` fences and unwrapped from a possible array before parsing.
+  모델명은 `shared/gemini.ts`의 `DEFAULT_GEMINI_MODEL` 한 곳에만 있으며, 런타임에
+  `GEMINI_MODEL` 환경변수가 그것을 덮어쓴다. 모델이 퇴역하면 배포 없이 대시보드에서 교체한다.
 
 **`rule/*.md` is the domain spec** for the deterministic side — research write-ups on 관상 (`face.md`), 손금
 (`palm.md`), 사주 (`saju.md`), 징조 (`oracle.md`), 퍼스널컬러/코디 (`fashion.md`), including the MediaPipe landmark
