@@ -1375,6 +1375,24 @@ ls workers/daily-cron/.dev.vars 2>/dev/null && echo "!!! 제거 필요 !!!" || e
 npm run build && echo "BUILD OK"
 ```
 
+- [ ] **Step 2a: 타입 검사를 스크립트로 연결**
+
+Task 3 리뷰 지적: `functions/tsconfig.json`과 새로 만든 `workers/daily-cron/tsconfig.json` 둘 다 **어떤 npm 스크립트에도 연결되어 있지 않다.** 사람이 직접 명령을 칠 때만 돌아가므로 회귀 방지 가치가 0으로 수렴한다. 아무도 실행하지 않는 게이트는 게이트가 아니다.
+
+`package.json`의 `scripts`에 추가한다:
+
+```json
+    "typecheck": "tsc --noEmit -p functions/tsconfig.json && tsc --noEmit -p workers/daily-cron/tsconfig.json",
+```
+
+루트 `tsconfig.json`은 의도적으로 제외한다 — 프로젝트 참조 결함(TS6306/TS6310)으로 즉시 중단되어 `src/`를 검사하지 못하는 상태이며, 그 수정은 이 계획의 범위 밖이다.
+
+```bash
+npm run typecheck
+```
+
+기대: `functions/`의 기존 `TS18046` 4건만 출력되고 그 외 신규 에러 없음.
+
 - [ ] **Step 2b: 문서에 남은 퇴역 모델명·누락 환경변수 정리**
 
 Task 2 리뷰에서 발견된 문서 부채다. 코드는 고쳤는데 문서가 옛 사실을 말하고 있으면 다음 사람이 속는다.
