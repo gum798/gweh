@@ -1,6 +1,8 @@
 // Daily Cron Worker - 매시간 실행, 사용자 위치 기반 로컬 06시에 발송
 // wrangler.toml에서 [triggers] crons = ["0 * * * *"] 설정
 
+import { geminiEndpoint } from '../../shared/gemini';
+
 interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
@@ -8,8 +10,11 @@ interface Env {
   POLAR_SANDBOX_ACCESS_TOKEN: string;
   POLAR_SANDBOX: string;
   GEMINI_API_KEY: string;
+  GEMINI_MODEL?: string;
   RESEND_API_KEY: string;
   VITE_OPENWEATHER_API_KEY: string;
+  NASA_API_KEY?: string;
+  ALERT_EMAIL?: string;
 }
 
 interface UserProfile {
@@ -248,7 +253,7 @@ async function generateStyleWithGemini(env: Env, omenMessage: string, energy: nu
 }`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${env.GEMINI_API_KEY}`,
+    geminiEndpoint(env),
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -301,7 +306,7 @@ JSON 형식만 반환:
 }`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${env.GEMINI_API_KEY}`,
+    geminiEndpoint(env),
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
