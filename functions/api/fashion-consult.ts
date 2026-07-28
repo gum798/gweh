@@ -1,5 +1,8 @@
+import { geminiEndpoint } from '../../shared/gemini';
+
 interface Env {
   GEMINI_API_KEY: string;
+  GEMINI_MODEL?: string;
 }
 
 interface RequestBody {
@@ -107,7 +110,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // Google Gemini API
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${context.env.GEMINI_API_KEY}`,
+      geminiEndpoint(context.env),
       {
         method: 'POST',
         headers: {

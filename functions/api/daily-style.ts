@@ -1,5 +1,8 @@
+import { geminiEndpoint } from '../../shared/gemini';
+
 interface Env {
   GEMINI_API_KEY: string;
+  GEMINI_MODEL?: string;
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   POLAR_SANDBOX_ACCESS_TOKEN: string;
@@ -103,7 +106,7 @@ Respond in this JSON format:
 }`;
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${context.env.GEMINI_API_KEY}`,
+      geminiEndpoint(context.env),
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
