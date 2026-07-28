@@ -559,6 +559,10 @@ interface CheckResult {
   name: string;
   ok: boolean;
   detail: string;
+  // 응답까지 걸린 밀리초. PROBE_TIMEOUT_MS 를 얼마로 둘지는 판단이 아니라
+  // 측정으로 정해야 하는데, 이 값이 없으면 그 측정을 할 곳이 없다.
+  // 저장하지 않는다 — 매 실행의 결과에만 실려 나가고 사라진다.
+  ms: number;
   skipped?: boolean;
 }
 
@@ -579,26 +583,33 @@ function redactQuery(s: string): string {
 const PROBE_TIMEOUT_MS = 10_000;
 
 async function probe(name: string, fn: () => Promise<Response>): Promise<CheckResult> {
+  const started = Date.now();
   try {
     const res = await fn();
+    const ms = Date.now() - started;
     if (res.ok) {
       // 성공 본문은 쓸 데가 없지만, 읽지 않고 버려두면 연결 슬롯을 계속 붙잡는다.
       // Workers 는 invocation 당 동시 연결 6개가 상한이고 셀프체크는 그 슬롯을
       // runDailyCron 과 나눠 쓴다. 즉시 반납한다.
       await res.body?.cancel();
-      return { name, ok: true, detail: `HTTP ${res.status}` };
+      return { name, ok: true, detail: `HTTP ${res.status}`, ms };
     }
     const body = (await res.text()).slice(0, 300);
-    return { name, ok: false, detail: redactQuery(`HTTP ${res.status} — ${body}`) };
+    return { name, ok: false, detail: redactQuery(`HTTP ${res.status} — ${body}`), ms };
   } catch (err) {
-    return { name, ok: false, detail: redactQuery(`예외: ${err instanceof Error ? err.message : String(err)}`) };
+    return {
+      name,
+      ok: false,
+      detail: redactQuery(`예외: ${err instanceof Error ? err.message : String(err)}`),
+      ms: Date.now() - started,
+    };
   }
 }
 
 // 설정되지 않은 선택적 의존성은 '실패'가 아니라 '건너뜀'이다.
 // ok: true 를 유지해야 failures.filter 가 깨끗하고, 경보가 울리지 않는다.
 function skipped(name: string, reason: string): CheckResult {
-  return { name, ok: true, detail: `건너뜀 — ${reason}`, skipped: true };
+  return { name, ok: true, detail: `건너뜀 — ${reason}`, ms: 0, skipped: true };
 }
 
 async function runSelfCheck(env: Env): Promise<CheckResult[]> {
@@ -682,35 +693,53 @@ async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<vo
   const rows = failures.map(f =>
     `<tr>
       <td style="padding:8px 12px;border:1px solid #ddd;font-weight:bold;">${escapeHtml(f.name)}</td>
+      <td style="padding:8px 12px;border:1px solid #ddd;font-family:monospace;font-size:12px;white-space:nowrap;">${f.ms}ms</td>
       <td style="padding:8px 12px;border:1px solid #ddd;font-family:monospace;font-size:12px;">${escapeHtml(f.detail)}</td>
     </tr>`
   ).join('');
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Mystic AI <onboarding@resend.dev>',
-      to: [env.ALERT_EMAIL],
-      subject: `[GWEH] 외부 의존성 이상 ${failures.length}건`,
-      html: `<h2 style="font-family:sans-serif;">GWEH 셀프체크 실패</h2>
-        <p style="font-family:sans-serif;color:#666;">${new Date().toISOString()}</p>
-        <table style="border-collapse:collapse;font-family:sans-serif;">${rows}</table>
-        <p style="font-family:sans-serif;color:#666;font-size:12px;">
-          Gemini 가 <b>404 / not found / no longer available</b> 이면 모델 퇴역입니다.
-          Cloudflare 대시보드에서 GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구됩니다.<br>
-          Gemini 가 <b>400 이면서 max_output_tokens / thinking</b> 을 언급하면 모델이 아니라
-          셀프체크 프로브의 문제입니다. 모델을 바꾸지 마십시오 —
-          worker.ts 의 Gemini 프로브 maxOutputTokens 값을 올려야 합니다.
-        </p>`,
-    }),
-  });
+  // 경보 발송도 프로브와 같은 상한으로 묶는다. 이 경로는 실패했을 때만 타므로,
+  // 이미 뭔가 아픈 상황에서 호출된다. 상한 없이 두면 경보 POST 하나가 연결 슬롯을
+  // invocation 내내 붙잡을 수 있다 — 프로브에 상한을 둔 이유가 여기에도 그대로 적용된다.
+  //
+  // 단, 상한을 두면 이 fetch 는 이제 '던질 수 있다'. 이 함수는 지금까지 던지지 않는
+  // 계약이었고 /selfcheck 는 try/catch 없이 호출한다. 계약을 유지한다 —
+  // 경보를 못 보낸 것이 응답 자체를 깨뜨리면 진단이 더 어려워진다.
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      body: JSON.stringify({
+        from: 'Mystic AI <onboarding@resend.dev>',
+        to: [env.ALERT_EMAIL],
+        subject: `[GWEH] 외부 의존성 이상 ${failures.length}건`,
+        html: `<h2 style="font-family:sans-serif;">GWEH 셀프체크 실패</h2>
+          <p style="font-family:sans-serif;color:#666;">${new Date().toISOString()}</p>
+          <table style="border-collapse:collapse;font-family:sans-serif;">${rows}</table>
+          <p style="font-family:sans-serif;color:#666;font-size:12px;">
+            Gemini 가 <b>404 / not found / no longer available</b> 이면 모델 퇴역입니다.
+            Cloudflare 대시보드에서 GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구됩니다.<br>
+            Gemini 가 <b>400 이면서 max_output_tokens / thinking</b> 을 언급하면 모델이 아니라
+            셀프체크 프로브의 문제입니다. 모델을 바꾸지 마십시오 —
+            worker.ts 의 Gemini 프로브 maxOutputTokens 값을 올려야 합니다.<br>
+            <b>aborted due to timeout</b> 이면(소요 시간이 ${PROBE_TIMEOUT_MS}ms 근처) 죽은 것이 아니라
+            느려진 것일 수 있습니다. 해당 서비스의 상태 페이지를 먼저 확인하고,
+            평소에도 이 값에 가깝다면 PROBE_TIMEOUT_MS 를 올리십시오.
+          </p>`,
+      }),
+    });
 
-  if (!res.ok) {
-    console.error('Self-check alert email failed:', res.status, await res.text());
+    if (!res.ok) {
+      console.error('Self-check alert email failed:', res.status, await res.text());
+    }
+  } catch (err) {
+    // 타임아웃 포함. 여기까지 왔다는 것은 의존성도 아프고 경보 경로도 아프다는 뜻이다.
+    // 남는 것은 Cloudflare 로그뿐이므로 실패 내역을 함께 남긴다.
+    console.error('Self-check alert email threw:', err, JSON.stringify(failures));
   }
 }
 
