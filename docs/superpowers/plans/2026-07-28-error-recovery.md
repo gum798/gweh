@@ -65,9 +65,13 @@ git checkout -b fix/error-recovery
 
 `wrangler`는 선택이 아니다. `workers/daily-cron/`은 Pages 빌드와 별개로 `wrangler deploy`가 필요하고, Task 7의 실패 주입 검증(V10)도 `wrangler dev`를 쓴다.
 
+**정확한 버전을 고정해야 한다.** `wrangler@^4.61.0`이나 `~4.61.0`은 모두 ERESOLVE로 실패한다 — `^`는 최신 4.x(4.114.0)를 고르는데 그건 `@cloudflare/workers-types@^5`를 요구하고, `~`가 고르는 4.61.1은 peer 하한을 `^4.20260128.0`으로 올린다. 저장소 핀(`^4.20260124.0`)과 호환되는 창은 **정확히 4.61.0 한 버전뿐**이다.
+
 ```bash
-npm install --save-dev wrangler
+npm install --save-dev --save-exact wrangler@4.61.0
 ```
+
+`--save-exact`가 필요하다. 없으면 npm이 `"^4.61.0"`을 써넣어 락파일 없는 설치에서 다시 깨진다.
 
 - [ ] **Step 3: `shared/gemini.ts` 생성**
 
@@ -885,13 +889,20 @@ import { DetectionError } from './detectionError';
 npm run build
 ```
 
-기대: 성공. `vite build`는 타입 검사를 하지 않으므로 추가로:
+기대: 성공. `vite build`는 타입 검사를 하지 않는다.
+
+**주의 — 루트 `npx tsc --noEmit`은 쓸 수 없다.** `tsconfig.json:30`의 프로젝트 참조가 `tsconfig.node.json`을 가리키는데 그 파일에 `composite: true`가 없어 TS6306/TS6310으로 **즉시 중단되며 `src/`를 전혀 검사하지 않는다.** 즉 이 저장소에는 프론트엔드 타입 검사 경로가 아예 없다(사전 결함, 이 계획의 범위 밖).
+
+대신 변경한 파일만 직접 검사한다:
 
 ```bash
-npx tsc --noEmit
+npx tsc --noEmit --skipLibCheck --jsx react-jsx \
+  --target ES2020 --module ESNext --moduleResolution bundler \
+  --lib ES2020,DOM,DOM.Iterable \
+  src/hooks/detectionError.ts src/hooks/useFaceDetection.ts src/hooks/useHandDetection.ts
 ```
 
-`tsconfig.json`의 `strict: false` 때문에 촘촘한 그물은 아니지만, 임포트 경로 오타와 미정의 심볼은 잡힌다. 기존에 없던 에러가 새로 생기지 않았는지만 확인한다.
+임포트 경로 오타와 미정의 심볼을 잡는 것이 목적이다. 기존에 없던 에러가 새로 생기지 않았는지만 확인한다.
 
 - [ ] **Step 13: 커밋 및 배포**
 
