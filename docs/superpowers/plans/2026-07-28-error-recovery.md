@@ -104,7 +104,7 @@ export function geminiEndpoint(env: GeminiEnv): string {
 
 - [ ] **Step 4: `functions/tsconfig.json`이 상위 디렉터리를 보게 한다**
 
-현재 `include`가 `["./**/*.ts"]`라 `../shared/`를 타입 검사 대상에 포함하지 않는다. `workers/daily-cron/tsconfig.json`(Task 3)과 같은 문제다. 전체를 아래로 교체한다:
+현재 `include`가 `["./**/*.ts"]`라 `../shared/`를 타입 검사 대상에 포함하지 않는다. 전체를 아래로 교체한다:
 
 ```json
 {
@@ -354,14 +354,14 @@ worker는 Pages와 **별개로 배포**된다. Pages 프리뷰 배포에 포함�
 
 **Files:**
 - Modify: `workers/daily-cron/worker.ts:4-13` (Env), `:251`, `:304`
-- Modify: `workers/daily-cron/tsconfig.json`
+- Create: `workers/daily-cron/tsconfig.json` (존재하지 않음)
 
 **Interfaces:**
 - Consumes: `geminiEndpoint(env)` from Task 1
 
-- [ ] **Step 1: worker tsconfig가 상위 디렉터리를 보게 한다**
+- [ ] **Step 1: worker tsconfig를 생성한다**
 
-`workers/daily-cron/tsconfig.json`의 `include`가 `["./**/*.ts"]`라 `../../shared/`를 포함하지 않는다. 전체를 아래로 교체한다:
+`workers/daily-cron/`에는 `worker.ts`와 `wrangler.toml`뿐이며 **tsconfig.json이 없다.** (초기 계획은 이 파일이 있다고 잘못 기술했다 — `functions/tsconfig.json`과 혼동한 오류다.) 즉 이 워커는 지금까지 타입 검사를 전혀 받지 않았다. 아래 내용으로 **새로 만든다**:
 
 ```json
 {
