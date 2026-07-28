@@ -1045,14 +1045,29 @@ Step 4가 이미 200이었다면 이 단계는 건너뛴다.
 
 - [ ] **Step 7: V12 — 최종 확인**
 
+**테이블 존재 확인만으로는 부족하다.** 테이블이 예전에 유니크 제약 없이 만들어졌다면 `CREATE TABLE IF NOT EXISTS`가 조용히 no-op 하고 제약은 끝내 추가되지 않는다 — 이 마이그레이션이 막으려던 바로 그 실패 모드인데 존재 확인 curl은 200을 반환한다. **제약 자체를 확인해야 한다.**
+
+Supabase 대시보드 → SQL Editor 에서:
+
+```sql
+SELECT conname, pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE conrelid = 'fashion_usage'::regclass AND contype = 'u';
+```
+
+기대: `UNIQUE (user_id, used_date)` 1행. **0행이면** 테이블은 있으나 제약이 없는 상태이므로 아래를 실행한다:
+
+```sql
+ALTER TABLE fashion_usage ADD CONSTRAINT fashion_usage_user_id_used_date_key UNIQUE (user_id, used_date);
+```
+
+(중복 행이 이미 쌓여 있으면 이 문장이 실패한다. 그 경우 중복을 먼저 정리해야 하며, 그 사실 자체가 제한이 무력했다는 증거다.)
+
 ```bash
-curl -s -o /dev/null -w "fashion_usage: %{http_code}\n" \
-  "$SUPA/rest/v1/fashion_usage?select=id&limit=1" \
-  -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY"
 ls -1 supabase/migrations/
 ```
 
-기대: `200`, 그리고 마이그레이션 목록에 `005_fashion_usage.sql` 존재.
+기대: 목록에 `005_fashion_usage.sql` 존재.
 
 - [ ] **Step 8: 커밋**
 
