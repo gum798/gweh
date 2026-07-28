@@ -10,29 +10,69 @@ interface Env {
   POLAR_SANDBOX: string;
 }
 
-async function verifySubscription(env: Env, accessToken: string): Promise<boolean> {
-  // Get user email
+/**
+ * Polar 구독 상태 확인.
+ *
+ * 이전 구현은 `?customer_email=...&active=true` 를 썼으나 Polar는 customer_email 필터를
+ * 지원하지 않으며 미지원 파라미터를 에러 없이 버린다. 그 결과 실제 질의는
+ * "조직 전체의 활성 구독 아무거나 1건"이 되어, 조직에 유료 고객이 한 명이라도 있으면
+ * 로그인한 모든 비구독자가 유료 기능을 통과했다.
+ *
+ * subscription-status.ts:43-72 의 검증된 2단계 조회로 교체한다.
+ * active=true 는 Polar OpenAPI에서 deprecated 이므로 status 값으로 직접 판정한다.
+ *
+ * 반환값을 boolean이 아닌 3-상태로 둔 이유: 업스트림 장애를 "구독 없음"과 같이 취급하면
+ * Polar가 흔들릴 때 유료 고객을 조용히 거부하게 된다. 조용히 틀린 답을 주는 것보다
+ * 명시적으로 실패하는 편이 낫다.
+ */
+type SubscriptionCheck = 'subscribed' | 'not-subscribed' | 'upstream-error';
+
+async function verifySubscription(env: Env, accessToken: string): Promise<SubscriptionCheck> {
+  // 1) Supabase에서 사용자 이메일 조회
   const userRes = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
     },
   });
-  if (!userRes.ok) return false;
+  if (userRes.status === 401 || userRes.status === 403) return 'not-subscribed';
+  if (!userRes.ok) {
+    console.error('Supabase user lookup failed:', userRes.status, await userRes.text());
+    return 'upstream-error';
+  }
   const user = await userRes.json() as { email: string };
 
-  // Check Polar subscription
   const isSandbox = env.POLAR_SANDBOX === 'true';
   const polarToken = isSandbox ? env.POLAR_SANDBOX_ACCESS_TOKEN : env.POLAR_ACCESS_TOKEN;
   const apiBaseUrl = isSandbox ? 'https://sandbox-api.polar.sh' : 'https://api.polar.sh';
 
-  const subsRes = await fetch(
-    `${apiBaseUrl}/v1/subscriptions/?customer_email=${encodeURIComponent(user.email)}&active=true&limit=1`,
+  // 2) 이메일로 Polar customer 조회
+  const custRes = await fetch(
+    `${apiBaseUrl}/v1/customers/?email=${encodeURIComponent(user.email)}&limit=1`,
     { headers: { 'Authorization': `Bearer ${polarToken}` } }
   );
-  if (!subsRes.ok) return false;
-  const data = await subsRes.json() as { items: any[] };
-  return data.items && data.items.length > 0;
+  if (!custRes.ok) {
+    console.error('Polar customer lookup failed:', custRes.status, await custRes.text());
+    return 'upstream-error';
+  }
+  const custData = await custRes.json() as { items?: any[] };
+  const customer = custData.items?.[0];
+  if (!customer) return 'not-subscribed';
+
+  // 3) customer_id로 구독 조회 후 status로 판정
+  const subsRes = await fetch(
+    `${apiBaseUrl}/v1/subscriptions/?customer_id=${customer.id}&limit=10`,
+    { headers: { 'Authorization': `Bearer ${polarToken}` } }
+  );
+  if (!subsRes.ok) {
+    console.error('Polar subscription lookup failed:', subsRes.status, await subsRes.text());
+    return 'upstream-error';
+  }
+  const subsData = await subsRes.json() as { items?: any[] };
+  const active = subsData.items?.find(
+    (s: any) => s.status === 'active' || s.status === 'trialing'
+  );
+  return active ? 'subscribed' : 'not-subscribed';
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -42,8 +82,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isSubscribed = await verifySubscription(context.env, authHeader.slice(7));
-    if (!isSubscribed) {
+    const check = await verifySubscription(context.env, authHeader.slice(7));
+    if (check === 'upstream-error') {
+      return Response.json(
+        { error: '구독 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.' },
+        { status: 503 }
+      );
+    }
+    if (check === 'not-subscribed') {
       return Response.json({ error: 'Subscription required' }, { status: 403 });
     }
 
