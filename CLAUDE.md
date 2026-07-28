@@ -116,7 +116,9 @@ Two distinct sources of "readings", and they are not interchangeable:
   requests set `responseMimeType: 'application/json'` and responses are still defensively stripped of
   ```` ```json ```` fences and unwrapped from a possible array before parsing.
   모델명은 `shared/gemini.ts`의 `DEFAULT_GEMINI_MODEL` 한 곳에만 있으며, 런타임에
-  `GEMINI_MODEL` 환경변수가 그것을 덮어쓴다. 모델이 퇴역하면 배포 없이 대시보드에서 교체한다.
+  `GEMINI_MODEL` 환경변수가 그것을 덮어쓴다. 모델이 퇴역하면 배포 없이 환경변수만 교체하면 되지만,
+  **Pages 와 `workers/daily-cron` Worker 는 변수 저장소가 분리되어 있어 양쪽에 각각 설정해야 한다** —
+  Worker 만 바꾸면 셀프체크는 통과하면서 Pages Functions 쪽 호출부는 계속 죽어 있다.
 
 **`rule/*.md` is the domain spec** for the deterministic side — research write-ups on 관상 (`face.md`), 손금
 (`palm.md`), 사주 (`saju.md`), 징조 (`oracle.md`), 퍼스널컬러/코디 (`fashion.md`), including the MediaPipe landmark

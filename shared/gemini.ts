@@ -20,7 +20,14 @@ export interface GeminiEnv {
 }
 
 export function geminiModel(env: GeminiEnv): string {
-  return env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
+  // trim 은 편의가 아니라 복구 경로의 일부다. 이 값은 모델이 퇴역해 서비스가 죽은
+  // 상태에서, 대시보드에 손으로 붙여넣어진다. 붙여넣기에 딸려온 공백 하나는
+  // URL 경로를 깨뜨리고, 그 실패는 '교체한 모델도 죽었다'와 똑같이 보인다 —
+  // 운영자를 자기 런북의 틀린 분기로 보내는 가장 나쁜 실패다.
+  //
+  // 공백만 있는 값은 trim 후 빈 문자열이 되고, || 가 기본값으로 떨어뜨린다.
+  // ?? 로 바꾸면 안 된다 — 빈 문자열이 통과해 모델 자리가 비어버린다.
+  return env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
 }
 
 export function geminiEndpoint(env: GeminiEnv): string {

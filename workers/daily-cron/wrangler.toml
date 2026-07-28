@@ -7,3 +7,11 @@ crons = ["0 * * * *"]  # 매시간 실행, 사용자 위치 기준 로컬 06시�
 
 [vars]
 POLAR_SANDBOX = "false"
+
+# 셀프체크의 모든 열화 경로(ALERT_EMAIL 미설정, Resend 비2xx, Resend 예외)는
+# console.error 로 끝난다. Workers Logs 가 꺼져 있으면 감지 장치가 이상을 감지한 뒤
+# 그 사실을 잃어버린다 — 이 브랜치가 없애려는 '감시 장치가 있다는 착각' 그 자체다.
+# head_sampling_rate = 1 은 100% 수집. 이 Worker 는 시간당 1회 실행이라 샘플링할 이유가 없다.
+[observability]
+enabled = true
+head_sampling_rate = 1

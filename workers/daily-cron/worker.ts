@@ -684,10 +684,12 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<void> {
+// 반환값은 '경보가 실제로 나갔는가'다. 던지지 않는 계약은 그대로이므로
+// 모든 실패 경로는 예외가 아니라 false 로 나온다.
+async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<boolean> {
   if (!env.ALERT_EMAIL) {
     console.error('Self-check failed but ALERT_EMAIL is not configured:', JSON.stringify(failures));
-    return;
+    return false;
   }
 
   const rows = failures.map(f =>
@@ -722,24 +724,31 @@ async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<vo
           <table style="border-collapse:collapse;font-family:sans-serif;">${rows}</table>
           <p style="font-family:sans-serif;color:#666;font-size:12px;">
             Gemini 가 <b>404 / not found / no longer available</b> 이면 모델 퇴역입니다.
-            Cloudflare 대시보드에서 GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구됩니다.<br>
+            GEMINI_MODEL 환경변수만 교체하면 배포 없이 복구되지만,
+            <b>Cloudflare Pages 와 이 Worker 양쪽에 각각 설정해야 합니다</b> —
+            변수 저장소가 분리되어 있어 Worker 만 바꾸면 이 셀프체크는 통과하고 Pages Functions 는 계속 죽어 있습니다.<br>
             Gemini 가 <b>400 이면서 max_output_tokens / thinking</b> 을 언급하면 모델이 아니라
             셀프체크 프로브의 문제입니다. 모델을 바꾸지 마십시오 —
             worker.ts 의 Gemini 프로브 maxOutputTokens 값을 올려야 합니다.<br>
             <b>aborted due to timeout</b> 이면(소요 시간이 ${PROBE_TIMEOUT_MS}ms 근처) 죽은 것이 아니라
             느려진 것일 수 있습니다. 해당 서비스의 상태 페이지를 먼저 확인하고,
-            평소에도 이 값에 가깝다면 PROBE_TIMEOUT_MS 를 올리십시오.
+            평소에도 이 값에 가깝다면 PROBE_TIMEOUT_MS 를 올리십시오.<br>
+            이 셀프체크가 검증하는 것은 <b>이 Worker 가 가진 자격증명뿐</b>이므로, 전부 통과하더라도
+            Pages Functions 쪽 같은 이름의 변수들이 살아 있다는 뜻은 아닙니다.
           </p>`,
       }),
     });
 
     if (!res.ok) {
       console.error('Self-check alert email failed:', res.status, await res.text());
+      return false;
     }
+    return true;
   } catch (err) {
     // 타임아웃 포함. 여기까지 왔다는 것은 의존성도 아프고 경보 경로도 아프다는 뜻이다.
     // 남는 것은 Cloudflare 로그뿐이므로 실패 내역을 함께 남긴다.
     console.error('Self-check alert email threw:', err, JSON.stringify(failures));
+    return false;
   }
 }
 
@@ -800,10 +809,15 @@ export default {
     if (url.pathname === '/selfcheck') {
       const results = await runSelfCheck(env);
       const failures = results.filter(r => !r.ok);
-      if (failures.length > 0 && url.searchParams.get('notify') === 'true') {
-        await sendSelfCheckAlert(env, failures);
-      }
-      return new Response(JSON.stringify({ results, failureCount: failures.length }, null, 2), {
+      // notified: 경보가 실제로 나갔는가. 이 값이 없으면 '가짜 모델을 주입하고 경보가
+      // 도착하는지 확인한다'는 검증이 자기 결과를 확인하려고 Cloudflare 로그 접근에
+      // 의존하게 된다 — 검증 절차가 검증 대상보다 무거워진다.
+      // 보낼 상황이 아니었으면(실패 0건이거나 notify 미지정) null: 실패와 구분된다.
+      const notified =
+        failures.length > 0 && url.searchParams.get('notify') === 'true'
+          ? await sendSelfCheckAlert(env, failures)
+          : null;
+      return new Response(JSON.stringify({ results, failureCount: failures.length, notified }, null, 2), {
         headers: { 'Content-Type': 'application/json' },
       });
     }
