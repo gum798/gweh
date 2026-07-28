@@ -583,13 +583,15 @@ async function verifySubscription(env: Env, accessToken: string): Promise<Subscr
     }
 ```
 
-- [ ] **Step 3: 미지원 필터가 남아있지 않은지 확인**
+- [ ] **Step 3: 미지원 필터가 Polar URL에 남아있지 않은지 확인**
+
+주의: 맨몸 `grep customer_email`은 쓸 수 없다. `customer_email`은 **정당한 용도**로도 쓰인다 — `checkout.ts:61`·`subscribe.ts:60`의 체크아웃 요청 **본문 필드**, `polar-webhook.ts:11,56`의 인바운드 웹훅 **페이로드 필드**. 이들을 지우면 결제가 깨진다. 문제는 오직 **URL 쿼리 필터로 쓰인 경우**다.
 
 ```bash
-grep -rn "customer_email\|active=true" functions/
+grep -rnE '\$\{apiBaseUrl\}/v1/[^`]*(customer_email|active=true)' functions/
 ```
 
-기대 출력: **아무것도 없음.**
+기대 출력: **아무것도 없음.** (`daily-style.ts`의 설명 주석에 옛 쿼리 문자열이 남는 것은 의도된 것이며 이 패턴에 걸리지 않는다.)
 
 - [ ] **Step 4: 커밋 및 배포**
 
