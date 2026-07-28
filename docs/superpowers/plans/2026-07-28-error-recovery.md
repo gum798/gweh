@@ -1373,11 +1373,13 @@ cd workers/daily-cron && npx wrangler deploy && cd ../..
 
 - [ ] **Step 1: 하드코딩 잔여물 최종 확인**
 
+**패턴이 정확해야 한다.** 앞선 태스크들이 수정 내용을 설명하는 주석에 옛 문자열을 남겼으므로(의도된 것이다), 맨몸 grep은 영구히 오탐한다. 실제 코드에서만 잡는다.
+
 ```bash
-echo "--- 퇴역 모델명 ---"
-grep -rn "gemini-2\.0" functions/ workers/ shared/ && echo "!!! 남아있음 !!!" || echo "OK"
-echo "--- 미지원 Polar 필터 ---"
-grep -rn "customer_email\|active=true" functions/ && echo "!!! 남아있음 !!!" || echo "OK"
+echo "--- 퇴역 모델명 (문자열 리터럴만) ---"
+grep -rnE "['\"\`]gemini-2\.0" functions/ workers/ shared/ && echo "!!! 남아있음 !!!" || echo "OK"
+echo "--- 미지원 Polar 필터 (URL 쿼리만) ---"
+grep -rnE '\$\{apiBaseUrl\}/v1/[^`]*(customer_email|active=true)' functions/ && echo "!!! 남아있음 !!!" || echo "OK"
 echo "--- 임시 검증 코드 ---"
 grep -rn "TEMPORARY" functions/ workers/ src/ shared/ && echo "!!! 남아있음 !!!" || echo "OK"
 echo "--- 로컬 시크릿 파일 ---"
