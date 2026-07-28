@@ -57,7 +57,10 @@ async function verifySubscription(env: Env, accessToken: string): Promise<Subscr
   }
   const custData = await custRes.json() as { items?: any[] };
   const customer = custData.items?.[0];
-  if (!customer) return 'not-subscribed';
+  if (!customer) {
+    console.warn('daily-style denied: no Polar customer for', user.email);
+    return 'not-subscribed';
+  }
 
   // 3) customer_id로 구독 조회 후 status로 판정
   const subsRes = await fetch(
@@ -72,6 +75,13 @@ async function verifySubscription(env: Env, accessToken: string): Promise<Subscr
   const active = subsData.items?.find(
     (s: any) => s.status === 'active' || s.status === 'trialing'
   );
+  if (!active) {
+    console.warn(
+      `daily-style denied: ${user.email} — customer ${customer.id}, statuses: ${
+        subsData.items?.map((s: any) => s.status).join(',') || 'none'
+      }`
+    );
+  }
   return active ? 'subscribed' : 'not-subscribed';
 }
 
