@@ -5,7 +5,7 @@ src/components/OmenCard.tsx(6,62): TS2339
 src/components/tabs/FaceHarmonyTab.tsx(683,58): TS2367
 src/components/tabs/FaceTab.tsx(62,19): TS2339
 src/components/tabs/FaceTab.tsx(73,19): TS2339
-src/components/tabs/SajuTab.tsx(483,57): TS2322
+src/components/tabs/SajuTab.tsx(485,57): TS2322
 src/hooks/useHandDetection.ts(318,21): TS2339
 src/hooks/useHandDetection.ts(322,40): TS2339
 src/utils/palmLineDetector.ts(184,29): TS2339

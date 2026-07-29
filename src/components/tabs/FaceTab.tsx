@@ -133,9 +133,9 @@ export default function FaceTab() {
   if (mode === 'select') {
     return (
       <div className="space-y-8">
+        {/* heroTitle1·2 는 한 문장의 두 조각이다 — PalmTab 의 같은 위치 주석 참고. */}
         <PageHeader
-          eyebrow={tc('face.heroTitle1')}
-          title={tc('face.heroTitle2')}
+          title={`${tc('face.heroTitle1')} ${tc('face.heroTitle2')}`}
           subtitle={t('subtitle', 'AI interprets the signs of destiny in your face')}
         />
 

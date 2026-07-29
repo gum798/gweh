@@ -45,6 +45,25 @@ const SIZES: Record<Size, string> = {
   lg: 'text-base px-7 min-h-[52px]',
 };
 
+// 반지름은 항상-켜짐 문자열에서 빼서 여기에 따로 둔다. Tailwind 는 borderRadius
+// 유틸리티를 **클래스명 알파벳순**으로 내보낸다(설정 키 순서가 아니다). 빌드된 CSS 의
+// 실제 순서는 다음과 같다:
+//   rounded-full → rounded-gal-lg → rounded-gal-md → rounded-gal-sm
+//   → rounded-gal-xl → rounded-lg → rounded-xl
+// 특이성이 같으므로 뒤에 나온 규칙이 이긴다. 즉 기본값을 클래스 문자열에 그냥
+// 박아두면 rounded-gal-xl 이 rounded-full 과 디자인 토큰 **전부**를 이기고,
+// 원시 rounded-lg/rounded-xl 에만 진다. 호출부가 **정식 토큰**을 쓰면 조용히
+// 실패하고 비토큰을 쓰면 성공하는, 가능한 최악의 방향이다.
+// className 속성의 순서는 아무 영향이 없다 — CSS 는 스타일시트 순서만 본다 —
+// 그래서 이 기본값을 VARIANTS/SIZES 표로 옮기는 것으로는 아무것도 고쳐지지 않는다.
+//
+// 해법은 순서 싸움 자체를 없애는 것이다: className 에 접두사 없는 rounded 유틸리티가
+// 있으면 기본값을 아예 내보내지 않는다. 그러면 승자가 하나뿐이라 CSS 순서와 무관하다.
+// hover:/md: 처럼 접두사가 붙은 것은 조건부 덮어쓰기이므로 기본값을 남긴다 —
+// 그것까지 지우면 조건이 거짓일 때 반지름이 없어진다.
+const DEFAULT_RADIUS = 'rounded-gal-xl';
+const HAS_RADIUS_OVERRIDE = /(?:^|\s)rounded(?:-[a-z0-9-]+)?(?=\s|$)/;
+
 // type 기본값이 'button' 인 것은 중요하다. React 는 type 을 안 주면 속성을 아예
 // 내보내지 않고, 그러면 HTML 기본값인 submit 이 적용된다. 탭에는 <form> 안에
 // type="button" 을 명시한 버튼들이 있다 — SajuTab:254 폼 안의 양력/음력 토글과
@@ -64,7 +83,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-gal-xl font-medium',
+        'inline-flex items-center justify-center gap-2 font-medium',
+        HAS_RADIUS_OVERRIDE.test(className) ? '' : DEFAULT_RADIUS,
         'transition-all duration-200 active:scale-[0.98]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2',
         'disabled:opacity-50 disabled:pointer-events-none',

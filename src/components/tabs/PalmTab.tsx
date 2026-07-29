@@ -109,9 +109,11 @@ export default function PalmTab() {
   if (mode === 'intro') {
     return (
       <div className="space-y-8">
+        {/* heroTitle1·2 는 원래 하나의 <h1> 안에서 <br> 로만 나뉜 한 문장이었다.
+            앞 조각을 eyebrow 로 보내면 10px·0.3em·대문자 라벨 처리가 문장 조각에 걸린다.
+            두 키는 ko/en 로케일 값이 동일하므로 공백 결합이 양쪽에서 같은 문장을 만든다. */}
         <PageHeader
-          eyebrow={tc('palm.heroTitle1')}
-          title={tc('palm.heroTitle2')}
+          title={`${tc('palm.heroTitle1')} ${tc('palm.heroTitle2')}`}
           subtitle={t('subtitle')}
         />
 

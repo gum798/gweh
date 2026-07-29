@@ -278,9 +278,9 @@ export default function FortuneTab() {
   // 입력 화면
   return (
     <div className="space-y-8">
+      {/* heroTitle1·2 는 한 문장의 두 조각이다 — PalmTab 의 같은 위치 주석 참고. */}
       <PageHeader
-        eyebrow={t('fortune.heroTitle1')}
-        title={t('fortune.heroTitle2')}
+        title={`${t('fortune.heroTitle1')} ${t('fortune.heroTitle2')}`}
         subtitle={t('fortune.heroDesc')}
       />
 

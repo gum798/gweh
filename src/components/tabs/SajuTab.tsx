@@ -230,9 +230,11 @@ export default function SajuTab() {
   if (!result) {
     return (
       <div className="space-y-8">
+        {/* heroTitle1·2 는 한 문장의 두 조각이다 — PalmTab 의 같은 위치 주석 참고.
+            eyebrow 후보 saju.fourPillars 는 en 에서 "FOUR PILLARS" 가 되어
+            title "Four Pillars of Destiny" 와 겹치므로 쓰지 않는다. */}
         <PageHeader
-          eyebrow={tc('saju.heroTitle1')}
-          title={tc('saju.heroTitle2')}
+          title={`${tc('saju.heroTitle1')} ${tc('saju.heroTitle2')}`}
           subtitle={tc('saju.heroDesc')}
         />
 
