@@ -12,7 +12,9 @@
 
 ## Global Constraints
 
-- **기능 변경 금지.** 이번은 UI 개편이다. 로직·API 호출·데이터 흐름·상태 관리를 바꾸지 않는다. 시각적 표현과 마크업 구조만 바꾼다.
+- **제품 기능 변경 금지.** 점술 로직·API 호출·데이터 흐름·인증·결제를 바꾸지 않는다. 시각적 표현, 마크업 구조, 그리고 **셸 수준의 내비게이션 동작**만 바꾼다.
+  - 셸 내비게이션은 명시적 예외다: Task 2가 `hashchange` 리스너를 추가하고 탭 전환 스크롤 대상을 바꾼다. 스펙 §3.2가 요구하는 것이며, 현재 뒤로가기가 죽어 있고 탭 전환이 865px 위로 되돌리는 것을 고치는 것이 이 개편의 최대 레버리지다. 이는 "제품 기능"이 아니라 셸 결함 수정이다.
+  - 그 외 모든 곳에서는 `onClick`·`disabled`·상태 훅·이펙트를 그대로 옮긴다.
 - **모든 사용자 노출 문자열은 `t()`를 거친다.** ko/en 양쪽 로케일에 키를 추가한다. 한쪽만 추가하면 i18next가 키 문자열을 그대로 화면에 노출한다.
 - **`SajuTab`이 수렴 기준 템플릿이다.** 카드 레시피는 `SajuTab.tsx:426`의 `bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card`.
 - **간격 체계는 손대지 않는다.** `src/` 전체에 임의 spacing 값이 0건이며 이미 일관되다.
@@ -136,7 +138,7 @@ node scripts/check-contrast.mjs
         '8xl':  ['6rem',     { lineHeight: '1' }],
         // 라벨용 — 현재 text-[10px]/text-[11px] 로 흩어져 있는 것을 흡수한다
         'label':   ['0.625rem', { lineHeight: '0.875rem', letterSpacing: '0.3em' }],
-        'label-lg':['0.6875rem',{ lineHeight: '1rem',     letterSpacing: '0.2em' }],
+        // label-lg 는 구현 중 삭제됐다 — text-[11px] 4곳 중 0.2em 을 원하는 곳이 0이었다.
       },
       letterSpacing: {
         'tightest': '-0.05em',
@@ -758,7 +760,15 @@ done
 
 - [ ] **Step 6: 임의값·원시색 제거**
 
-`text-[10px]` → `text-label`, `text-[11px]` → `text-label-lg`, 그 외 `text-[Npx]`는 스케일에서 가장 가까운 것으로. 원시 팔레트(`amber-600` 등)는 `status-*`로.
+`text-[10px]` 중 `tracking-[0.3em]`과 짝지어진 9곳은 `text-label` 한 클래스로 흡수한다(`text-label`이 0.625rem + 0.3em을 함께 갖는다). 나머지 `text-[10px]`와 `text-[11px]`는 `text-xs`로 보낸다.
+
+**주의: `text-label-lg`는 존재하지 않는다.** Task 1에서 소비자가 0이라 삭제했다. Tailwind는 모르는 유틸리티에 에러를 내지 않고 **아무것도 emit하지 않으므로**, 이걸 쓰면 해당 요소가 부모 폰트 크기를 상속하며 빌드·타입체크 어디에도 안 걸린다.
+
+**주의: `tracking-widest`는 0.3em이 아니라 Tailwind 기본값 0.1em이다.** Task 1에서 오버라이드를 걷어낸 결과다. 이미 0.1em으로 렌더되는 곳이 8군데 있다(`FortuneTab:271,275,279`, `SummaryTab:580,584,588`, `SajuTab:475`, `SubscriptionBanner:84`) — 이들은 그대로 두면 된다.
+
+크기 스케일에 정확히 맞지 않는 6개(`9/13/15/28/32px`)는 가장 가까운 단계로 반올림하고 어느 쪽으로 갔는지 리포트에 남긴다.
+
+원시 팔레트(`amber-600` 등)는 `status-*`로. **텍스트에는 `text-status-*`(ink), 배경에는 `bg-status-*-light`(tint)를 쓴다.** ink를 배경으로 쓰면 그 위 `gal-black` 텍스트가 AA에 미달한다(2.60~3.47).
 
 - [ ] **Step 7: 빌드·타입·회귀 검사**
 

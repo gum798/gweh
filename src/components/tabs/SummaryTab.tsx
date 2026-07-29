@@ -3,6 +3,28 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { getEnergyLabel } from '../../utils/omenGenerator';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { LevelPill } from '../ui/LevelPill';
+import { BRAND, BRAND_DOMAIN, BRAND_FILE_SLUG } from '../../lib/brand';
+
+// 공유 카드는 <canvas> 에 그리므로 Tailwind 클래스를 쓸 수 없고 hex 를 직접 넣어야 한다.
+// 값은 tailwind.config.js 의 팔레트를 그대로 옮긴 것이며, 흩어져 있던 리터럴 13개를
+// 여기 5개로 모아 토큰이 바뀔 때 고칠 곳을 한 곳으로 만든다.
+// 공유 카드도 다크다 — 앱은 다크인데 내보낸 이미지만 흰색이면 SNS 에서 다른 서비스로 보인다.
+// 액센트는 채움(#5b13ec)이 아니라 잉크(#b8a5ff)를 쓴다. 이 값들은 캔버스에서 배경 위
+// **글자색**으로 쓰이므로 채움색을 넣으면 카드 배경 위 2.43:1 로 떨어진다.
+const CARD_SURFACE = '#161022'; // gal-bg
+const CARD_ACCENT = '#b8a5ff';  // gal-accent-ink — 8.72:1
+const CARD_INK = '#f6f6f8';     // gal-black     — 17.20:1
+const CARD_BODY = '#b8b0c8';    // gal-body      — 8.91:1
+const CARD_MUTED = '#9c93ad';   // gal-muted     — 6.36:1
+// 장식선·글로우는 알파를 쓰므로 hex 가 아니라 RGB 트리플로 둔다.
+// 이 두 줄이 없어서 파란 시절 리터럴 5개가 그대로 남아 있었다 —
+// 특히 안쪽 테두리가 rgba(229,229,229,·) 즉 **옛 gal-border 흰 선**이었다.
+// preflight 기본 테두리색과 같은 부류의 실패다.
+const CARD_ACCENT_RGB = '184,165,255'; // gal-accent-ink
+const CARD_LINE_RGB = '129,117,164';   // gal-border
 
 function generateDestinyCard(
   dateStr: string,
@@ -19,30 +41,30 @@ function generateDestinyCard(
     canvas.height = H;
     const ctx = canvas.getContext('2d')!;
 
-    // Background — clean white
-    ctx.fillStyle = '#ffffff';
+    // Background — 다크 페이지색. 앱은 다크인데 내보낸 이미지만 흰색이면 안 된다.
+    ctx.fillStyle = CARD_SURFACE;
     ctx.fillRect(0, 0, W, H);
 
     // Subtle radial accent glow
     const glow = ctx.createRadialGradient(W / 2, H / 3, 0, W / 2, H / 3, 300);
-    glow.addColorStop(0, 'rgba(46,163,242,0.04)');
+    glow.addColorStop(0, `rgba(${CARD_ACCENT_RGB},0.10)`);
     glow.addColorStop(1, 'transparent');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
 
     // Decorative border
-    ctx.strokeStyle = 'rgba(46,163,242,0.3)';
+    ctx.strokeStyle = `rgba(${CARD_ACCENT_RGB},0.35)`;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(24, 24, W - 48, H - 48);
 
     // Inner border
-    ctx.strokeStyle = 'rgba(229,229,229,0.6)';
+    ctx.strokeStyle = `rgba(${CARD_LINE_RGB},0.7)`;
     ctx.lineWidth = 1;
     ctx.strokeRect(32, 32, W - 64, H - 64);
 
     // Corner ornaments
     const ornSize = 16;
-    ctx.fillStyle = 'rgba(46,163,242,0.5)';
+    ctx.fillStyle = `rgba(${CARD_ACCENT_RGB},0.6)`;
     [[32, 32], [W - 32, 32], [32, H - 32], [W - 32, H - 32]].forEach(([x, y]) => {
       ctx.beginPath();
       ctx.arc(x, y, ornSize / 2, 0, Math.PI * 2);
@@ -51,12 +73,12 @@ function generateDestinyCard(
 
     // Title
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#2ea3f2';
+    ctx.fillStyle = CARD_ACCENT;
     ctx.font = 'bold 28px "Noto Sans KR", sans-serif';
-    ctx.fillText('MYSTIC AI', W / 2, 80);
+    ctx.fillText(BRAND, W / 2, 80);
 
     // Subtitle
-    ctx.fillStyle = '#999999';
+    ctx.fillStyle = CARD_MUTED;
     ctx.font = '10px sans-serif';
     ctx.letterSpacing = '4px';
     ctx.fillText('U N V E I L   Y O U R   D E S T I N Y', W / 2, 105);
@@ -64,13 +86,13 @@ function generateDestinyCard(
     // Divider
     const divGrad = ctx.createLinearGradient(100, 0, W - 100, 0);
     divGrad.addColorStop(0, 'transparent');
-    divGrad.addColorStop(0.5, 'rgba(46,163,242,0.4)');
+    divGrad.addColorStop(0.5, `rgba(${CARD_ACCENT_RGB},0.5)`);
     divGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = divGrad;
     ctx.fillRect(100, 120, W - 200, 1);
 
     // Date
-    ctx.fillStyle = '#666666';
+    ctx.fillStyle = CARD_BODY;
     ctx.font = '13px sans-serif';
     ctx.fillText(dateStr, W / 2, 152);
 
@@ -78,11 +100,11 @@ function generateDestinyCard(
 
     // Energy label
     if (energyLabel) {
-      ctx.fillStyle = '#2ea3f2';
+      ctx.fillStyle = CARD_ACCENT;
       ctx.font = 'bold 10px sans-serif';
       ctx.fillText('TODAY\'S ENERGY', W / 2, y);
       y += 30;
-      ctx.fillStyle = '#1a1a1a';
+      ctx.fillStyle = CARD_INK;
       ctx.font = 'bold 36px "Noto Sans KR", sans-serif';
       ctx.fillText(energyLabel, W / 2, y);
       y += 20;
@@ -91,7 +113,7 @@ function generateDestinyCard(
     // Omen message
     if (omenMessage) {
       y += 15;
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = CARD_BODY;
       ctx.font = 'italic 14px "Noto Sans KR", sans-serif';
       const lines = wrapText(ctx, `"${omenMessage}"`, W - 120);
       lines.forEach((line) => {
@@ -108,11 +130,11 @@ function generateDestinyCard(
 
     // Fortune level
     if (fortuneLevel) {
-      ctx.fillStyle = '#2ea3f2';
+      ctx.fillStyle = CARD_ACCENT;
       ctx.font = 'bold 10px sans-serif';
       ctx.fillText('FORTUNE', W / 2, y);
       y += 28;
-      ctx.fillStyle = '#1a1a1a';
+      ctx.fillStyle = CARD_INK;
       ctx.font = 'bold 24px "Noto Sans KR", sans-serif';
       ctx.fillText(fortuneLevel, W / 2, y);
       y += 15;
@@ -121,7 +143,7 @@ function generateDestinyCard(
     // Fortune overall
     if (fortuneOverall) {
       y += 10;
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = CARD_BODY;
       ctx.font = '13px "Noto Sans KR", sans-serif';
       const lines = wrapText(ctx, fortuneOverall, W - 120);
       lines.forEach((line) => {
@@ -136,11 +158,11 @@ function generateDestinyCard(
       ctx.fillStyle = divGrad;
       ctx.fillRect(100, y, W - 200, 1);
       y += 25;
-      ctx.fillStyle = '#2ea3f2';
+      ctx.fillStyle = CARD_ACCENT;
       ctx.font = 'bold 10px sans-serif';
       ctx.fillText('ADVICE', W / 2, y);
       y += 22;
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = CARD_BODY;
       ctx.font = 'italic 13px "Noto Sans KR", sans-serif';
       const lines = wrapText(ctx, `"${advice}"`, W - 120);
       lines.forEach((line) => {
@@ -153,9 +175,9 @@ function generateDestinyCard(
     const footerY = H - 45;
     ctx.fillStyle = divGrad;
     ctx.fillRect(100, footerY - 10, W - 200, 1);
-    ctx.fillStyle = '#999999';
+    ctx.fillStyle = CARD_MUTED;
     ctx.font = '9px sans-serif';
-    ctx.fillText('mystic-ai.com', W / 2, footerY + 10);
+    ctx.fillText(BRAND_DOMAIN, W / 2, footerY + 10);
 
     canvas.toBlob((blob) => resolve(blob!), 'image/png');
   });
@@ -317,16 +339,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const hasAnyData = fortune || dailyReading || dailyStyle;
   const isLoading = loading || fortuneLoading;
 
-  const getLevelStyle = (level: string) => {
-    if (!level) return 'bg-gal-light text-gal-body border-gal-border';
-    const l = level.toLowerCase();
-    if (level === '대길' || l === 'excellent') return 'bg-yellow-50 text-yellow-600 border-yellow-200';
-    if (level === '길' || l === 'good') return 'bg-green-50 text-green-600 border-green-200';
-    if (level === '평' || l === 'neutral') return 'bg-gray-50 text-gray-600 border-gray-200';
-    if (level === '소흉' || l === 'caution') return 'bg-orange-50 text-orange-600 border-orange-200';
-    return 'bg-red-50 text-red-600 border-red-200';
-  };
-
   const handleShareDestiny = useCallback(async () => {
     setShareStatus('generating');
     try {
@@ -338,12 +350,18 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         fortune?.overall,
         fortune?.advice,
       );
-      const file = new File([blob], 'mystic-destiny.png', { type: 'image/png' });
+      // 파일명은 번역하지 않는다 — 사용자의 내려받기 폴더에서 정렬·검색되는
+      // 식별자라 언어에 따라 달라지면 곤란하다. 브랜드 접두사만 상수로 뺀다.
+      const fileName = `${BRAND_FILE_SLUG}-destiny.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
 
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
-          title: 'MYSTIC AI — My Destiny',
-          text: i18n.language === 'ko' ? '오늘의 운명을 확인해보세요' : 'Check out my destiny for today',
+          // 공유 시트 제목·본문은 사용자에게 보이는 문구다. 여기 있던
+          // 하드코딩 영문 제목과 language 삼항식은 t() 를 우회하고 있었다.
+          // {{brand}} 는 i18n 의 defaultVariables 가 채운다.
+          title: t('summary.shareTitle'),
+          text: t('summary.shareText'),
           files: [file],
         });
         setShareStatus('shared');
@@ -352,7 +370,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'mystic-destiny.png';
+        a.download = fileName;
         a.click();
         URL.revokeObjectURL(url);
         setShareStatus('copied');
@@ -361,7 +379,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       setShareStatus('idle');
     }
     setTimeout(() => setShareStatus('idle'), 2500);
-  }, [dateStr, energyLabel, dailyReading, fortune, i18n.language]);
+  }, [dateStr, energyLabel, dailyReading, fortune, i18n.language, t]);
 
   // 비구독자: blurred preview + lock
   if (!isSubscribed) {
@@ -378,42 +396,44 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
               <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full" />
             </div>
 
-            <div className="relative overflow-hidden rounded-gal-xl border border-gal-border">
-              <div className="bg-white p-5 blur-sm select-none pointer-events-none space-y-4">
+            <Card padding="sm" className="relative overflow-hidden">
+              <div className="blur-sm select-none pointer-events-none space-y-4">
                 <div className="text-center">
                   <span className="text-4xl" aria-hidden="true">📊</span>
                   <p className="text-gal-black font-bold mt-2">{t('summary.title')}</p>
                 </div>
-                <div className="bg-gal-light rounded-gal-lg p-4">
+                <div className="bg-gal-bg rounded-gal-lg p-4">
                   <p className="text-gal-body text-sm">{i18n.language === 'ko' ? '오늘의 에너지가 길(吉)로 흐르고 있습니다. 금(金) 기운이 안정적이며, 보름달의 양(陽) 기운이 충만합니다.' : 'Today\'s energy flows with good fortune. Metal energy is stable, and the full moon\'s yang energy is abundant.'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gal-light rounded-gal-lg p-3 text-center">
-                    <span className="text-green-600 font-bold">길</span>
+                  <div className="bg-gal-bg rounded-gal-lg p-3 text-center">
+                    <span className="text-status-success font-bold">길</span>
                     <p className="text-gal-muted text-xs">운세</p>
                   </div>
-                  <div className="bg-gal-light rounded-gal-lg p-3 text-center">
-                    <span className="text-gal-accent font-bold">대길</span>
+                  <div className="bg-gal-bg rounded-gal-lg p-3 text-center">
+                    <span className="text-gal-accent-ink font-bold">대길</span>
                     <p className="text-gal-muted text-xs">사주</p>
                   </div>
                 </div>
               </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gal-bg/80">
                 <div className="h-12 w-12 rounded-full border border-gal-accent flex items-center justify-center mb-3 shadow-gal-soft">
                   <span className="text-xl">🔒</span>
                 </div>
                 <p className="text-gal-body text-sm font-medium mb-1">{t('sub.locked')}</p>
-                <button
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="mt-2"
                   onClick={() => {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-lg text-white text-xs font-bold tracking-wide transition-all shadow-gal-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
                 >
                   {t('summary.unlock')}
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         </section>
       </div>
@@ -429,12 +449,12 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </div>
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
-            <div className="bg-white rounded-gal-xl border border-gal-accent p-10 relative overflow-hidden shadow-gal-card">
+            <Card variant="accent" padding="lg" className="relative overflow-hidden">
               {/* Animated icon */}
               <div className="relative inline-block mb-5">
                 <div className="absolute inset-0 rounded-full border border-gal-accent/30 animate-ping opacity-30" style={{ animationDuration: '3s' }} />
                 <div className="relative h-16 w-16 mx-auto rounded-full border border-gal-accent flex items-center justify-center shadow-gal-soft bg-gal-accent-light">
-                  <svg className="w-7 h-7 text-gal-accent animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-7 h-7 text-gal-accent-ink animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" strokeOpacity="0.5" />
                     <circle cx="12" cy="12" r="4" strokeOpacity="0.8" />
                     <line x1="12" y1="2" x2="12" y2="6" strokeOpacity="0.3" />
@@ -445,11 +465,11 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               </div>
               <h3 className="text-gal-black text-lg font-bold mb-2 relative">{t('summary.title')}</h3>
-              <p className="text-gal-accent text-sm font-medium mb-1.5 animate-pulse-slow relative">
+              <p className="text-gal-accent-ink text-sm font-medium mb-1.5 animate-pulse-slow relative">
                 {i18n.language === 'ko' ? '천기를 모으는 중...' : 'Gathering celestial energies...'}
               </p>
               <p className="text-gal-muted text-xs leading-relaxed relative">{t('summary.noData')}</p>
-            </div>
+            </Card>
           </div>
         </section>
       </div>
@@ -466,7 +486,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 헤더 */}
       <section className="px-4">
         <div className="max-w-md mx-auto text-center">
-          <span className="text-gal-accent text-[10px] font-bold uppercase tracking-[0.3em]">{t('sub.badge')}</span>
+          <span className="text-gal-accent-ink text-label font-bold uppercase">{t('sub.badge')}</span>
           <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('summary.title')}</h3>
           <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full" />
         </div>
@@ -475,17 +495,17 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 1. 스타일 추천 */}
       {(dailyStyle || loading) && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">👔</span>
-              <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
+              <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
             </div>
             {loading && !dailyStyle ? (
               <div className="text-center py-4">
                 <div className="flex gap-1 justify-center mb-2">
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-gal-muted text-sm">{t('sub.loadingStyle')}</p>
               </div>
@@ -496,7 +516,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 <div className="flex flex-wrap gap-2">
                   <span className="text-gal-muted text-xs">{t('sub.styleColors')}:</span>
                   {dailyStyle.colors?.map((color: string, i: number) => (
-                    <span key={i} className="text-gal-accent text-xs bg-gal-accent-light px-2 py-0.5 rounded-gal-md">
+                    <span key={i} className="text-gal-accent-ink text-xs bg-gal-accent-light px-2 py-0.5 rounded-gal-md">
                       {color}
                     </span>
                   ))}
@@ -513,18 +533,29 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               </div>
             ) : null}
-          </div>
+          </Card>
         </section>
       )}
 
       {/* 2. 에너지 + 괘 */}
       {(energyLabel || dailyReading?.omen_message) && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent p-6 shadow-gal-card">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
+          <Card variant="accent" className="max-w-md mx-auto">
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
+            {/*
+              energyLabel.color 는 읽지 않는다. getEnergyLabel()(utils/omenGenerator.ts)이
+              CSS 클래스명을 값으로 돌려주는데, 그게 원시 팔레트의 400 단계라 흰 바탕에서
+              1.4~1.7:1 밖에 안 나온다. 클래스명이 다른 모듈에서 조립되므로 이 파일을
+              훑는 감사에는 잡히지도 않는다. 같은 라벨을 OmenTab 이 LevelPill 로
+              렌더하므로 여기도 같은 프리미티브를 쓴다 — 한 값이 탭마다 다른 색으로
+              보이는 것이 이 태스크가 없애려는 갈라짐이다.
+              utils 가 클래스명을 내보내는 문제 자체는 별건이라 손대지 않는다.
+              (주석에 그 클래스명을 적지 않는 이유: Tailwind content 스캐너가 주석 속
+               클래스명까지 실제 CSS 로 내보낸다.)
+            */}
             {energyLabel && (
               <div className="text-center">
-                <span className={`text-3xl font-bold ${energyLabel.color}`}>{energyLabel.label}</span>
+                <LevelPill level={energyLabel.label} />
               </div>
             )}
             {dailyReading?.omen_message && (
@@ -532,19 +563,17 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 "{dailyReading.omen_message}"
               </p>
             )}
-          </div>
+          </Card>
         </section>
       )}
 
       {/* 3. 운세 요약 */}
       {fortune?.overall && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
+          <Card variant="accent" className="max-w-md mx-auto">
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
             {fortune.level && <div className="text-center mb-4">
-              <span className={`inline-block px-4 py-2 rounded-gal-md text-sm font-bold border ${getLevelStyle(fortune.level)}`}>
-                {fortune.level}
-              </span>
+              <LevelPill level={fortune.level} />
             </div>}
             <p className="text-gal-body text-sm leading-relaxed text-center italic mb-4">
               "{fortune.overall}"
@@ -556,7 +585,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 { icon: '💰', label: t('fortune.wealth'), text: fortune.wealth },
                 { icon: '🏥', label: t('fortune.health'), text: fortune.health },
               ].filter((item) => item.text).map((item) => (
-                <div key={item.label} className="bg-gal-light rounded-gal-lg p-3">
+                <div key={item.label} className="bg-gal-bg rounded-gal-lg p-3">
                   <div className="flex items-center gap-1 mb-1">
                     <span className="text-sm">{item.icon}</span>
                     <span className="text-gal-black text-xs font-bold">{item.label}</span>
@@ -565,31 +594,31 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </section>
       )}
 
       {/* 3-1. 조언 + 행운 정보 */}
       {fortune?.advice && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent p-6 shadow-gal-card">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
+          <Card variant="accent" className="max-w-md mx-auto">
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             <p className="text-gal-body text-sm leading-relaxed mb-5">"{fortune.advice}"</p>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {fortune.luckyColor && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
+                <span className="text-gal-muted text-label uppercase block mb-1">{t('fortune.luckyColor')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyColor}</span>
               </div>}
               {fortune.luckyNumber != null && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
+                <span className="text-gal-muted text-label uppercase block mb-1">{t('fortune.luckyNumber')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyNumber}</span>
               </div>}
               {fortune.luckyDirection && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
+                <span className="text-gal-muted text-label uppercase block mb-1">{t('fortune.luckyDirection')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyDirection}</span>
               </div>}
             </div>
-          </div>
+          </Card>
         </section>
       )}
 
@@ -597,14 +626,13 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {hasAnyData && (
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
-            <button
+            <Button
+              variant="primary"
               onClick={handleShareDestiny}
-              disabled={shareStatus === 'generating'}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-xl text-white text-sm font-bold tracking-wide transition-all shadow-gal-button hover:shadow-gal-hover hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
+              loading={shareStatus === 'generating'}
             >
               {shareStatus === 'generating' ? (
                 <>
-                  <span className="animate-spin text-sm">&#9697;</span>
                   {i18n.language === 'ko' ? '생성 중...' : 'Generating...'}
                 </>
               ) : shareStatus === 'shared' ? (
@@ -626,10 +654,10 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                     <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                   </svg>
-                  {i18n.language === 'ko' ? '운명 공유하기' : 'Share Destiny'}
+                  {t('summary.shareButton')}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </section>
       )}

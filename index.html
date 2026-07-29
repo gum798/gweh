@@ -1,43 +1,52 @@
 <!doctype html>
-<html lang="ko" style="color-scheme: light">
+<html lang="ko" style="color-scheme: dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#161022" />
 
     <!-- Primary Meta Tags -->
-    <title>MYSTIC AI - 인공지능이 읽어주는 당신의 천기누설</title>
-    <meta name="title" content="MYSTIC AI - 인공지능이 읽어주는 당신의 천기누설" />
+    <title>GWEH AI - 인공지능이 읽어주는 당신의 천기누설</title>
+    <meta name="title" content="GWEH AI - 인공지능이 읽어주는 당신의 천기누설" />
     <meta name="description" content="AI 관상, 손금, 사주 분석 서비스. 최신 멀티모달 기술로 당신의 운명과 행운을 확인해보세요." />
     <meta name="keywords" content="AI 점술, 인공지능 사주, AI 관상, 손금 분석, 사주팔자, 운세, 천기누설" />
 
     <!-- Open Graph / Facebook / Kakao -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://gweh-3s2.pages.dev/" />
-    <meta property="og:title" content="MYSTIC AI - AI가 분석하는 당신의 신비로운 운명" />
+    <meta property="og:title" content="GWEH AI - AI가 분석하는 당신의 신비로운 운명" />
     <meta property="og:description" content="관상, 손금, 사주를 넘나드는 국내 최고의 멀티모달 AI 점술 서비스" />
-    <meta property="og:image" content="https://gweh-3s2.pages.dev/og-image.jpg" />
+    <!-- PNG 인 이유: 이 태그는 오래 .jpg 를 가리켰는데 그런 파일이 없었고,
+         public/_redirects 의 catch-all 이 404 대신 index.html 을 200 으로
+         돌려줘서 크롤러가 HTML 을 이미지로 받아 공유 카드가 깨져 있었다.
+         원본은 public/og-image.svg 지만 참조는 래스터로 건다 —
+         Facebook·X·카카오톡은 og:image 의 SVG 를 렌더하지 않는다. -->
+    <meta property="og:image" content="https://gweh-3s2.pages.dev/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="MYSTIC AI" />
+    <meta property="og:site_name" content="GWEH AI" />
     <meta property="og:locale" content="ko_KR" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://gweh-3s2.pages.dev/" />
-    <meta name="twitter:title" content="MYSTIC AI - AI가 분석하는 당신의 신비로운 운명" />
+    <meta name="twitter:title" content="GWEH AI - AI가 분석하는 당신의 신비로운 운명" />
     <meta name="twitter:description" content="관상, 손금, 사주를 넘나드는 국내 최고의 멀티모달 AI 점술 서비스" />
-    <meta name="twitter:image" content="https://gweh-3s2.pages.dev/og-image.jpg" />
+    <meta name="twitter:image" content="https://gweh-3s2.pages.dev/og-image.png" />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://gweh-3s2.pages.dev/" />
     <!-- 폰트: 비차단 로딩 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
+    <!-- 두 폰트 모두 가변폰트다. wght@a..b 범위 문법은 열거 문법과 동일한 woff2 파일을 받으면서
+         @font-face 선언 수를 629→127로 줄인다(gzip 116KB→23KB). 가변폰트 미지원 UA에는
+         구글이 300/400/500/600/700 정적 woff 로 자동 강등해 준다. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300..700&family=Space+Grotesk:wght@400..700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300..700&family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300..700&family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet"></noscript>
     <!-- Microsoft Clarity -->
     <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
@@ -48,9 +57,9 @@
     </script>
     <!-- Critical CSS -->
     <style>
-      body{margin:0;background:#ffffff;color:#1a1a1a;min-height:100vh;font-family:'Noto Sans KR','Manrope',sans-serif}
-      #root{min-height:100vh}
-      .init-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#1a1a1a}
+      body{margin:0;background:#161022;color:#f6f6f8;min-height:100dvh;font-family:'Noto Sans KR','Space Grotesk',sans-serif}
+      #root{min-height:100dvh}
+      .init-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;color:#f6f6f8}
       .init-loader span{font-size:2rem;animation:pulse 1.5s ease-in-out infinite}
       @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     </style>
@@ -59,7 +68,7 @@
     <div id="root">
       <div class="init-loader">
         <span class="symbol">✨</span>
-        <h1 class="brand">MYSTIC AI</h1>
+        <h1 class="brand">GWEH AI</h1>
         <p class="status">Loading...</p>
       </div>
     </div>

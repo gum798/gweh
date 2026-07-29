@@ -67,12 +67,12 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         {/* Expanded popup panel */}
         {expanded && (
-          <div className="animate-fade-in-up w-72 relative overflow-hidden rounded-gal-xl border border-gal-border bg-white shadow-gal-card">
+          <div className="animate-fade-in-up w-72 relative overflow-hidden rounded-gal-xl border border-gal-border bg-gal-light shadow-gal-card">
             {/* Dismiss */}
             <button
               onClick={handleDismiss}
-              aria-label="Close"
-              className="absolute top-3 right-3 text-gal-muted hover:text-gal-body z-10 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent rounded-gal-sm"
+              aria-label={t('a11y.closeToast')}
+              className="absolute top-3 right-3 text-gal-muted hover:text-gal-body z-10 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent-ink rounded-gal-sm"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 3L11 11M11 3L3 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -81,7 +81,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
 
             <div className="relative p-5">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-gal-accent text-[10px] font-bold uppercase tracking-widest">
+                <span className="text-gal-accent-ink text-[10px] font-bold uppercase tracking-widest">
                   {t('sub.badge')}
                 </span>
               </div>
@@ -91,8 +91,8 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
               </h3>
 
               {/* Free trial badge */}
-              <div className="flex items-center gap-2 mb-3 bg-green-50 border border-green-200 rounded-gal-md px-3 py-1.5">
-                <span className="text-green-600 text-xs font-bold">{t('sub.freeTrial')}</span>
+              <div className="flex items-center gap-2 mb-3 bg-status-success-light border border-status-success/40 rounded-gal-md px-3 py-1.5">
+                <span className="text-status-success text-xs font-bold">{t('sub.freeTrial')}</span>
               </div>
 
               {/* Pricing */}
@@ -106,7 +106,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
               <div className="space-y-1.5 mb-4">
                 {['sub.feature1', 'sub.feature2', 'sub.feature3'].map((key) => (
                   <div key={key} className="flex items-center gap-2">
-                    <span className="text-gal-accent text-[10px]">&#10003;</span>
+                    <span className="text-gal-accent-ink text-[10px]">&#10003;</span>
                     <span className="text-gal-body text-xs">{t(key)}</span>
                   </div>
                 ))}
@@ -115,7 +115,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
               {/* CTA Button */}
               <button
                 onClick={handleClick}
-                className="w-full py-3 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-md text-white font-bold text-xs tracking-wide transition-all shadow-gal-button hover:shadow-gal-hover hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
+                className="w-full py-3 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-md text-white font-bold text-xs tracking-wide transition-all shadow-gal-button hover:shadow-gal-hover hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent-ink focus-visible:ring-offset-2"
               >
                 {t('sub.ctaTrial')}
               </button>
@@ -131,10 +131,10 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
         {/* Floating badge button */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="group relative flex items-center gap-2 px-4 py-2.5 rounded-gal-xl border border-gal-border bg-white shadow-gal-nav hover:shadow-gal-hover transition-all hover:scale-105 active:scale-95"
+          className="group relative flex items-center gap-2 px-4 py-2.5 rounded-gal-xl border border-gal-border bg-gal-light shadow-gal-nav hover:shadow-gal-hover transition-all hover:scale-105 active:scale-95"
           aria-label="Free trial info"
         >
-          <span className="text-green-600 text-xs font-bold whitespace-nowrap">{t('sub.freeTrial')}</span>
+          <span className="text-status-success text-xs font-bold whitespace-nowrap">{t('sub.freeTrial')}</span>
           {expanded ? (
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="text-gal-muted flex-shrink-0">
               <path d="M3 11L8 6L13 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

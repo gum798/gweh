@@ -4,25 +4,32 @@ import { calculateSaju, FIVE_ELEMENTS } from '../../utils/saju';
 import { interpretSaju, getTodayFortune } from '../../utils/sajuInterpret';
 import { useAuth } from '../../contexts/AuthContext';
 import { lunarToSolar, getLunarMonthDays } from '../../utils/lunarCalendar';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { PageHeader } from '../ui/PageHeader';
+import { LevelPill } from '../ui/LevelPill';
 
 type CalendarType = 'solar' | 'lunar';
 
+// 오행 5색을 상태 토큰의 잉크/틴트 쌍에 맞춘다. 원시 팔레트(emerald/red/amber/blue-NNN)는
+// scripts/check-contrast.mjs 가 검사하지 않는 값이라 AA 를 보장할 수 없었다.
+// 금(金)만 대응하는 상태색이 없어 중립 gal 토큰을 쓴다 — LevelPill 의 '평' 과 같은 처리다.
 const ELEMENT_COLORS = {
-  목: 'text-emerald-600',
-  화: 'text-red-600',
-  토: 'text-amber-600',
-  금: 'text-gray-600',
-  수: 'text-blue-600',
+  목: 'text-status-success',
+  화: 'text-status-danger',
+  토: 'text-status-warning',
+  금: 'text-gal-body',
+  수: 'text-status-info',
 };
 
 const SAJU_INPUT_KEY = 'mystic_saju_input';
 
 const ELEMENT_BG = {
-  목: 'bg-emerald-50 border-emerald-200',
-  화: 'bg-red-50 border-red-200',
-  토: 'bg-amber-50 border-amber-200',
-  금: 'bg-gray-100 border-gray-200',
-  수: 'bg-blue-50 border-blue-200',
+  목: 'bg-status-success-light border-status-success/30',
+  화: 'bg-status-danger-light border-status-danger/30',
+  토: 'bg-status-warning-light border-status-warning/30',
+  금: 'bg-gal-bg border-gal-border',
+  수: 'bg-status-info-light border-status-info/30',
 };
 
 export default function SajuTab() {
@@ -223,25 +230,13 @@ export default function SajuTab() {
   if (!result) {
     return (
       <div className="space-y-8">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-gal-xl">
-          <div
-            className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
-            style={{
-              backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.95) 10%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%), url("https://images.unsplash.com/photo-1532978379173-523e16f371f2?w=800&q=80")`,
-            }}
-          >
-            <div className="flex flex-col gap-3 max-w-2xl">
-              <h1 className="text-gal-black text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-                {tc('saju.heroTitle1')} <br />
-                <span className="text-gal-accent italic font-light">{tc('saju.heroTitle2')}</span>
-              </h1>
-              <p className="text-gal-body text-sm font-light leading-relaxed max-w-xs mx-auto">
-                {tc('saju.heroDesc')}
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* heroTitle1·2 는 한 문장의 두 조각이다 — PalmTab 의 같은 위치 주석 참고.
+            eyebrow 후보 saju.fourPillars 는 en 에서 "FOUR PILLARS" 가 되어
+            title "Four Pillars of Destiny" 와 겹치므로 쓰지 않는다. */}
+        <PageHeader
+          title={`${tc('saju.heroTitle1')} ${tc('saju.heroTitle2')}`}
+          subtitle={tc('saju.heroDesc')}
+        />
 
         {/* Input Form */}
         <section className="px-4">
@@ -252,14 +247,20 @@ export default function SajuTab() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="bg-white rounded-gal-xl border border-gal-border p-6 space-y-6 shadow-gal-card">
+              <Card className="space-y-6">
 
                 {/* Calendar Type Toggle */}
+                {/* 선택 표시는 슬라이딩 썸이다. 채움색만으로는 트랙 대비 2.43:1 이라
+                    어느 쪽이 선택됐는지가 1.4.11 의 3:1 을 못 넘는다. 채움은 브랜드
+                    보라 그대로 두고(그 위 흰 글씨 7.64:1) **잉크 테두리**를 둘러
+                    경계로 8.72:1 을 만든다. 썸을 통째로 밝은 색으로 바꾸는 쪽은
+                    글자를 어둡게 뒤집어야 하는데, 썸이 300ms 동안 미끄러지는 사이
+                    글자만 먼저 어두워져 트랙 위에서 1:1 이 되는 구간이 생긴다. */}
                 <div>
                   <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-3">{tc('saju.calendarType')}</p>
                   <div className="relative flex bg-gal-bg rounded-gal-lg p-1 border border-gal-border">
                     <div
-                      className="absolute top-1 bottom-1 rounded-gal-md bg-gal-accent shadow-gal-button transition-all duration-300 ease-out"
+                      className="absolute top-1 bottom-1 rounded-gal-md bg-gal-accent border border-gal-accent-ink shadow-gal-button transition-all duration-300 ease-out"
                       style={{
                         left: calendarType === 'solar' ? '4px' : '50%',
                         width: 'calc(50% - 4px)',
@@ -298,7 +299,7 @@ export default function SajuTab() {
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-white"
+                      className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-gal-light"
                       required
                     />
                   ) : (
@@ -309,7 +310,7 @@ export default function SajuTab() {
                           <select
                             value={lunarYear}
                             onChange={(e) => setLunarYear(e.target.value)}
-                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                             required
                           >
                             <option value="" disabled>{tc('saju.year')}</option>
@@ -324,7 +325,7 @@ export default function SajuTab() {
                           <select
                             value={lunarMonth}
                             onChange={(e) => setLunarMonth(e.target.value)}
-                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                             required
                           >
                             <option value="" disabled>{tc('saju.month')}</option>
@@ -339,7 +340,7 @@ export default function SajuTab() {
                           <select
                             value={lunarDay}
                             onChange={(e) => setLunarDay(e.target.value)}
-                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                             required
                           >
                             <option value="" disabled>{tc('saju.day')}</option>
@@ -357,14 +358,19 @@ export default function SajuTab() {
                         onClick={() => setIsLeapMonth(prev => !prev)}
                         className={`flex items-center gap-2 px-3 py-2 rounded-gal-md text-xs font-medium transition-all ${
                           isLeapMonth
-                            ? 'bg-gal-accent/10 text-gal-accent border border-gal-accent/30'
+                            ? 'bg-gal-accent/10 text-gal-accent-ink border border-gal-accent-ink'
                             : 'bg-gal-bg text-gal-muted border border-gal-border hover:text-gal-body'
                         }`}
                       >
+                        {/* 트랙 색은 켜짐이 꺼짐보다 **밝아야** 한다. 값 교체 직후에는
+                            켜짐 #5b13ec(L=0.087) < 꺼짐 #8175a4(L=0.201) 로 꺼진 쪽이
+                            2.3배 밝았다 — 흰 바탕에서는 맞고 #161022 위에서는 거꾸로다.
+                            켜짐을 잉크로 올리고 손잡이를 페이지색으로 뒤집는다:
+                            손잡이 대비 켜짐 8.72:1 / 꺼짐 4.43:1, 트랙 대비 배경 둘 다 3:1 이상. */}
                         <div className={`w-8 h-[18px] rounded-full relative transition-colors ${
-                          isLeapMonth ? 'bg-gal-accent' : 'bg-gal-border'
+                          isLeapMonth ? 'bg-gal-accent-ink' : 'bg-gal-border'
                         }`}>
-                          <div className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform ${
+                          <div className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-gal-bg shadow-sm transition-transform ${
                             isLeapMonth ? 'translate-x-[16px]' : 'translate-x-[2px]'
                           }`} />
                         </div>
@@ -372,7 +378,7 @@ export default function SajuTab() {
                       </button>
 
                       {lunarError && (
-                        <p className="text-red-500 text-xs pl-1">{lunarError}</p>
+                        <p className="text-status-danger text-xs pl-1">{lunarError}</p>
                       )}
                     </div>
                   )}
@@ -383,23 +389,20 @@ export default function SajuTab() {
                   <select
                     value={birthHour}
                     onChange={(e) => setBirthHour(e.target.value)}
-                    className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-4 text-base font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                    className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-4 text-base font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                   >
                     {hourOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="bg-white">
+                      <option key={opt.value} value={opt.value} className="bg-gal-light">
                         {opt.label}
                       </option>
                     ))}
                   </select>
                 </label>
-              </div>
+              </Card>
 
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center rounded-gal-xl h-14 px-8 bg-gal-accent text-white text-base font-bold tracking-widest uppercase transition-all shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
-              >
+              <Button type="submit" variant="primary" size="lg" fullWidth>
                 {tc('saju.revealDestiny')}
-              </button>
+              </Button>
             </form>
           </div>
         </section>
@@ -410,23 +413,14 @@ export default function SajuTab() {
   const { mainMessage, dayMaster, elementAnalysis, elementMessage, zodiac, zodiacMessage, pillars, saju } = result;
   const todayFortune = getTodayFortune(saju);
 
-  const FORTUNE_STYLES: Record<string, { className: string; label: string }> = {
-    '대길': { className: 'bg-amber-50 text-amber-600 border border-amber-200', label: t('fortune.great') },
-    '길': { className: 'bg-green-50 text-green-600 border border-green-200', label: t('fortune.good') },
-    '평': { className: 'bg-gray-100 text-gray-600 border border-gray-200', label: t('fortune.neutral') },
-    '소흉': { className: 'bg-orange-50 text-orange-600 border border-orange-200', label: t('fortune.minor') },
-    '흉': { className: 'bg-red-50 text-red-600 border border-red-200', label: t('fortune.poor') },
-  };
-  const fortuneStyle = FORTUNE_STYLES[todayFortune.level] ?? FORTUNE_STYLES['흉'];
-
   return (
     <div className="space-y-8 pb-8">
       {/* Header Card */}
       <section className="px-4 pt-4">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+        <Card className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-gal-accent text-[10px] font-bold uppercase tracking-[0.3em]">{tc('saju.fourPillars')}</span>
+              <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('saju.fourPillars')}</span>
               <h3 className="text-gal-black text-xl font-bold tracking-tight">{t('title')}</h3>
             </div>
             <div className="h-12 w-12 rounded-full border border-gal-accent/30 flex items-center justify-center shadow-gal-soft">
@@ -440,56 +434,56 @@ export default function SajuTab() {
 
           {/* 일간 정보 */}
           <div className="bg-gal-bg rounded-gal-lg p-4 border border-gal-border">
-            <p className="text-gal-accent text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
+            <p className="text-gal-accent-ink text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
             <p className="text-gal-black text-2xl font-bold">{dayMaster.name}</p>
             <p className="text-gal-muted text-sm mt-1">
               {tc('saju.dayMasterEnergy', { nature: dayMaster.nature, trait: dayMaster.trait })}
             </p>
           </div>
-        </div>
+        </Card>
       </section>
 
       {/* 띠 정보 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+        <Card className="max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl">{{ '쥐': '🐀', '소': '🐂', '호랑이': '🐅', '토끼': '🐇', '용': '🐉', '뱀': '🐍', '말': '🐎', '양': '🐏', '원숭이': '🐒', '닭': '🐓', '개': '🐕', '돼지': '🐖' }[zodiac] || '🐉'}</span>
             <div>
-              <p className="text-gal-accent text-xs uppercase tracking-widest">{t('zodiac')}</p>
+              <p className="text-gal-accent-ink text-xs uppercase tracking-widest">{t('zodiac')}</p>
               <p className="text-gal-black font-bold text-lg">{tc('saju.zodiacSuffix', { zodiac })}</p>
             </div>
           </div>
           <p className="text-gal-body text-sm leading-relaxed">
             {zodiacMessage}
           </p>
-        </div>
+        </Card>
       </section>
 
       {/* 사주팔자 표 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('chart')}</h4>
+        <Card className="max-w-md mx-auto">
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('chart')}</h4>
           <div className="grid grid-cols-4 gap-2 text-center">
             {pillars.map((p, i) => (
               <div key={i} className="bg-gal-bg rounded-gal-lg p-3 border border-gal-border">
-                <div className="text-gal-muted text-[10px] uppercase tracking-widest mb-2">{p.name}</div>
+                <div className="text-gal-muted text-xs uppercase tracking-widest mb-2">{p.name}</div>
                 <div className={`text-2xl font-bold mb-1 ${ELEMENT_COLORS[FIVE_ELEMENTS[p.pillar.stem]]}`}>
                   {p.pillar.stem}
                 </div>
                 <div className="text-gal-black text-lg mb-1">
                   {p.pillar.branch}
                 </div>
-                <div className="text-gal-muted text-[10px]">{p.meaning}</div>
+                <div className="text-gal-muted text-xs">{p.meaning}</div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </section>
 
       {/* 오행 분석 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('fiveElements')}</h4>
+        <Card className="max-w-md mx-auto">
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('fiveElements')}</h4>
           <div className="flex justify-center gap-2 mb-4">
             {Object.entries(elementAnalysis.distribution).map(([element, count]) => (
               <div
@@ -506,32 +500,31 @@ export default function SajuTab() {
           <p className="text-gal-body text-sm text-center leading-relaxed">
             {elementMessage}
           </p>
-        </div>
+        </Card>
       </section>
 
       {/* 오늘의 운세 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent/20 p-6 shadow-gal-card">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('todayFortune')}</h4>
+        <Card variant="accent" className="max-w-md mx-auto">
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('todayFortune')}</h4>
           <div className="text-center">
-            <span className={`inline-block px-4 py-2 rounded-gal-xl text-sm font-bold mb-4 ${fortuneStyle.className}`}>
-              {fortuneStyle.label}
-            </span>
+            <div className="mb-4">
+              <LevelPill level={todayFortune.level} />
+            </div>
             <p className="text-gal-body text-sm leading-relaxed">
               {todayFortune.message}
             </p>
           </div>
-        </div>
+        </Card>
       </section>
 
       {/* Reset Button */}
       <div className="px-4 pt-4">
-        <button
-          onClick={handleReset}
-          className="w-full max-w-md mx-auto flex items-center justify-center bg-gal-black text-white h-12 rounded-gal-lg font-bold text-sm uppercase tracking-widest hover:bg-gal-accent hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
-        >
-          {tc('saju.newReading')}
-        </button>
+        <div className="max-w-md mx-auto">
+          <Button variant="secondary" fullWidth onClick={handleReset}>
+            {tc('saju.newReading')}
+          </Button>
+        </div>
       </div>
     </div>
   );

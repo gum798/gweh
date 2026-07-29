@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -18,13 +19,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // ESC 키로 모달 닫기
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // ESC 닫기 + 포커스 트랩 + 포커스 복원. ProfileModal 과 **같은 훅**을 쓴다.
+  useFocusTrap(isOpen, onClose, dialogRef);
 
   // Body scroll lock
   useEffect(() => {
@@ -83,19 +81,31 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    // z-[70] 은 50 으로 되돌리지 말 것. 상설 헤더(AppHeader)도 z-50 이라 예전에는
+    // 동률이었고, 모달이 헤더를 덮은 건 순전히 DOM 순서 덕이었다 — 모달을 포털로
+    // 옮기거나 #app-content 에 z-*/transform/filter 가 붙는 순간 조용히 뒤집힌다.
+    // 레이어 서열: 네비 40 < 헤더 50 < 토스트 60 < 모달 70.
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50" />
+      {/* role="dialog" 는 바깥 오버레이가 아니라 이 패널에 붙인다. 오버레이는
+          배경 클릭으로 닫는 백드롭까지 포함하는 범위라, 거기에 dialog 를 걸면
+          백드롭이 다이얼로그 내용의 일부라고 선언하는 셈이 된다. 포커스 트랩이
+          훑는 범위(dialogRef)와도 이쪽이 일치한다. */}
       <div
-        className="relative w-full max-w-md bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
+        className="relative w-full max-w-md bg-gal-light border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
+        <button onClick={onClose} aria-label={t('close')} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
           &times;
         </button>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-gal-black text-center mb-6">
+        <h2 id="auth-modal-title" className="text-2xl font-bold text-gal-black text-center mb-6">
           {mode === 'forgot' ? t('forgotPassword') : mode === 'login' ? t('login') : t('signup')}
         </h2>
 
@@ -105,7 +115,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="space-y-3">
               <button
                 onClick={() => handleOAuth('google')}
-                className="w-full py-3 bg-gal-light hover:bg-gal-bg border border-gal-border rounded-gal-md text-gal-black flex items-center justify-center gap-3 transition-colors"
+                className="w-full py-3 bg-gal-bg hover:bg-gal-light border border-gal-border rounded-gal-md text-gal-black flex items-center justify-center gap-3 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -127,6 +137,17 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         )}
 
         {/* Email/Password Form */}
+        {/* 포커스 표시를 테두리 "색 교체"로 내면 안 된다. UA 링을 끈 상태에서 그
+            테두리가 유일한 포커스 단서가 되는데, gal-accent 는 채움 전용 값이라
+            선으로 쓰면 입력 배경 대비 2.43:1 / 패널 대비 1.83:1 이다 — 쉬는 상태의
+            gal-border(4.43 / 3.34)보다 **오히려 어두워진다**. 포커스가 오히려 덜
+            보이는 표시자는 WCAG 2.4.7(A) 과 1.4.11(AA, 3:1) 을 동시에 놓친다.
+            그래서 테두리는 쉬는 값 그대로 두고 gal-accent-ink 링을 덧그린다 —
+            SajuTab·FashionTab·FortuneTab 의 입력 8곳이 쓰는 그 패턴이다.
+            그 8곳은 포커스 시 배경도 카드색으로 올리지만 여기서는 뺐다. 그쪽
+            입력은 페이지 배경 위에 있어 카드색이 "떠오르는" 효과지만, 이 패널이
+            이미 카드색이라 여기서 같은 걸 하면 입력이 패널에 녹아 테두리만
+            남는다. */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -134,7 +155,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
+            className="w-full px-4 py-3 bg-gal-bg border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:ring-1 focus:ring-gal-accent-ink transition-colors"
           />
           {mode !== 'forgot' && (
             <input
@@ -144,7 +165,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
+              className="w-full px-4 py-3 bg-gal-bg border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:ring-1 focus:ring-gal-accent-ink transition-colors"
             />
           )}
           {mode === 'signup' && (
@@ -155,12 +176,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
+              className="w-full px-4 py-3 bg-gal-bg border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:ring-1 focus:ring-gal-accent-ink transition-colors"
             />
           )}
 
-          {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-          {message && <p className="text-green-600 text-sm text-center">{message}</p>}
+          {error && <p className="text-status-danger text-sm text-center">{error}</p>}
+          {message && <p className="text-status-success text-sm text-center">{message}</p>}
 
           <button
             type="submit"
@@ -177,7 +198,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <p className="text-gal-muted">
               <button
                 onClick={() => { setMode('login'); setError(''); setMessage(''); }}
-                className="text-gal-accent hover:underline font-semibold"
+                className="text-gal-accent-ink hover:underline font-semibold"
               >
                 {t('backToLogin')}
               </button>
@@ -188,7 +209,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {mode === 'login' ? t('switchToSignup') : t('switchToLogin')}{' '}
                 <button
                   onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-                  className="text-gal-accent hover:underline font-semibold"
+                  className="text-gal-accent-ink hover:underline font-semibold"
                 >
                   {mode === 'login' ? t('signup') : t('login')}
                 </button>

@@ -1,12 +1,15 @@
-import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
+import AppHeader from './components/layout/AppHeader';
 import AuthModal from './components/auth/AuthModal';
 import ProfileModal from './components/auth/ProfileModal';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
+import { resolveTabOnLoad, resolveTabOnHashChange, isTabId, type TabId } from './lib/tabs';
+import { BRAND } from './lib/brand';
 
 // Tab components (lazy-loaded)
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -18,14 +21,41 @@ const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 const SummaryTab = lazy(() => import('./components/tabs/SummaryTab'));
 const FaceHarmonyTab = lazy(() => import('./components/tabs/FaceHarmonyTab'));
 
+interface TabRenderContext {
+  onLoginRequired: () => void;
+}
+
+type TabRenderer = (ctx: TabRenderContext) => ReactNode;
+
+/**
+ * 탭 id → 콘텐츠. **`Record<TabId, ...>` 인 것이 요점이다.**
+ *
+ * 예전에는 switch 문에 8개 case 를 손으로 적고 `default: return null` 이었다.
+ * 그래서 lib/tabs.ts 에 id 를 추가하거나 이름을 바꾸면 네비에는 버튼이 뜨고
+ * 해시 검증도 통과하는데 콘텐츠 영역만 조용히 비었다 — lib/tabs.ts 맨 위
+ * 주석이 "드리프트 없음" 을 주장하는데 코드는 강제하지 않는 상태였다.
+ * 이제 항목이 빠지면 컴파일이 실패한다.
+ *
+ * onLoginRequired 는 실제로 그 prop 을 받는 두 탭(omen, summary)에만 내려간다.
+ * 표를 균일하게 만들려고 나머지 6개까지 흘리지 않는다.
+ */
+const TAB_RENDERERS: Record<TabId, TabRenderer> = {
+  omen: ({ onLoginRequired }) => <OmenTab onLoginRequired={onLoginRequired} />,
+  fortune: () => <FortuneTab />,
+  fashion: () => <FashionTab />,
+  face: () => <FaceTab />,
+  harmony: () => <FaceHarmonyTab />,
+  palm: () => <PalmTab />,
+  saju: () => <SajuTab />,
+  summary: ({ onLoginRequired }) => <SummaryTab onLoginRequired={onLoginRequired} />,
+};
+
 function App() {
   const { t: tc } = useTranslation();
   const { isSubscribed } = useSubscription();
-  const [activeTab, setActiveTab] = useState(() => {
-    const hash = window.location.hash.replace('#', '');
-    const validTabs = ['omen', 'fortune', 'fashion', 'face', 'harmony', 'palm', 'saju', 'summary'];
-    return validTabs.includes(hash) ? hash : 'omen';
-  });
+  // 상태는 string 이다 — Navigation/HeroSection 의 onTabChange 가 string 을 넘긴다.
+  // TabId 로 좁히는 일은 renderTab 에서 isTabId 로 한 번만 한다.
+  const [activeTab, setActiveTab] = useState<string>(() => resolveTabOnLoad(window.location.hash));
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -54,7 +84,24 @@ function App() {
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     window.location.hash = tab;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 이전에는 window.scrollTo({top:0}) 이었다. 히어로가 생기기 전에 쓰인 코드라
+    // 탭을 누를 때마다 865px 위 히어로 안으로 되돌아갔다. 콘텐츠 상단으로 보낸다.
+    document.getElementById('app-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  // 뒤로/앞으로 가기 대응. 이 리스너가 없어 브라우저 히스토리가 죽어 있었다.
+  //
+  // hashchange 규칙은 최초 로드 규칙과 **의도적으로 다르다.** 빈 해시는 루트로
+  // 뒤로가기 한 것이므로 기본 탭으로 리셋하고, 비어 있지 않은 비탭 해시는
+  // 인페이지 앵커(스킵 링크 #app-content 등)이므로 탭을 건드리지 않는다.
+  // 셋을 하나로 합치면 셋 중 하나가 반드시 깨진다 — 근거는 lib/tabs.ts 의 표 참조.
+  useEffect(() => {
+    const onHashChange = () => {
+      const next = resolveTabOnHashChange(window.location.hash);
+      if (next !== null) setActiveTab(next);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   const openAuthModal = useCallback(() => {
@@ -66,96 +113,64 @@ function App() {
     const defaultFallback = (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="h-16 w-16 rounded-gal-xl border border-gal-border flex items-center justify-center">
-          <div className="h-6 w-6 rounded-full border-2 border-gal-accent border-t-transparent animate-spin" />
+          <div className="h-6 w-6 rounded-full border-2 border-gal-accent-ink border-t-transparent animate-spin" />
         </div>
         <p className="text-gal-muted text-sm mt-6">Loading...</p>
       </div>
     );
 
-    switch (activeTab) {
-      case 'omen':
-        return (
-          <Suspense fallback={skeletonFallback}>
-            <OmenTab onLoginRequired={openAuthModal} />
-          </Suspense>
-        );
-      case 'face':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FaceTab />
-          </Suspense>
-        );
-      case 'harmony':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FaceHarmonyTab />
-          </Suspense>
-        );
-      case 'palm':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <PalmTab />
-          </Suspense>
-        );
-      case 'saju':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <SajuTab />
-          </Suspense>
-        );
-      case 'fortune':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FortuneTab />
-          </Suspense>
-        );
-      case 'fashion':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FashionTab />
-          </Suspense>
-        );
-      case 'summary':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <SummaryTab onLoginRequired={openAuthModal} />
-          </Suspense>
-        );
-      default:
-        return null;
-    }
+    // 좁히기는 여기 한 곳뿐이다. 알 수 없는 id 면 이전 `default: return null` 과 동일.
+    if (!isTabId(activeTab)) return null;
+
+    // omen 만 전용 스켈레톤, 나머지는 공용 스피너 — 기존 동작 그대로.
+    // activeTab 이 TabId 로 좁혀져 있어, 'omen' 을 지우거나 이름을 바꾸면
+    // 이 비교 자체가 TS2367 로 실패한다.
+    const fallback = activeTab === 'omen' ? skeletonFallback : defaultFallback;
+
+    return <Suspense fallback={fallback}>{TAB_RENDERERS[activeTab]({ onLoginRequired: openAuthModal })}</Suspense>;
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-dvh bg-gal-bg">
+      <a
+        href="#app-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gal-accent focus:text-white focus:rounded-gal-md"
+      >
+        {tc('a11y.skipToContent')}
+      </a>
+      <AppHeader onLogin={() => setAuthModalOpen(true)} onProfile={() => setProfileModalOpen(true)} />
+
       {/* Subscription banner (floating badge) */}
       <SubscriptionBanner onLoginRequired={openAuthModal} />
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] animate-fade-in">
-          <div className="bg-gal-accent text-white px-6 py-3 rounded-gal-xl shadow-gal-card text-sm font-medium flex items-center gap-2">
+      {/* Toast — 라이브 리전은 **항상 렌더**한다. 예전처럼 `{toast && <div …>}` 로
+          컨테이너째 껐다 켜면 스크린리더가 리전이 DOM 에 삽입되는 순간과 내용이
+          채워지는 순간을 구분하지 못해 첫 알림을 통째로 놓친다. 리전은 미리 있고
+          안쪽 내용만 바뀌어야 한다. 비어 있을 때는 크기가 0 이라 클릭도 막지 않는다.
+          (animate-fade-in 은 실제로 나타나는 안쪽으로 옮겼다.) */}
+      <div role="status" aria-live="polite" className="fixed top-4 left-1/2 -translate-x-1/2 z-[60]">
+        {toast && (
+          <div className="bg-gal-accent text-white px-6 py-3 rounded-gal-xl shadow-gal-card text-sm font-medium flex items-center gap-2 animate-fade-in">
             {toast}
-            <button onClick={() => setToast(null)} aria-label="Close" className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-gal-sm">&times;</button>
+            <button onClick={() => setToast(null)} aria-label={tc('a11y.closeToast')} className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-gal-sm">&times;</button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Full-screen Hero */}
-      <HeroSection
-        onLogin={() => setAuthModalOpen(true)}
-        onProfile={() => setProfileModalOpen(true)}
-        onTabChange={handleTabChange}
-      />
+      <HeroSection onTabChange={handleTabChange} />
+
+      {/* Navigation — 컨테이너 밖. 안에 있으면 1280px 에서 864px 섬이 된다. */}
+      <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Content */}
-      <div id="app-content" className="relative container mx-auto px-4 pt-8 max-w-4xl">
+      {/* scroll-mt-28: 헤더(57px) + 스티키 네비(57~61px) 아래에 착지시킨다.
+          scrollIntoView 는 sticky 요소를 보정하지 않아, 없으면 콘텐츠 상단이
+          네비 뒤로 숨는다. 렌더 레이아웃에는 영향이 없다(스크롤 앵커 전용). */}
+      <div id="app-content" className="relative container mx-auto px-4 pt-8 max-w-4xl scroll-mt-28">
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
-
-        {/* Navigation */}
-        <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* Tab content */}
         <main>
@@ -179,8 +194,15 @@ function App() {
               <a
                 key={social.label}
                 href="#"
+                // href="#" 은 빈 프래그먼트라 hashchange 를 발화시킨다. 위 리스너의
+                // "빈 해시 = 루트로 뒤로가기 = 기본 탭" 규칙에 걸려 탭이 omen 으로
+                // 리셋되고 문서 최상단으로 점프한다 — 이 브랜치가 만든 회귀다.
+                // (이전 리스너는 빈 해시를 그냥 무시했다.) 세 링크 모두 아직
+                // 아무 데도 가지 않으므로 기본 동작만 막는다. 실제 SNS URL 이
+                // 들어가면 이 핸들러를 지우면 된다.
+                onClick={(e) => e.preventDefault()}
                 aria-label={social.label}
-                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent flex items-center justify-center text-gal-muted hover:text-gal-accent transition-all duration-200 hover:scale-105 active:scale-95"
+                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent-ink flex items-center justify-center text-gal-muted hover:text-gal-accent-ink transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d={social.path} />
@@ -190,7 +212,7 @@ function App() {
           </div>
 
           <p className="text-[10px] text-gal-muted uppercase tracking-[0.3em] text-center">
-            &copy; 2026 GWEH AI
+            &copy; 2026 {BRAND}
           </p>
         </footer>
       </div>

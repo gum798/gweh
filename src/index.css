@@ -3,15 +3,23 @@
 @tailwind utilities;
 
 /* ───────────────────────────────────────────
-   Base — Clean White Gallery Foundation
+   Base — Dark Purple Mystic Foundation
+
+   이 파일의 hex 는 tailwind.config.js 의 팔레트와 **손으로** 맞춰져 있다.
+   @apply 로 토큰을 참조하지 않는 이유는 아래 .glass-panel 주석에 적어 두었다.
+   대응표:
+     #161022 gal-bg   #30254e gal-light  #8175a4 gal-border
+     #f6f6f8 gal-black #b8b0c8 gal-body  #9c93ad gal-muted
+     #5b13ec gal-accent(채움)  #b8a5ff gal-accent-ink(잉크)
    ─────────────────────────────────────────── */
 
 @layer base {
   body {
-    background-color: #ffffff;
-    color: #1a1a1a;
+    background-color: #161022;
+    color: #f6f6f8;
     font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-    min-height: 100vh;
+    /* dvh: 모바일 사파리의 vh 는 URL 바가 접힌 large viewport 라 60~115px 더 크다 */
+    min-height: 100dvh;
   }
 
   /* English Optical Adjustment */
@@ -25,29 +33,39 @@
    ─────────────────────────────────────────── */
 
 @layer components {
-  /* Clean white card (replaces glassmorphism) */
+  /* 카드 표면. gal-light(#30254e) 위에 gal-border(#8175a4) 1px.
+     테두리가 이 정도로 밝은 것은 장식이 아니라 요건이다 — 같은 토큰이
+     입력 필드의 유일한 식별선이라 WCAG 1.4.11 의 3:1 을 만족해야 한다.
+     근거는 tailwind.config.js 의 gal-border 주석 참조.
+
+     주의: 여기서 @apply bg-gal-light 처럼 쓰지 않는다. @layer components 안의
+     @apply 는 유틸리티 레이어보다 먼저 나가 순서가 뒤엉키고, 무엇보다 이 클래스
+     4개(glass-panel/data-label/card-gallery/section-divider)는 마크업이 Tailwind
+     클래스와 섞어 쓰는 곳이라 특이성 다툼이 생긴다. hex 를 쓰되 위 대응표를 남긴다. */
   .glass-panel {
-    background-color: #ffffff;
+    background-color: #30254e;
     border-radius: 8px;
-    border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #8175a4;
+    /* 검은 그림자는 어두운 배경 위에서 보이지 않는다. 카드 상단에 옅은 하이라이트를
+       얹어 표고(elevation)를 대신 표현한다. */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 16px rgba(0, 0, 0, 0.35);
   }
 
   .data-label {
-    color: #999999;
+    color: #9c93ad;
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   .data-value {
-    color: #1a1a1a;
+    color: #f6f6f8;
     font-size: 1.125rem;
     font-weight: 500;
   }
 
   .btn-primary {
-    background-color: #1a1a1a;
+    background-color: #5b13ec;
     color: #ffffff;
     border-radius: 4px;
     padding: 0.625rem 1.25rem;
@@ -55,50 +73,59 @@
     transition: background-color 0.2s ease-out;
   }
 
+  /* 다크에서 hover 는 밝아지는 쪽이다. 어두워지면 눌린 게 아니라 꺼진 것으로 읽힌다. */
   .btn-primary:hover {
-    background-color: #2ea3f2;
+    background-color: #6d2af0;
   }
 
   .input-gallery {
-    border: 1px solid #e5e5e5;
+    border: 1px solid #8175a4;
     border-radius: 4px;
-    background-color: #ffffff;
+    background-color: #161022;
+    color: #f6f6f8;
     padding: 0.5rem 0.75rem;
     transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
   }
 
+  /* 포커스 표시는 채움색(#5b13ec, 배경 위 2.43:1)이 아니라 잉크(#b8a5ff, 8.72:1)다.
+     채움색으로 두면 포커스 링이 배경에 묻혀 키보드 사용자가 위치를 잃는다. */
   .input-gallery:focus {
-    border-color: #2ea3f2;
-    box-shadow: 0 0 0 1px #2ea3f2;
+    border-color: #b8a5ff;
+    box-shadow: 0 0 0 1px #b8a5ff;
     outline: none;
   }
 
   .card-gallery {
-    background-color: #ffffff;
+    background-color: #30254e;
     border-radius: 4px;
-    border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    border: 1px solid #8175a4;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     transition: box-shadow 0.2s ease-out;
   }
 
   .card-gallery:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 16px rgba(0, 0, 0, 0.35);
   }
 
   .section-divider {
     width: 48px;
     height: 1px;
-    background-color: #e5e5e5;
+    background-color: #8175a4;
     margin: 2rem auto;
   }
 }
 
 /* ───────────────────────────────────────────
    Hero Section — Dark Immersive Landing
+
+   히어로는 더 이상 "어두운 섬"이 아니다. 페이지 전체가 다크가 됐으므로
+   그라디언트의 마지막 정지점을 페이지 배경(#161022)과 같게 두면
+   히어로와 본문 사이의 이음매가 구조적으로 사라진다 — 이번 개편에서
+   가장 단순해지는 부분이다.
    ─────────────────────────────────────────── */
 
 .hero-section {
-  background: linear-gradient(160deg, #080c18 0%, #0f172a 40%, #0c1025 70%, #060a14 100%);
+  background: linear-gradient(160deg, #0c0718 0%, #1c1338 38%, #150e2c 70%, #161022 100%);
 }
 
 /* Floating gradient orbs — ambient glow */
@@ -112,7 +139,7 @@
 .hero-orb-1 {
   width: 500px;
   height: 500px;
-  background: rgba(46, 163, 242, 0.10);
+  background: rgba(91, 19, 236, 0.22);
   top: 8%;
   right: -12%;
   animation: heroFloat 16s ease-in-out infinite;
@@ -121,7 +148,7 @@
 .hero-orb-2 {
   width: 400px;
   height: 400px;
-  background: rgba(124, 58, 237, 0.07);
+  background: rgba(184, 165, 255, 0.10);
   bottom: 12%;
   left: -10%;
   animation: heroFloat 20s ease-in-out infinite reverse;
@@ -130,7 +157,7 @@
 .hero-orb-3 {
   width: 280px;
   height: 280px;
-  background: rgba(46, 163, 242, 0.05);
+  background: rgba(91, 19, 236, 0.12);
   top: 50%;
   left: 35%;
   animation: heroFloat 14s ease-in-out infinite 4s;
@@ -152,13 +179,13 @@
 .hero-noise {
   position: absolute;
   inset: 0;
-  opacity: 0.025;
+  opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Gradient text — "AI" accent */
 .hero-text-gradient {
-  background: linear-gradient(135deg, #2ea3f2 0%, #5ec4ff 50%, #2ea3f2 100%);
+  background: linear-gradient(135deg, #b8a5ff 0%, #e4dbff 50%, #b8a5ff 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -189,17 +216,18 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
 
-/* CTA button — white with glow */
+/* CTA button — accent fill with glow. design/screen.png 의 보라 알약과 같다.
+   흰 글씨는 #5b13ec 위 7.64:1, hover(#6d2af0) 위 6.48:1 로 둘 다 AA 를 넘는다. */
 .hero-cta-btn {
-  background-color: rgba(255, 255, 255, 0.95);
-  color: #0f172a;
-  box-shadow: 0 0 20px rgba(46, 163, 242, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+  background-color: #5b13ec;
+  color: #ffffff;
+  box-shadow: 0 0 24px rgba(91, 19, 236, 0.45), 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .hero-cta-btn:hover {
-  background-color: #2ea3f2;
-  color: white;
-  box-shadow: 0 0 48px rgba(46, 163, 242, 0.35), 0 8px 24px rgba(0, 0, 0, 0.15);
+  background-color: #6d2af0;
+  color: #ffffff;
+  box-shadow: 0 0 52px rgba(91, 19, 236, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4);
   transform: translateY(-2px);
 }
 
@@ -254,7 +282,7 @@ button:active:not(:disabled) {
   height: 1px;
   margin: 2rem auto;
   max-width: 48px;
-  background-color: #e5e5e5;
+  background-color: #8175a4;
 }
 
 .cosmic-divider::before,
@@ -270,7 +298,7 @@ button:active:not(:disabled) {
 }
 
 .nav-tab-glow:hover {
-  background-color: rgba(46, 163, 242, 0.08);
+  background-color: rgba(184, 165, 255, 0.10);
 }
 
 .nav-tab-glow::before {
@@ -278,7 +306,7 @@ button:active:not(:disabled) {
 }
 
 .nav-tab-glow[aria-selected="true"] {
-  background-color: rgba(46, 163, 242, 0.12);
+  background-color: #423277;
 }
 
 /* ───────────────────────────────────────────
@@ -290,6 +318,7 @@ button:active:not(:disabled) {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -311,16 +340,16 @@ button:active:not(:disabled) {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: #221a3a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2ea3f2;
+  background: #5b13ec;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1b8ad9;
+  background: #6d2af0;
 }
 
 /* ───────────────────────────────────────────

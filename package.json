@@ -8,7 +8,10 @@
     "build": "vite build",
     "typecheck:functions": "tsc --noEmit -p functions/tsconfig.json",
     "typecheck:worker": "tsc --noEmit -p workers/daily-cron/tsconfig.json",
-    "typecheck": "npm run typecheck:functions; fn=$?; npm run typecheck:worker; wk=$?; exit $(( fn || wk ))",
+    "typecheck:app": "tsc --noEmit -p tsconfig.json",
+    "typecheck:app:gate": "node scripts/typecheck-baseline.mjs",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck": "npm run typecheck:functions; fn=$?; npm run typecheck:worker; wk=$?; npm run typecheck:app:gate; ap=$?; npm run typecheck:node; nd=$?; exit $(( fn || wk || ap || nd ))",
     "lint": "eslint .",
     "preview": "vite preview"
   },
