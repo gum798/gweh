@@ -52,6 +52,13 @@ export default {
       // letterSpacing 은 의도적으로 확장하지 않는다. Tailwind 기본 6단계
       // (tighter/tight/normal/wide/wider/widest) 를 덮어쓰면 기존 101곳이 조용히 바뀐다.
       // 유일한 실수요였던 0.3em eyebrow 는 위 text-label 이 자간까지 함께 나르므로 불필요하다.
+      minHeight: {
+        // 상설 헤더(AppHeader, h-14 = 3.5rem)가 sticky top-0 으로 히어로 **앞**에
+        // 흐름을 차지한다. 히어로가 min-h-screen 이면 폴드 위 총 높이가
+        // 100vh + 헤더가 되어 히어로 하단(스크롤 셰브런, 화이트 그라디언트)이
+        // 첫 화면 밖으로 밀린다. 헤더 높이를 빼서 히어로가 정확히 폴드에 맞게 한다.
+        "screen-below-header": "calc(100vh - 3.5rem)",
+      },
       borderRadius: {
         "gal-sm": "2px",
         "gal-md": "4px",

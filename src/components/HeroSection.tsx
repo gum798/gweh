@@ -28,7 +28,7 @@ export default function HeroSection({ onTabChange }: HeroProps) {
   };
 
   return (
-    <section className="hero-section relative min-h-screen flex flex-col overflow-hidden">
+    <section className="hero-section relative min-h-screen-below-header flex flex-col overflow-hidden">
       {/* === Background layers === */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         {/* Floating gradient orbs */}

@@ -8,6 +8,7 @@ import ProfileModal from './components/auth/ProfileModal';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
+import { resolveTab } from './lib/tabs';
 
 // Tab components (lazy-loaded)
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -22,11 +23,7 @@ const FaceHarmonyTab = lazy(() => import('./components/tabs/FaceHarmonyTab'));
 function App() {
   const { t: tc } = useTranslation();
   const { isSubscribed } = useSubscription();
-  const [activeTab, setActiveTab] = useState(() => {
-    const hash = window.location.hash.replace('#', '');
-    const validTabs = ['omen', 'fortune', 'fashion', 'face', 'harmony', 'palm', 'saju', 'summary'];
-    return validTabs.includes(hash) ? hash : 'omen';
-  });
+  const [activeTab, setActiveTab] = useState(() => resolveTab(window.location.hash));
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -61,12 +58,10 @@ function App() {
   }, []);
 
   // 뒤로/앞으로 가기 대응. 이 리스너가 없어 브라우저 히스토리가 죽어 있었다.
+  // resolveTab 은 useState 초기화와 같은 함수다. 알 수 없는/빈 해시를 여기서
+  // 무시해 버리면 "/#saju 에서 뒤로가기 → URL 은 / 인데 화면은 사주" 로 갈라진다.
   useEffect(() => {
-    const onHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      const validTabs = ['omen', 'fortune', 'fashion', 'face', 'harmony', 'palm', 'saju', 'summary'];
-      if (validTabs.includes(hash)) setActiveTab(hash);
-    };
+    const onHashChange = () => setActiveTab(resolveTab(window.location.hash));
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
