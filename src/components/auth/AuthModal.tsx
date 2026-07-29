@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { FOCUSABLE_SELECTOR } from '../../lib/focusTrap';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -21,40 +21,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // onClose 는 App.tsx 에서 인라인 화살표로 내려온다 — App 이 리렌더될 때마다
-  // 새 함수다. 아래 이펙트의 클린업이 포커스를 **복원**하므로, onClose 를 deps 에
-  // 두면 App 리렌더 한 번에 이펙트가 재실행되면서 사용자가 입력 중이던 필드에서
-  // 포커스를 뺏어 첫 번째 요소로 되돌린다. ref 로 최신 값만 읽고 deps 에서 뺀다.
-  // (기존 ESC 전용 이펙트는 클린업이 리스너 해제뿐이라 이 문제가 없었다.)
-  const onCloseRef = useRef(onClose);
-  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
-
-  // ESC 닫기 + 포커스 트랩 + 포커스 복원.
-  useEffect(() => {
-    if (!isOpen) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-
-    const focusables = () =>
-      Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []);
-
-    focusables()[0]?.focus();
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onCloseRef.current(); return; }
-      if (e.key !== 'Tab') return;
-      const items = focusables();
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus();
-    };
-  }, [isOpen]);
+  // ESC 닫기 + 포커스 트랩 + 포커스 복원. ProfileModal 과 **같은 훅**을 쓴다.
+  useFocusTrap(isOpen, onClose, dialogRef);
 
   // Body scroll lock
   useEffect(() => {

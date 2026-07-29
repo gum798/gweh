@@ -249,8 +249,20 @@ export default function CameraCapture({
         <div className="flex flex-col items-center gap-4">
           {/* aspect-square 는 스트림이 붙기 **전에** 자리를 예약한다. 없으면 video 가
               UA 기본 300×150 으로 그려졌다가 스트림이 붙는 순간 정사각형으로 커지면서
-              아래 촬영 버튼이 통째로 밀린다 — 사용자가 버튼으로 손을 뻗는 바로 그 타이밍이다. */}
-          <div className="relative aspect-square w-full rounded-gal-xl overflow-hidden border-2 border-gal-accent/30">
+              아래 촬영 버튼이 통째로 밀린다 — 사용자가 버튼으로 손을 뻗는 바로 그 타이밍이다.
+
+              max-w 상한은 필수다. 예약만 하고 폭을 풀어두면 데스크톱에서 480 → 810 으로
+              커져 **촬영 버튼이 1280×768 뷰포트 밖으로 밀려난다** — 리플로우를 막으려고
+              넣은 수정이 정작 그 버튼을 못 쓰게 만든다. 게다가 videoConstraints 가
+              480 이라 810 은 1.69배 업스케일이고, canvas 비트맵은 videoWidth(480) 그대로라
+              감지 오버레이까지 흐려진다. 상한을 그 480 에 맞춘다.
+
+              object-contain 이지 cover 가 아니다. videoConstraints 는 ideal 이라 실제
+              웹캠은 640×480 을 흔히 돌려주는데, cover 면 정사각 박스에서 좌우가 잘린다.
+              그런데 getScreenshot() 은 잘리지 않은 전체 프레임을 캡처하므로 **사용자가
+              화면에서 잡은 구도와 실제로 분석되는 이미지가 달라진다.** contain 은 잘라내지
+              않는다. 스트림이 요청대로 480×480 이면 둘은 픽셀 단위로 동일하다. */}
+          <div className="relative aspect-square w-full max-w-[480px] rounded-gal-xl overflow-hidden border-2 border-gal-accent/30">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -258,7 +270,7 @@ export default function CameraCapture({
               videoConstraints={videoConstraints}
               onUserMedia={handleUserMedia}
               onUserMediaError={handleUserMediaError}
-              className="w-full h-full object-cover rounded-gal-xl"
+              className="w-full h-full object-contain rounded-gal-xl"
               mirrored={true}
             />
             <canvas

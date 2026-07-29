@@ -666,13 +666,15 @@ export default function FaceHarmonyTab() {
             {/* Single photo mode: Upload area */}
             {inputMode === 'single' && !imageA && !imageB && (
               <div className="relative z-10 animate-fade-in">
-                {/* 맨 div onClick 이면 키보드로 도달할 수 없다. block 은 스타일 추가가 아니라
-                    유지다 — button 기본 display 는 inline-block 이라 그대로 두면 mx-auto
-                    중앙정렬과 max-w-sm 의 블록 폭 거동이 함께 죽는다. */}
+                {/* 맨 div onClick 이면 키보드로 도달할 수 없다. block w-full 은 스타일
+                    추가가 아니라 폭 **유지**다 — button 은 display:block 이어도 width:auto 를
+                    fit-content 로 푼다. block 만 주면 max-w-sm 이 상한 역할만 하고 아무것도
+                    채우지 않아 1280 에서 384px → 310px 로 19% 줄어든다(실측). w-full 이 있어야
+                    div 였을 때의 384px 가 그대로 나온다. */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="block mx-auto max-w-sm border-2 border-dashed border-gal-accent/25 rounded-gal-xl p-10
+                  className="block w-full mx-auto max-w-sm border-2 border-dashed border-gal-accent/25 rounded-gal-xl p-10
                              hover:border-gal-accent/50 hover:bg-gal-accent-light transition-all duration-300 text-center group"
                 >
                   <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
