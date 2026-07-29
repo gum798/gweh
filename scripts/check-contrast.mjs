@@ -33,21 +33,51 @@ const isMain = (() => {
 })();
 
 if (isMain) {
-  const BLACK = '#1a1a1a';   // gal-black — 본문 기본 잉크
-  const WHITE = '#ffffff';
+  // 색 값(hex)은 반드시 tailwind.config.js 에서 읽는다. 여기에 hex 를 다시 적으면
+  // 설정만 바뀌었을 때 게이트가 **옛 값을 검사하며 PASS 를 보고한다** — C1 과 같은
+  // 조용한 통과 실패다. Task 7 은 모든 색 토큰을 교체하므로 특히 위험하다.
+  // 스크립트가 소유하는 지식은 "어떤 전경이 어떤 배경 위에 오고 최소 몇 대 몇이어야 하는가"
+  // 라는 **관계**뿐이고, 값 자체는 전부 설정에서 온다.
+  // 상대 지정자는 cwd 가 아니라 이 모듈 URL 기준으로 풀리므로 어디서 실행해도 안전하다.
+  const CONFIG_URL = new URL('../tailwind.config.js', import.meta.url);
+  let colors;
+  try {
+    colors = (await import(CONFIG_URL.href)).default?.theme?.extend?.colors;
+  } catch (e) {
+    console.error(`ERROR: tailwind.config.js 를 불러오지 못했다 (${CONFIG_URL.pathname})`);
+    console.error(`  ${e.message}`);
+    process.exit(2);
+  }
+  if (!colors || typeof colors !== 'object') {
+    console.error('ERROR: tailwind.config.js 에서 theme.extend.colors 를 찾지 못했다.');
+    console.error('  설정 구조가 바뀌었다. 옛 값을 검사하지 않도록 중단한다.');
+    process.exit(2);
+  }
 
-  // 상태색은 잉크(Tailwind 700) / 틴트(Tailwind 100) 쌍이다.
-  // 한 값이 잉크와 표면을 겸할 수 없다 — 잉크는 흰 바탕 위 글자용, 틴트는 gal-black 글자를
-  // 얹는 표면용. 파일에 이미 있는 gal-accent / gal-accent-light 선례를 그대로 따른다.
-  const STATUS = {
-    success: ['#15803d', '#dcfce7'],
-    warning: ['#b45309', '#fef3c7'],
-    danger:  ['#b91c1c', '#fee2e2'],
-    info:    ['#1d4ed8', '#dbeafe'],
+  // 토큰이 없거나 형식이 틀리면 그 행을 건너뛰지 않고 **크게 실패**한다.
+  // 빠진 행은 곧 검사되지 않은 색이고, 그것도 조용한 통과다.
+  const hex = (name) => {
+    const v = colors[name];
+    if (typeof v !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(v)) {
+      console.error(`ERROR: tailwind.config.js 의 colors["${name}"] 를 읽을 수 없다.`);
+      console.error(`  받은 값: ${JSON.stringify(v)} (6자리 hex 문자열이어야 한다)`);
+      console.error('  토큰이 삭제·개명됐거나 형식이 바뀌었다. 검사되지 않은 색이 통과하는 것을 막기 위해 중단한다.');
+      process.exit(2);
+    }
+    return v;
   };
+
+  const BLACK = hex('gal-black');   // 본문 기본 잉크
+  const WHITE = '#ffffff';          // 페이지 배경 — 토큰이 아니라 index.html 크리티컬 CSS 의 body 값
+
+  // 상태색은 잉크 / 틴트(-light) 쌍이다. 한 값이 잉크와 표면을 겸할 수 없다 —
+  // 잉크는 흰 바탕 위 글자용, 틴트는 gal-black 글자를 얹는 표면용.
+  // 파일에 이미 있는 gal-accent / gal-accent-light 선례를 그대로 따른다.
+  const STATUS = ['success', 'warning', 'danger', 'info'];
 
   // [전경, 배경, 라벨, 최소요구]
   const PAIRS = process.argv[2] === '--dark'
+    // 다크 값은 아직 설정에 없다 — Task 7 이 토큰을 만들 때 위 hex() 로 갈아끼운다.
     ? [
         ['#a78bfa', '#161022', 'accent-ink on base', 4.5],
         ['#ffffff', '#5b13ec', 'white on accent-fill', 4.5],
@@ -59,15 +89,15 @@ if (isMain) {
         ['#8b8299', '#1e1630', 'text-muted on surface', 4.5],
       ]
     : [
-        ['#666666', WHITE, 'gal-body (현행)', 4.5],
-        ['#999999', WHITE, 'gal-muted (현행)', 4.5],
-        ['#2ea3f2', WHITE, 'gal-accent (현행)', 4.5],
+        [hex('gal-body'),   WHITE, 'gal-body (현행)', 4.5],
+        [hex('gal-muted'),  WHITE, 'gal-muted (현행)', 4.5],
+        [hex('gal-accent'), WHITE, 'gal-accent (현행)', 4.5],
         // text-status-* : 흰 바탕 위 글자
-        ...Object.entries(STATUS).map(([n, [ink]]) => [ink, WHITE, `text-status-${n}`, 4.5]),
+        ...STATUS.map((n) => [hex(`status-${n}`), WHITE, `text-status-${n}`, 4.5]),
         // bg-status-*-light : 틴트 표면 위 gal-black 본문
-        ...Object.entries(STATUS).map(([n, [, tint]]) => [BLACK, tint, `gal-black on ${n}-light`, 4.5]),
+        ...STATUS.map((n) => [BLACK, hex(`status-${n}-light`), `gal-black on ${n}-light`, 4.5]),
         // 배지 조합 : 틴트 위에 같은 계열 잉크
-        ...Object.entries(STATUS).map(([n, [ink, tint]]) => [ink, tint, `${n} ink on ${n}-light`, 4.5]),
+        ...STATUS.map((n) => [hex(`status-${n}`), hex(`status-${n}-light`), `${n} ink on ${n}-light`, 4.5]),
       ];
 
   let failed = 0;

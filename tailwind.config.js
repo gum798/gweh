@@ -25,7 +25,9 @@ export default {
         "status-success":       "#15803d",  // 흰 바탕 위 글자
         "status-success-light": "#dcfce7",  // gal-black 본문을 얹는 표면
         "status-warning":       "#b45309",
-        "status-warning-light": "#fef3c7",
+        // amber-100(#fef3c7)은 잉크와 4.5097:1 로 여유가 0.22% 뿐이라 6단계 색 교체 때
+        // 임계선을 넘기 쉽다. amber-50 으로 낮춰 4.84:1 확보.
+        "status-warning-light": "#fffbeb",
         "status-danger":        "#b91c1c",
         "status-danger-light":  "#fee2e2",
         "status-info":          "#1d4ed8",
