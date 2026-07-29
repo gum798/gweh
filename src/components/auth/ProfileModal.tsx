@@ -89,7 +89,11 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    // z-[70] 은 50 으로 되돌리지 말 것. 상설 헤더(AppHeader)도 z-50 이라 예전에는
+    // 동률이었고, 모달이 헤더를 덮은 건 순전히 DOM 순서 덕이었다 — 모달을 포털로
+    // 옮기거나 #app-content 에 z-*/transform/filter 가 붙는 순간 조용히 뒤집힌다.
+    // 레이어 서열: 네비 40 < 헤더 50 < 토스트 60 < 모달 70.
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50" />
       <div
         className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"

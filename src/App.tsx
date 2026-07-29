@@ -8,7 +8,7 @@ import ProfileModal from './components/auth/ProfileModal';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
-import { resolveTab } from './lib/tabs';
+import { resolveTabOnLoad, resolveTabOnHashChange } from './lib/tabs';
 
 // Tab components (lazy-loaded)
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -23,7 +23,7 @@ const FaceHarmonyTab = lazy(() => import('./components/tabs/FaceHarmonyTab'));
 function App() {
   const { t: tc } = useTranslation();
   const { isSubscribed } = useSubscription();
-  const [activeTab, setActiveTab] = useState(() => resolveTab(window.location.hash));
+  const [activeTab, setActiveTab] = useState(() => resolveTabOnLoad(window.location.hash));
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -58,10 +58,16 @@ function App() {
   }, []);
 
   // 뒤로/앞으로 가기 대응. 이 리스너가 없어 브라우저 히스토리가 죽어 있었다.
-  // resolveTab 은 useState 초기화와 같은 함수다. 알 수 없는/빈 해시를 여기서
-  // 무시해 버리면 "/#saju 에서 뒤로가기 → URL 은 / 인데 화면은 사주" 로 갈라진다.
+  //
+  // hashchange 규칙은 최초 로드 규칙과 **의도적으로 다르다.** 빈 해시는 루트로
+  // 뒤로가기 한 것이므로 기본 탭으로 리셋하고, 비어 있지 않은 비탭 해시는
+  // 인페이지 앵커(스킵 링크 #app-content 등)이므로 탭을 건드리지 않는다.
+  // 셋을 하나로 합치면 셋 중 하나가 반드시 깨진다 — 근거는 lib/tabs.ts 의 표 참조.
   useEffect(() => {
-    const onHashChange = () => setActiveTab(resolveTab(window.location.hash));
+    const onHashChange = () => {
+      const next = resolveTabOnHashChange(window.location.hash);
+      if (next !== null) setActiveTab(next);
+    };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
