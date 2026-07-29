@@ -1,0 +1,40 @@
+<!--
+  SNS 공유 카드의 벡터 원본. index.html 이 참조하는 것은 이 파일이 아니라
+  같은 그림을 1200x630 으로 래스터한 og-image.png 다 — Facebook·X·카카오톡은
+  og:image 의 SVG 를 렌더하지 않는다. 이 파일은 편집용 원본이며, 고친 뒤에는
+  아래 한 줄로 PNG 를 다시 만든다(sharp 는 이미 의존성에 있다):
+
+    node -e "require('sharp')('public/og-image.svg').png().toFile('public/og-image.png')"
+
+  색은 tailwind.config.js 팔레트에서만 온다:
+  #161022 gal-bg · #5b13ec gal-accent(채움) · #b8a5ff gal-accent-ink ·
+  #f6f6f8 gal-black(최상위 텍스트) · #b8b0c8 gal-body.
+  글자에는 채움색을 쓰지 않는다 — 어두운 배경 위 2.43:1 이라 읽히지 않는다.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#161022"/>
+
+  <!-- 배경 글로우. 앱 히어로의 플로팅 오브와 같은 어휘다. -->
+  <circle cx="1010" cy="140" r="240" fill="#5b13ec" opacity="0.28"/>
+  <circle cx="1150" cy="470" r="150" fill="#b8a5ff" opacity="0.10"/>
+  <circle cx="150" cy="560" r="190" fill="#5b13ec" opacity="0.14"/>
+
+  <!-- 마크. 파비콘과 같은 도형이라 탭·공유카드가 같은 서비스로 보인다. -->
+  <g transform="translate(96 179) scale(2.6)">
+    <circle cx="32" cy="32" r="17" fill="none" stroke="#b8a5ff" stroke-width="3"/>
+    <path d="M32 15a17 17 0 0 0 0 34z" fill="#5b13ec"/>
+    <circle cx="32" cy="23.5" r="3.2" fill="#161022"/>
+    <circle cx="32" cy="40.5" r="3.2" fill="#b8a5ff"/>
+  </g>
+
+  <text x="316" y="300" font-family="Space Grotesk, Helvetica Neue, Arial, sans-serif"
+        font-size="112" font-weight="700" letter-spacing="-2" fill="#f6f6f8">GWEH AI</text>
+
+  <rect x="318" y="336" width="96" height="6" rx="3" fill="#5b13ec"/>
+
+  <text x="316" y="404" font-family="Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif"
+        font-size="38" fill="#b8b0c8">AI가 읽는 관상 · 손금 · 사주</text>
+
+  <text x="316" y="462" font-family="Space Grotesk, Helvetica Neue, Arial, sans-serif"
+        font-size="22" letter-spacing="6" fill="#b8a5ff">UNVEIL YOUR DESTINY</text>
+</svg>

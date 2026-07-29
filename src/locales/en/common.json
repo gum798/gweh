@@ -79,6 +79,7 @@
   "energy.caution": "Caution",
   "energy.careful": "Be Careful",
   "a11y.skipToContent": "Skip to content",
+  "a11y.closeToast": "Close notification",
   "error.weather": "Unable to fetch weather data",
   "error.nasa": "Unable to fetch NASA data",
   "error.earthquake": "Unable to fetch earthquake data",
@@ -119,9 +120,6 @@
   "keypoint.pinky3": "Pinky 3",
   "keypoint.pinkyTip": "Pinky Tip",
 
-  "omenTab.heroTitle1": "MYSTIC",
-  "omenTab.heroTitle2": "AI",
-  "omenTab.heroDesc": "Korea's premier multimodal AI fortune-telling service",
   "omenTab.heroSubtitle": "AI-powered analysis of your mystical destiny",
   "omenTab.readingSigns": "Reading the Signs...",
   "omenTab.underSky": "Under the sky of {{city}}",
@@ -216,9 +214,9 @@
   "fashion.subscribeButton": "Free Trial & Subscribe",
   "fashion.extraAnalysis": "Extra Analysis $1.99",
 
-  "sub.badge": "DAILY MYSTIC",
+  "sub.badge": "DAILY READING",
   "sub.headline": "You're missing your daily fortune & style guide",
-  "sub.description": "Get personalized oracle readings and style recommendations every morning. Join the many who start their day with Mystic AI.",
+  "sub.description": "Get personalized oracle readings and style recommendations every morning. Join the many who start their day with {{brand}}.",
   "sub.dailyPrice": "~$0.33/day",
   "sub.feature1": "Daily personalized oracle + style recommendation",
   "sub.feature2": "AI-powered color & item guide for the day",
@@ -262,6 +260,8 @@
   "summary.personalAdvice": "Personal Advice",
   "summary.noData": "No analysis data yet. Please check the Oracle, Fortune, and Saju tabs first.",
   "summary.unlock": "Subscribe to unlock Summary",
+  "summary.shareTitle": "{{brand}} — My Destiny",
+  "summary.shareText": "Check out my destiny for today",
 
   "toast.checkoutSuccess": "Payment completed!",
   "toast.subscriptionSuccess": "Subscription activated!"

@@ -6,6 +6,7 @@ import { getEnergyLabel } from '../../utils/omenGenerator';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { LevelPill } from '../ui/LevelPill';
+import { BRAND, BRAND_DOMAIN, BRAND_FILE_SLUG } from '../../lib/brand';
 
 // 공유 카드는 <canvas> 에 그리므로 Tailwind 클래스를 쓸 수 없고 hex 를 직접 넣어야 한다.
 // 값은 tailwind.config.js 의 팔레트를 그대로 옮긴 것이며, 흩어져 있던 리터럴 13개를
@@ -74,7 +75,7 @@ function generateDestinyCard(
     ctx.textAlign = 'center';
     ctx.fillStyle = CARD_ACCENT;
     ctx.font = 'bold 28px "Noto Sans KR", sans-serif';
-    ctx.fillText('MYSTIC AI', W / 2, 80);
+    ctx.fillText(BRAND, W / 2, 80);
 
     // Subtitle
     ctx.fillStyle = CARD_MUTED;
@@ -176,7 +177,7 @@ function generateDestinyCard(
     ctx.fillRect(100, footerY - 10, W - 200, 1);
     ctx.fillStyle = CARD_MUTED;
     ctx.font = '9px sans-serif';
-    ctx.fillText('mystic-ai.com', W / 2, footerY + 10);
+    ctx.fillText(BRAND_DOMAIN, W / 2, footerY + 10);
 
     canvas.toBlob((blob) => resolve(blob!), 'image/png');
   });
@@ -349,12 +350,18 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         fortune?.overall,
         fortune?.advice,
       );
-      const file = new File([blob], 'mystic-destiny.png', { type: 'image/png' });
+      // 파일명은 번역하지 않는다 — 사용자의 내려받기 폴더에서 정렬·검색되는
+      // 식별자라 언어에 따라 달라지면 곤란하다. 브랜드 접두사만 상수로 뺀다.
+      const fileName = `${BRAND_FILE_SLUG}-destiny.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
 
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
-          title: 'MYSTIC AI — My Destiny',
-          text: i18n.language === 'ko' ? '오늘의 운명을 확인해보세요' : 'Check out my destiny for today',
+          // 공유 시트 제목·본문은 사용자에게 보이는 문구다. 여기 있던
+          // 하드코딩 영문 제목과 language 삼항식은 t() 를 우회하고 있었다.
+          // {{brand}} 는 i18n 의 defaultVariables 가 채운다.
+          title: t('summary.shareTitle'),
+          text: t('summary.shareText'),
           files: [file],
         });
         setShareStatus('shared');
@@ -363,7 +370,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'mystic-destiny.png';
+        a.download = fileName;
         a.click();
         URL.revokeObjectURL(url);
         setShareStatus('copied');
@@ -372,7 +379,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       setShareStatus('idle');
     }
     setTimeout(() => setShareStatus('idle'), 2500);
-  }, [dateStr, energyLabel, dailyReading, fortune, i18n.language]);
+  }, [dateStr, energyLabel, dailyReading, fortune, i18n.language, t]);
 
   // 비구독자: blurred preview + lock
   if (!isSubscribed) {

@@ -151,7 +151,7 @@ function App() {
         {toast && (
           <div className="bg-gal-accent text-white px-6 py-3 rounded-gal-xl shadow-gal-card text-sm font-medium flex items-center gap-2 animate-fade-in">
             {toast}
-            <button onClick={() => setToast(null)} aria-label="Close" className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-gal-sm">&times;</button>
+            <button onClick={() => setToast(null)} aria-label={tc('a11y.closeToast')} className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-gal-sm">&times;</button>
           </div>
         )}
       </div>

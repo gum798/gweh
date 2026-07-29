@@ -87,6 +87,7 @@
   "energy.careful": "흉",
 
   "a11y.skipToContent": "본문으로 건너뛰기",
+  "a11y.closeToast": "알림 닫기",
 
   "error.weather": "날씨 데이터를 가져올 수 없습니다",
   "error.nasa": "NASA 데이터를 가져올 수 없습니다",
@@ -131,9 +132,6 @@
   "keypoint.pinky3": "소지3",
   "keypoint.pinkyTip": "소지끝",
 
-  "omenTab.heroTitle1": "MYSTIC",
-  "omenTab.heroTitle2": "AI",
-  "omenTab.heroDesc": "관상, 손금, 사주를 넘나드는 국내 최고의 멀티모달 AI 점술 서비스",
   "omenTab.heroSubtitle": "AI가 분석하는 당신의 신비로운 운명",
   "omenTab.readingSigns": "천기를 읽는 중...",
   "omenTab.underSky": "{{city}}의 하늘 아래",
@@ -228,9 +226,9 @@
   "fashion.subscribeButton": "무료체험 및 구독",
   "fashion.extraAnalysis": "추가 분석 $1.99",
 
-  "sub.badge": "DAILY MYSTIC",
+  "sub.badge": "DAILY READING",
   "sub.headline": "매일 아침, 당신만의 운세와 스타일을 놓치고 있어요",
-  "sub.description": "오늘의 기운에 맞는 괘와 스타일 추천을 매일 받아보세요. 이미 많은 분들이 하루를 Mystic AI와 시작하고 있어요.",
+  "sub.description": "오늘의 기운에 맞는 괘와 스타일 추천을 매일 받아보세요. 이미 많은 분들이 하루를 {{brand}}와 시작하고 있어요.",
   "sub.dailyPrice": "하루 약 ₩450",
   "sub.feature1": "매일 개인 맞춤 괘 + 스타일 추천",
   "sub.feature2": "AI 기반 오늘의 컬러 & 아이템 가이드",
@@ -274,6 +272,8 @@
   "summary.personalAdvice": "맞춤 조언",
   "summary.noData": "아직 분석 데이터가 없습니다. 괘, 운세, 사주 탭에서 먼저 확인해주세요.",
   "summary.unlock": "구독하고 종합 분석 보기",
+  "summary.shareTitle": "{{brand}} — 나의 운명",
+  "summary.shareText": "오늘의 운명을 확인해보세요",
 
   "toast.checkoutSuccess": "결제가 완료되었습니다!",
   "toast.subscriptionSuccess": "구독이 완료되었습니다!"

@@ -1,6 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+import { BRAND } from './lib/brand';
+
 import koCommon from './locales/ko/common.json';
 import koOmen from './locales/ko/omen.json';
 import koFace from './locales/ko/face.json';
@@ -53,6 +55,12 @@ i18n.use(initReactI18next).init({
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,
+    // 브랜드명은 번역 대상이 아니라 상수다. 로케일 파일에 'GWEH AI' 를 적어
+    // 두면 ko/en 두 곳(앞으로 언어가 늘면 더)에 같은 리터럴이 흩어지고,
+    // 이번 작업이 정리한 상태로 정확히 되돌아간다. defaultVariables 로 넣어
+    // 두면 어느 키에서든 {{brand}} 가 호출부 인자 없이 채워진다 —
+    // t('sub.description') 처럼 이미 있는 호출을 건드리지 않아도 된다.
+    defaultVariables: { brand: BRAND },
   },
 });
 

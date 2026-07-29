@@ -1,4 +1,8 @@
+# Sitemap: 줄을 지웠다. sitemap.xml 은 저장소에도 배포본에도 없고,
+# public/_redirects 의 catch-all(/* -> /index.html 200) 때문에 요청하면
+# 404 가 아니라 index.html 이 text/html 로 200 응답된다. 즉 크롤러는
+# "사이트맵이 있다"는 말을 듣고 HTML 을 XML 로 파싱하려다 실패한다.
+# 없는 것을 가리키는 것보다 가리키지 않는 편이 낫다. 실제로 sitemap.xml 을
+# 만들게 되면 그때 이 줄을 되살린다.
 User-agent: *
 Allow: /
-
-Sitemap: https://gweh-3s2.pages.dev/sitemap.xml

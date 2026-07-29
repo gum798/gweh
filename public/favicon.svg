@@ -1,7 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="45" fill="#0a0a1a" stroke="#d4af37" stroke-width="3"/>
-  <circle cx="50" cy="50" r="35" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.5"/>
-  <circle cx="50" cy="50" r="25" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.3"/>
-  <circle cx="50" cy="35" r="12" fill="#d4af37"/>
-  <path d="M50 55 L35 80 L50 70 L65 80 Z" fill="#d4af37"/>
+<!--
+  파비콘. 이전 값은 금색 #d4af37 을 남색 #0a0a1a 위에 얹은 것으로, 라이트
+  시절 팔레트에도 지금 다크 팔레트에도 없는 색이었다 — 탭 아이콘만 다른
+  서비스처럼 보였다. 값은 tailwind.config.js 의 팔레트에서만 가져온다:
+  #161022(gal-bg) · #5b13ec(gal-accent, 채움 전용) · #b8a5ff(gal-accent-ink).
+  원 테두리는 잉크로 긋는다 — 채움색 #5b13ec 는 어두운 배경 위 얇은 선으로
+  쓰면 2.43:1 이라 16px 탭 아이콘에서 사실상 사라진다.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GWEH AI">
+  <rect width="64" height="64" rx="14" fill="#161022"/>
+  <circle cx="32" cy="32" r="17" fill="none" stroke="#b8a5ff" stroke-width="3"/>
+  <path d="M32 15a17 17 0 0 0 0 34z" fill="#5b13ec"/>
+  <circle cx="32" cy="23.5" r="3.2" fill="#161022"/>
+  <circle cx="32" cy="40.5" r="3.2" fill="#b8a5ff"/>
 </svg>

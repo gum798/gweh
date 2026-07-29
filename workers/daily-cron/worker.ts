@@ -2,6 +2,7 @@
 // wrangler.toml에서 [triggers] crons = ["0 * * * *"] 설정
 
 import { geminiEndpoint } from '../../shared/gemini';
+import { BRAND } from '../../shared/brand';
 
 interface Env {
   SUPABASE_URL: string;
@@ -334,6 +335,16 @@ JSON 형식만 반환:
 async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number, fortuneData?: any, localDate?: string) {
   const energyLabel = energy >= 80 ? '대길 ✨' : energy >= 60 ? '길 🌟' : energy >= 40 ? '평 ☯️' : energy >= 20 ? '소흉 ⚡' : '흉 🌙';
 
+  // 메일 헤더는 브랜드의 마지막 낱말만 색으로 강조한다. 마크업에 낱말을 직접
+  // 쪼개 넣으면(예전에는 두 낱말이 마크업에 박혀 있었다) 브랜드가 바뀔 때마다 이 줄을
+  // 다시 손으로 쪼개야 하고, 실제로 그래서 여기가 앱과 다른 이름으로 남았다.
+  // 강조색은 채움색 #5b13ec 가 아니라 잉크 #b8a5ff 다 — 채움색은 이 어두운
+  // 배경 위 글자로 쓰면 2.43:1 이라 읽히지 않는다(앱 팔레트와 같은 규칙).
+  const words = BRAND.split(' ');
+  const brandMark = words.length > 1
+    ? `${words.slice(0, -1).join(' ')} <span style="color:#b8a5ff;">${words[words.length - 1]}</span>`
+    : BRAND;
+
   const html = `
 <!DOCTYPE html>
 <html>
@@ -342,7 +353,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
   <div style="max-width:480px;margin:0 auto;padding:32px 20px;">
     <!-- Header -->
     <div style="text-align:center;margin-bottom:32px;">
-      <h1 style="color:#fff;font-size:28px;margin:0;letter-spacing:-1px;">MYSTIC <span style="color:#5b13ec;">AI</span></h1>
+      <h1 style="color:#fff;font-size:28px;margin:0;letter-spacing:-1px;">${brandMark}</h1>
       <p style="color:rgba(255,255,255,0.4);font-size:10px;text-transform:uppercase;letter-spacing:3px;margin:4px 0 0;">Daily Reading</p>
     </div>
 
@@ -407,7 +418,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
     <!-- Footer -->
     <div style="text-align:center;padding-top:20px;">
       <a href="https://gweh-3s2.pages.dev" style="display:inline-block;background:#5b13ec;color:#fff;text-decoration:none;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:bold;">앱에서 자세히 보기</a>
-      <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:20px;text-transform:uppercase;letter-spacing:3px;">© MYSTIC AI</p>
+      <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:20px;text-transform:uppercase;letter-spacing:3px;">© ${BRAND}</p>
     </div>
   </div>
 </body>
@@ -420,7 +431,7 @@ async function sendEmail(env: Env, to: string, omenMessage: string, styleData: a
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Mystic AI <onboarding@resend.dev>',
+      from: `${BRAND} <onboarding@resend.dev>`,
       to: [to],
       subject: `🔮 오늘의 운세 — ${localDate ? new Date(localDate + 'T00:00:00').toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}`,
       html,
@@ -716,7 +727,7 @@ async function sendSelfCheckAlert(env: Env, failures: CheckResult[]): Promise<bo
       },
       signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
       body: JSON.stringify({
-        from: 'Mystic AI <onboarding@resend.dev>',
+        from: `${BRAND} <onboarding@resend.dev>`,
         to: [env.ALERT_EMAIL],
         subject: `[GWEH] 외부 의존성 이상 ${failures.length}건`,
         html: `<h2 style="font-family:sans-serif;">GWEH 셀프체크 실패</h2>
@@ -822,6 +833,6 @@ export default {
       });
     }
 
-    return new Response('Mystic Daily Cron Worker', { status: 200 });
+    return new Response(`${BRAND} Daily Cron Worker`, { status: 200 });
   },
 };

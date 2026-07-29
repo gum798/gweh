@@ -320,10 +320,11 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     return (
       <div className="space-y-8">
         {/*
-          이 자리에는 omenTab.heroTitle1/2 를 렌더하는 h1 이 있었다 — 저장소의
-          세 번째 브랜드 표기이고, 기본 탭의 첫 화면이라 앱을 열면 헤더 로고와
-          다른 이름이 곧바로 보였다. 브랜드 문자열 통일은 Task 8 소관이므로
-          여기서는 렌더만 지우고 로케일 키는 그대로 둔다.
+          이 자리에는 저장소의 세 번째 브랜드 표기를 렌더하는 h1 이 있었다.
+          기본 탭의 첫 화면이라 앱을 열면 헤더 로고와 다른 이름이 곧바로 보였다.
+          Task 5 가 렌더를 지웠고, Task 8 이 남아 있던 로케일 키
+          (omenTab 의 heroTitle1·heroTitle2·heroDesc)까지 지웠다 — 참조가
+          0곳인 채로 두면 다음 사람이 브랜드 문자열을 다시 심는 씨앗이 된다.
           제목은 이미 LocationPrompt 가 쓰는 location.title 을 재사용한다.
         */}
         <PageHeader
