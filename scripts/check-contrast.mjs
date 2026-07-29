@@ -75,6 +75,20 @@ if (isMain) {
   // 파일에 이미 있는 gal-accent / gal-accent-light 선례를 그대로 따른다.
   const STATUS = ['success', 'warning', 'danger', 'info'];
 
+  // 틴트가 흰 페이지 위에서 "보이는가"의 하한. 1.5 가 아니라 1.05 인 이유:
+  // 이건 **면(surface) 검사이지 테두리(border) 검사가 아니다.** 아래 --dark 분기의
+  // 'border on base' 가 쓰는 1.5 는 배경 위의 선에 요구하는 값이고, 페이지 위에 놓인
+  // 배경면에 그대로 적용할 값이 아니다. 실제로 1.5 를 걸면 이 파일의 옅은 면이 전부
+  // 실격된다 — gal-accent-light 1.099(상태 틴트가 따르기로 한 바로 그 선례),
+  // gal-light 1.090, gal-bg 1.044, gal-border 1.260. 모델로 삼은 대상을 떨어뜨리는
+  // 임계값은 다른 속성을 재고 있는 것이다. 네 색조 모두 1.5 를 넘기려면 Tailwind 400
+  // 단계여야 하는데 그건 더 이상 틴트가 아니다.
+  // 이 하한이 잡으려는 것은 "페이지와 구분이 안 감"뿐이다 — 시각적 무게를 요구하는 게 아니다.
+  // 1.05 는 amber-50(1.037)과 gal-bg(1.044) 수준의 실수를 걸러내면서 현재 네 틴트에
+  // 1.098~1.222 의 여유를 남긴다. **1.10 행은 아슬아슬한 게 아니라 정상이다.**
+  // (1.09 는 success-light 에 여유가 0.008 뿐이라 임계선 밀착 문제가 재발한다.)
+  const SURFACE_MIN = 1.05;
+
   // [전경, 배경, 라벨, 최소요구]
   const PAIRS = process.argv[2] === '--dark'
     // 다크 값은 아직 설정에 없다 — Task 7 이 토큰을 만들 때 위 hex() 로 갈아끼운다.
@@ -100,7 +114,7 @@ if (isMain) {
         ...STATUS.map((n) => [hex(`status-${n}`), hex(`status-${n}-light`), `${n} ink on ${n}-light`, 4.5]),
         // 표면 식별 : 틴트가 흰 페이지 위에서 구분되는가.
         // 이걸 재지 않고 가정했기 때문에 amber-50 틴트가 gal-bg 보다 안 보이는 채로 통과했다.
-        ...STATUS.map((n) => [hex(`status-${n}-light`), WHITE, `${n}-light on page`, 1.5]),
+        ...STATUS.map((n) => [hex(`status-${n}-light`), WHITE, `${n}-light on page`, SURFACE_MIN]),
       ];
 
   let failed = 0;
