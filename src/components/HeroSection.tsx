@@ -1,8 +1,16 @@
 import { useTranslation } from 'react-i18next';
 
+import { splitBrand } from '../lib/brand';
+
 interface HeroProps {
   onTabChange: (tab: string) => void;
 }
+
+// 제품에서 가장 큰 브랜드 렌더(8xl h1). 마지막 낱말만 그라디언트로 강조하는
+// 표기는 구독자 메일 헤더와 같고, 쪼개는 규칙은 splitBrand 가 갖는다.
+// BRAND 가 한 낱말이 되면 lead 가 비므로 앞 여백(ml)을 걸지 않는다 —
+// 그대로 두면 h1 첫 글자 앞에 정체불명의 들여쓰기가 생긴다.
+const { lead: BRAND_LEAD, tail: BRAND_TAIL } = splitBrand();
 
 const services = [
   { id: 'face', icon: 'face', labelKey: 'hero.face', descKey: 'hero.faceDesc' },
@@ -46,7 +54,7 @@ export default function HeroSection({ onTabChange }: HeroProps) {
         {/* Brand logo */}
         <div className="mb-4 hero-fade hero-fade-1">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tighter">
-            GWEH<span className="hero-text-gradient ml-2 md:ml-3">AI</span>
+            {BRAND_LEAD}<span className={BRAND_LEAD ? 'hero-text-gradient ml-2 md:ml-3' : 'hero-text-gradient'}>{BRAND_TAIL}</span>
           </h1>
         </div>
 

@@ -9,6 +9,7 @@ import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
 import { resolveTabOnLoad, resolveTabOnHashChange, isTabId, type TabId } from './lib/tabs';
+import { BRAND } from './lib/brand';
 
 // Tab components (lazy-loaded)
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -211,7 +212,7 @@ function App() {
           </div>
 
           <p className="text-[10px] text-gal-muted uppercase tracking-[0.3em] text-center">
-            &copy; 2026 GWEH AI
+            &copy; 2026 {BRAND}
           </p>
         </footer>
       </div>

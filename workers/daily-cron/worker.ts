@@ -2,7 +2,7 @@
 // wrangler.toml에서 [triggers] crons = ["0 * * * *"] 설정
 
 import { geminiEndpoint } from '../../shared/gemini';
-import { BRAND } from '../../shared/brand';
+import { BRAND, splitBrand } from '../../shared/brand';
 
 interface Env {
   SUPABASE_URL: string;
@@ -335,15 +335,15 @@ JSON 형식만 반환:
 async function sendEmail(env: Env, to: string, omenMessage: string, styleData: any, energy: number, fortuneData?: any, localDate?: string) {
   const energyLabel = energy >= 80 ? '대길 ✨' : energy >= 60 ? '길 🌟' : energy >= 40 ? '평 ☯️' : energy >= 20 ? '소흉 ⚡' : '흉 🌙';
 
-  // 메일 헤더는 브랜드의 마지막 낱말만 색으로 강조한다. 마크업에 낱말을 직접
-  // 쪼개 넣으면(예전에는 두 낱말이 마크업에 박혀 있었다) 브랜드가 바뀔 때마다 이 줄을
-  // 다시 손으로 쪼개야 하고, 실제로 그래서 여기가 앱과 다른 이름으로 남았다.
+  // 메일 헤더는 브랜드의 마지막 낱말만 색으로 강조한다 — 히어로 h1 과 같은
+  // 표기이고, 쪼개는 규칙은 splitBrand 한 곳에 있다. 마크업만 여기서 만든다
+  // (저쪽은 JSX, 이쪽은 HTML 문자열이라 마크업은 공유할 수 없다).
   // 강조색은 채움색 #5b13ec 가 아니라 잉크 #b8a5ff 다 — 채움색은 이 어두운
   // 배경 위 글자로 쓰면 2.43:1 이라 읽히지 않는다(앱 팔레트와 같은 규칙).
-  const words = BRAND.split(' ');
-  const brandMark = words.length > 1
-    ? `${words.slice(0, -1).join(' ')} <span style="color:#b8a5ff;">${words[words.length - 1]}</span>`
-    : BRAND;
+  const { lead, tail } = splitBrand();
+  const brandMark = lead
+    ? `${lead} <span style="color:#b8a5ff;">${tail}</span>`
+    : tail;
 
   const html = `
 <!DOCTYPE html>

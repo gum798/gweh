@@ -13,4 +13,4 @@
  * 쓴다. src/i18n.ts 가 interpolation.defaultVariables 로 채워 주므로 호출부에
  * 인자를 넘길 필요가 없다.
  */
-export { BRAND, BRAND_DOMAIN, BRAND_FILE_SLUG } from '../../shared/brand';
+export { BRAND, BRAND_DOMAIN, BRAND_FILE_SLUG, splitBrand } from '../../shared/brand';

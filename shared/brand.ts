@@ -26,3 +26,22 @@ export const BRAND_DOMAIN = 'gweh-3s2.pages.dev';
 
 /** 내려받기 파일명 접두사. 사용자에게 보이지만 번역 대상은 아니다. */
 export const BRAND_FILE_SLUG = 'gweh';
+
+/**
+ * 브랜드를 "앞부분 + 마지막 낱말"로 나눈다.
+ *
+ * 이 저장소는 브랜드의 마지막 낱말만 색으로 강조하는 표기를 **두 곳**에서
+ * 쓴다: 히어로의 h1(그라디언트 span)과 구독자 메일 헤더(인라인 style).
+ * 두 곳 모두 낱말을 마크업에 직접 쪼개 넣고 있었고, 그래서 브랜드가 바뀔 때
+ * 고쳐야 할 곳이 상수 1줄이 아니라 마크업 2곳으로 늘어나 있었다.
+ * 쪼개는 규칙은 여기 한 번만 둔다. 마크업은 매체가 달라(JSX vs HTML 문자열)
+ * 공유할 수 없으므로 각자 만든다.
+ *
+ * 낱말이 하나뿐인 브랜드로 바뀌면 lead 가 빈 문자열이 된다 — 호출부는 이때
+ * 앞부분과의 간격을 넣지 않아야 한다(빈 낱말 뒤의 여백만 남는다).
+ */
+export function splitBrand(): { lead: string; tail: string } {
+  const words = BRAND.split(' ');
+  if (words.length < 2) return { lead: '', tail: BRAND };
+  return { lead: words.slice(0, -1).join(' '), tail: words[words.length - 1] };
+}

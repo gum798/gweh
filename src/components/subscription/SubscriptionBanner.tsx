@@ -71,7 +71,7 @@ export default function SubscriptionBanner({ onLoginRequired }: SubscriptionBann
             {/* Dismiss */}
             <button
               onClick={handleDismiss}
-              aria-label="Close"
+              aria-label={t('a11y.closeToast')}
               className="absolute top-3 right-3 text-gal-muted hover:text-gal-body z-10 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent-ink rounded-gal-sm"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
