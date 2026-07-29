@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
@@ -8,7 +8,7 @@ import ProfileModal from './components/auth/ProfileModal';
 import { useSubscription } from './contexts/SubscriptionContext';
 import SubscriptionBanner from './components/subscription/SubscriptionBanner';
 import { SkeletonOmenTab } from './components/ui/Skeleton';
-import { resolveTabOnLoad, resolveTabOnHashChange } from './lib/tabs';
+import { resolveTabOnLoad, resolveTabOnHashChange, isTabId, type TabId } from './lib/tabs';
 
 // Tab components (lazy-loaded)
 const OmenTab = lazy(() => import('./components/tabs/OmenTab'));
@@ -20,10 +20,41 @@ const FashionTab = lazy(() => import('./components/tabs/FashionTab'));
 const SummaryTab = lazy(() => import('./components/tabs/SummaryTab'));
 const FaceHarmonyTab = lazy(() => import('./components/tabs/FaceHarmonyTab'));
 
+interface TabRenderContext {
+  onLoginRequired: () => void;
+}
+
+type TabRenderer = (ctx: TabRenderContext) => ReactNode;
+
+/**
+ * 탭 id → 콘텐츠. **`Record<TabId, ...>` 인 것이 요점이다.**
+ *
+ * 예전에는 switch 문에 8개 case 를 손으로 적고 `default: return null` 이었다.
+ * 그래서 lib/tabs.ts 에 id 를 추가하거나 이름을 바꾸면 네비에는 버튼이 뜨고
+ * 해시 검증도 통과하는데 콘텐츠 영역만 조용히 비었다 — lib/tabs.ts 맨 위
+ * 주석이 "드리프트 없음" 을 주장하는데 코드는 강제하지 않는 상태였다.
+ * 이제 항목이 빠지면 컴파일이 실패한다.
+ *
+ * onLoginRequired 는 실제로 그 prop 을 받는 두 탭(omen, summary)에만 내려간다.
+ * 표를 균일하게 만들려고 나머지 6개까지 흘리지 않는다.
+ */
+const TAB_RENDERERS: Record<TabId, TabRenderer> = {
+  omen: ({ onLoginRequired }) => <OmenTab onLoginRequired={onLoginRequired} />,
+  fortune: () => <FortuneTab />,
+  fashion: () => <FashionTab />,
+  face: () => <FaceTab />,
+  harmony: () => <FaceHarmonyTab />,
+  palm: () => <PalmTab />,
+  saju: () => <SajuTab />,
+  summary: ({ onLoginRequired }) => <SummaryTab onLoginRequired={onLoginRequired} />,
+};
+
 function App() {
   const { t: tc } = useTranslation();
   const { isSubscribed } = useSubscription();
-  const [activeTab, setActiveTab] = useState(() => resolveTabOnLoad(window.location.hash));
+  // 상태는 string 이다 — Navigation/HeroSection 의 onTabChange 가 string 을 넘긴다.
+  // TabId 로 좁히는 일은 renderTab 에서 isTabId 로 한 번만 한다.
+  const [activeTab, setActiveTab] = useState<string>(() => resolveTabOnLoad(window.location.hash));
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -87,58 +118,15 @@ function App() {
       </div>
     );
 
-    switch (activeTab) {
-      case 'omen':
-        return (
-          <Suspense fallback={skeletonFallback}>
-            <OmenTab onLoginRequired={openAuthModal} />
-          </Suspense>
-        );
-      case 'face':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FaceTab />
-          </Suspense>
-        );
-      case 'harmony':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FaceHarmonyTab />
-          </Suspense>
-        );
-      case 'palm':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <PalmTab />
-          </Suspense>
-        );
-      case 'saju':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <SajuTab />
-          </Suspense>
-        );
-      case 'fortune':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FortuneTab />
-          </Suspense>
-        );
-      case 'fashion':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <FashionTab />
-          </Suspense>
-        );
-      case 'summary':
-        return (
-          <Suspense fallback={defaultFallback}>
-            <SummaryTab onLoginRequired={openAuthModal} />
-          </Suspense>
-        );
-      default:
-        return null;
-    }
+    // 좁히기는 여기 한 곳뿐이다. 알 수 없는 id 면 이전 `default: return null` 과 동일.
+    if (!isTabId(activeTab)) return null;
+
+    // omen 만 전용 스켈레톤, 나머지는 공용 스피너 — 기존 동작 그대로.
+    // activeTab 이 TabId 로 좁혀져 있어, 'omen' 을 지우거나 이름을 바꾸면
+    // 이 비교 자체가 TS2367 로 실패한다.
+    const fallback = activeTab === 'omen' ? skeletonFallback : defaultFallback;
+
+    return <Suspense fallback={fallback}>{TAB_RENDERERS[activeTab]({ onLoginRequired: openAuthModal })}</Suspense>;
   };
 
   return (
@@ -201,6 +189,13 @@ function App() {
               <a
                 key={social.label}
                 href="#"
+                // href="#" 은 빈 프래그먼트라 hashchange 를 발화시킨다. 위 리스너의
+                // "빈 해시 = 루트로 뒤로가기 = 기본 탭" 규칙에 걸려 탭이 omen 으로
+                // 리셋되고 문서 최상단으로 점프한다 — 이 브랜치가 만든 회귀다.
+                // (이전 리스너는 빈 해시를 그냥 무시했다.) 세 링크 모두 아직
+                // 아무 데도 가지 않으므로 기본 동작만 막는다. 실제 SNS URL 이
+                // 들어가면 이 핸들러를 지우면 된다.
+                onClick={(e) => e.preventDefault()}
                 aria-label={social.label}
                 className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent flex items-center justify-center text-gal-muted hover:text-gal-accent transition-all duration-200 hover:scale-105 active:scale-95"
               >

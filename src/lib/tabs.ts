@@ -7,6 +7,18 @@
  *   3) Navigation.tsx 의 tabs 배열
  * 세 곳이 어긋나면 "탭이 URL 에는 있는데 렌더되지 않는다" 류의 버그가
  * 조용히 들어온다. 순서(=네비 표시 순서)와 멤버십(=해시 유효성)을 한곳에서 관리한다.
+ *
+ * 이 주장은 **타입으로 강제된다**, 규율로가 아니라:
+ *   - Navigation.tsx  는 TABS 를 직접 map 한다 (런타임 파생)
+ *   - App.tsx 의 해시 처리는 TAB_IDS 만 본다 (런타임 파생)
+ *   - App.tsx 의 TAB_RENDERERS 는 `Record<TabId, ...>` 다 — 여기 id 를
+ *     추가하고 렌더러를 안 넣으면 **컴파일이 실패한다** (TS2741)
+ * 마지막 항목이 없던 동안에는 이 주석이 코드가 지키지 않는 약속이었다:
+ * renderTab 이 switch + `default: return null` 이라 새 탭은 네비 버튼도 뜨고
+ * 해시 검증도 통과하는데 콘텐츠만 조용히 비었다.
+ *
+ * 주의: 이 강제는 `npm run build` 로는 안 잡힌다. vite/esbuild 는 타입을
+ * 검사하지 않고 트랜스파일만 한다. tsc 게이트가 실제 방어선이다.
  */
 
 export interface TabDef {
@@ -15,7 +27,7 @@ export interface TabDef {
   icon: string;
 }
 
-export const TABS: readonly TabDef[] = [
+export const TABS = [
   { id: 'omen', labelKey: 'nav.omen', icon: '☯️' },
   { id: 'fortune', labelKey: 'nav.fortune', icon: '🔮' },
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
@@ -24,11 +36,27 @@ export const TABS: readonly TabDef[] = [
   { id: 'palm', labelKey: 'nav.palm', icon: '🖐️' },
   { id: 'saju', labelKey: 'nav.saju', icon: '🏛️' },
   { id: 'summary', labelKey: 'nav.summary', icon: '📊' },
-];
+] as const satisfies readonly TabDef[];
 
-export const TAB_IDS: readonly string[] = TABS.map((tab) => tab.id);
+/**
+ * 탭 id 리터럴 유니온. TABS 에서 **파생**되므로 손으로 유지할 목록이 아니다.
+ *
+ * 이 타입이 있어야 App.tsx 의 `Record<TabId, TabRenderer>` 가 성립한다.
+ * 예전 renderTab 은 switch + `default: return null` 이라, tabs.ts 에 id 를
+ * 추가하면 네비에는 버튼이 뜨고 해시 검증도 통과하는데 **콘텐츠만 조용히
+ * 비었다.** 이 파일 맨 위 주석이 "드리프트는 없다" 고 주장하는데 코드가
+ * 강제하지 않는 상태였다. 이제는 컴파일이 막는다.
+ */
+export type TabId = (typeof TABS)[number]['id'];
 
-export const DEFAULT_TAB = 'omen';
+export const TAB_IDS: readonly TabId[] = TABS.map((tab) => tab.id);
+
+export const DEFAULT_TAB: TabId = 'omen';
+
+/** 임의 문자열을 TabId 로 좁힌다. 유효 판정은 언제나 TAB_IDS 하나만 본다. */
+export function isTabId(value: string): value is TabId {
+  return (TAB_IDS as readonly string[]).includes(value);
+}
 
 /** 선행 '#' 을 떼어 낸 해시 본문. `''`, `'saju'`, `'app-content'` 등. */
 function hashBody(hash: string): string {
@@ -72,21 +100,21 @@ function hashBody(hash: string): string {
 /**
  * 최초 마운트용. 알 수 없거나 빈 해시는 기본 탭으로 떨어진다.
  */
-export function resolveTabOnLoad(hash: string): string {
+export function resolveTabOnLoad(hash: string): TabId {
   const id = hashBody(hash);
-  return TAB_IDS.includes(id) ? id : DEFAULT_TAB;
+  return isTabId(id) ? id : DEFAULT_TAB;
 }
 
 /**
  * hashchange 용. `null` 은 "탭을 건드리지 말 것" 을 뜻한다.
  *
- * 반환값을 `string | null` 로 둔 이유는 호출부가 "기본 탭으로 리셋" 과
- * "무시" 를 구분할 수 있어야 하기 때문이다. 문자열만 반환하면 그 구분이
- * 사라지고 3번 경우가 다시 2번으로 흡수된다.
+ * 반환값이 `TabId | null` 인 이유는 호출부가 "기본 탭으로 리셋" 과 "무시" 를
+ * 구분할 수 있어야 하기 때문이다. TabId 만 반환하면 그 구분이 사라지고
+ * 3번 경우가 다시 2번으로 흡수된다.
  */
-export function resolveTabOnHashChange(hash: string): string | null {
+export function resolveTabOnHashChange(hash: string): TabId | null {
   const id = hashBody(hash);
   if (id === '') return DEFAULT_TAB;        // 경우 2 — 루트로 뒤로가기
-  if (TAB_IDS.includes(id)) return id;      // 탭 해시
+  if (isTabId(id)) return id;               // 탭 해시
   return null;                              // 경우 3 — 인페이지 앵커, 탭과 무관
 }
