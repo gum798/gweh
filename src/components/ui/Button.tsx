@@ -45,13 +45,22 @@ const SIZES: Record<Size, string> = {
   lg: 'text-base px-7 min-h-[52px]',
 };
 
+// type 기본값이 'button' 인 것은 중요하다. React 는 type 을 안 주면 속성을 아예
+// 내보내지 않고, 그러면 HTML 기본값인 submit 이 적용된다. 탭에는 <form> 안에
+// type="button" 을 명시한 버튼들이 있다 — SajuTab:254 폼 안의 양력/음력 토글과
+// 시간 선택 버튼 3개, FortuneTab:330, AuthModal:134. 이 프리미티브가 submit 을
+// 기본값으로 두면 Task 4 가 그것들을 바꾸는 순간 달력 토글이 폼을 제출한다.
+// 41개 버튼을 흡수하는 컴포넌트는 위험한 쪽을 기본값으로 둘 수 없다.
+// type 을 구조분해로 꺼냈으므로 rest 에는 남지 않는다 — 호출부가 명시한
+// type="submit" 은 그대로 이 변수에 들어와 이긴다.
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', fullWidth, loading, disabled, className = '', children, ...rest },
+  { variant = 'primary', size = 'md', fullWidth, loading, disabled, type = 'button', className = '', children, ...rest },
   ref
 ) {
   return (
     <button
       ref={ref}
+      type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={[

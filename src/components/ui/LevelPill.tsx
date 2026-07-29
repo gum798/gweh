@@ -40,30 +40,78 @@ const STYLES: Record<Level, string> = {
 // 로케일이 바뀌면 조용히 어긋난다. 근본 해법은 생산자(sajuInterpret.ts,
 // omenGenerator.ts)가 번역문이 아니라 번역되지 않는 등급 키를 내보내는 것인데,
 // 그 파일들은 이 태스크의 범위 밖이다.
-const CANONICAL: Record<string, Level> = {
+//
+// 객체 리터럴이 아니라 Map 인 이유: 객체였다면 조회가 프로토타입 체인까지 타서
+// toLevel('constructor') 가 Object 를 반환하고 className 에 undefined 가 섞인다.
+// Object.hasOwn 가드는 ES2022 라 이 프로젝트 lib(ES2020)에서 타입 에러가 난다.
+// Map 은 프로토타입 키가 아예 없어서 가드 없이 그 부류를 통째로 없앤다.
+const CANONICAL = new Map<string, Level>([
   // 한국어 정규값
-  '대길': '대길',
-  '길': '길',
-  '평': '평',
-  '소흉': '소흉',
-  '흉': '흉',
+  ['대길', '대길'],
+  ['길', '길'],
+  ['평', '평'],
+  ['소흉', '소흉'],
+  ['흉', '흉'],
   // en/saju.json 의 fortune.*
-  'great fortune': '대길',
-  'good fortune': '길',
-  'neutral': '평',
-  'minor caution': '소흉',
-  'unfavorable': '흉',
+  ['great fortune', '대길'],
+  ['good fortune', '길'],
+  ['neutral', '평'],
+  ['minor caution', '소흉'],
+  ['unfavorable', '흉'],
   // en/common.json 의 energy.*
-  'excellent': '대길',
-  'good': '길',
-  'caution': '소흉',
-  'be careful': '흉',
-};
+  ['excellent', '대길'],
+  ['good', '길'],
+  ['caution', '소흉'],
+  ['be careful', '흉'],
+]);
 
-/** 임의 문자열을 등급으로 좁힌다. 모르는 값은 중립('평')으로 떨어진다. */
+// 접두 매칭은 반드시 긴 키부터 본다. 짧은 키가 긴 키를 가로채면 안 되기 때문이다:
+// '대길'(2자)을 '길'(1자)보다 먼저 봐야 하고, 'good fortune' 을 'good' 보다 먼저 봐야 한다.
+// 정렬해 두면 Map 의 삽입 순서를 나중에 누가 바꿔도 결과가 흔들리지 않는다.
+const PREFIX_KEYS = [...CANONICAL.keys()].sort((a, b) => b.length - a.length);
+
+// 개발 중 같은 문자열로 여러 번 경고하지 않는다. 렌더마다 찍으면 로그가 밀려
+// 정작 봐야 할 드리프트 신호가 묻힌다.
+const WARNED = new Set<string>();
+
+function warnDrift(raw: string, resolved: Level) {
+  if (!import.meta.env.DEV || WARNED.has(raw)) return;
+  WARNED.add(raw);
+  console.warn(
+    `[LevelPill] 정규 등급이 아닌 값을 받았다: ${JSON.stringify(raw)} -> '${resolved}' 로 처리했다. ` +
+      'API 응답이 바뀌었거나 로케일 문구가 수정된 것일 수 있다.'
+  );
+}
+
+/**
+ * 임의 문자열을 등급으로 좁힌다.
+ *
+ * 1) 정확히 일치 → 그 등급.
+ * 2) 접두 일치 → 그 등급. Gemini 응답은 검증 없이 파싱되므로 "대길 ✨" 나
+ *    "대길 (Great Fortune)" 처럼 정규값 뒤에 뭔가 붙어 오는 경우가 실제로 있다.
+ *    접두 방식을 고른 이유는 뒤쪽 문장부호만 떼는 방식보다 넓게 잡기 때문이다 —
+ *    문장부호 제거는 "대길 ✨" 는 살리지만 "대길 - 매우 좋음" 은 못 살린다.
+ * 3) 그래도 모르면 중립('평'). 오늘처럼 조용히 빨강으로 떨어지는 것보다 안전하다.
+ *
+ * 1) 이 아닌 경로로 풀린 값은 전부 드리프트이므로 개발 빌드에서 경고를 남긴다.
+ */
 function toLevel(value: string): Level {
-  if (!value) return '평';
-  return CANONICAL[value.trim().toLowerCase()] ?? '평';
+  const key = value.trim().toLowerCase();
+  if (!key) return '평';
+
+  const exact = CANONICAL.get(key);
+  if (exact) return exact;
+
+  for (const candidate of PREFIX_KEYS) {
+    if (key.startsWith(candidate)) {
+      const resolved = CANONICAL.get(candidate) as Level;
+      warnDrift(value, resolved);
+      return resolved;
+    }
+  }
+
+  warnDrift(value, '평');
+  return '평';
 }
 
 // 라벨은 받은 값을 그대로 렌더한다 — 생산자가 이미 t() 로 번역한 문자열이므로
