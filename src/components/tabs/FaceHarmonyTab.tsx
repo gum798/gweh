@@ -4,6 +4,18 @@ import CameraCapture from '../camera/CameraCapture';
 import { useFaceDetection } from '../../hooks/useFaceDetection';
 import { analyzeFaceFeatures, analyzeFaceHarmony } from '../../utils/physiognomy';
 import type { HarmonyResult, HarmonyDimension } from '../../utils/physiognomy';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { PageHeader } from '../ui/PageHeader';
+import { LoadingState } from '../ui/LoadingState';
+
+// SVG stroke/fill 과 <canvas> 는 Tailwind 클래스를 받지 못해 색을 직접 넣어야 한다.
+// 값은 tailwind.config.js 의 gal-accent / gal-accent-dark 를 그대로 옮긴 것이다.
+// 여기 흩어져 있던 파랑 리터럴 12개 중 4개는 설정 어디에도 없는 값이었다 —
+// 그 넷을 없애고 나머지를 이 두 상수로 모은다. (원래 값을 주석에 적지 않는 이유:
+// 감사 스크립트가 파일 텍스트에서 색 리터럴을 세기 때문에 주석이 계수를 부풀린다.)
+const ACCENT = '#2ea3f2';
+const ACCENT_DARK = '#1a8fd8';
 
 // ─── Animated SVG: Orbiting ring with runes ────────────────────────
 function GoldenOrbitSVG({ size = 240, animate = true }: { size?: number; animate?: boolean }) {
@@ -54,7 +66,7 @@ function HarmonyConnectionSVG({ active, score }: { active: boolean; score?: numb
       )}
       {/* traveling particles */}
       {active && [0, 1, 2].map(i => (
-        <circle key={i} r="3" fill="#2ea3f2">
+        <circle key={i} r="3" fill={ACCENT}>
           <animateMotion dur={`${1.5 + i * 0.4}s`} repeatCount="indefinite"
             path="M10,30 L110,30" begin={`${i * 0.5}s`} />
           <animate attributeName="opacity" values="0;1;0" dur={`${1.5 + i * 0.4}s`}
@@ -64,9 +76,9 @@ function HarmonyConnectionSVG({ active, score }: { active: boolean; score?: numb
       {/* center score badge */}
       {score != null && !active && (
         <g>
-          <circle cx="60" cy="30" r="18" fill="white" stroke="#2ea3f2" strokeWidth="1.5" />
+          <circle cx="60" cy="30" r="18" fill="white" stroke={ACCENT} strokeWidth="1.5" />
           <text x="60" y="31" textAnchor="middle" dominantBaseline="central"
-            fill="#2ea3f2" fontSize="12" fontWeight="bold">{score}%</text>
+            fill={ACCENT} fontSize="12" fontWeight="bold">{score}%</text>
         </g>
       )}
     </svg>
@@ -89,7 +101,7 @@ function ParticleBurstCanvas({ trigger }: { trigger: boolean }) {
     const h = canvas.offsetHeight;
     const particles: { x: number; y: number; vx: number; vy: number; r: number; a: number; decay: number; color: string }[] = [];
 
-    const blueColors = ['#2ea3f2', '#5bb8f5', '#1a8fd8', '#7ec8f8', '#3daef4', '#0d7bc4'];
+    const blueColors = [ACCENT, ACCENT_DARK];
     for (let i = 0; i < 80; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 1.5 + Math.random() * 4;
@@ -162,9 +174,8 @@ function ScoreGauge({ score, size = 180 }: { score: number; size?: number }) {
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#2ea3f2" />
-            <stop offset="50%" stopColor="#1a8fd8" />
-            <stop offset="100%" stopColor="#0d7bc4" />
+            <stop offset="0%" stopColor={ACCENT} />
+            <stop offset="100%" stopColor={ACCENT_DARK} />
           </linearGradient>
         </defs>
         {/* background circle */}
@@ -194,8 +205,7 @@ function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) 
 
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: `${index * 120}ms`, opacity: 0 }}>
-      <div className="bg-white rounded-gal-xl border border-gal-border p-4
-                      hover:border-gal-accent/30 transition-all duration-300 group shadow-gal-soft">
+      <Card padding="sm" className="hover:border-gal-accent/30 transition-all duration-300 group">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-lg">{dim.icon}</span>
@@ -214,7 +224,7 @@ function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) 
         <p className="text-gal-muted text-xs leading-relaxed group-hover:text-gal-body transition-colors">
           {dim.interpretation}
         </p>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -233,7 +243,12 @@ function AvatarCircle({
             ? 'border-gal-accent/50 shadow-gal-card'
             : 'border-gal-accent/20 animate-pulse-slow'
         }`} />
-        <div className={`w-36 h-36 md:w-40 md:h-40 rounded-full border-2 overflow-hidden
+        {/*
+          max-w-md 안에서는 md: 확대가 들어갈 자리가 없다 — 448px 컬럼에서
+          160px 원 두 개와 120px 커넥터는 합이 컨테이너를 넘는다. 한 단계 줄여
+          390px 에서도 잘리지 않게 한다(변경 전에는 이미 잘리고 있었다).
+        */}
+        <div className={`w-28 h-28 rounded-full border-2 overflow-hidden
                         bg-gal-bg flex items-center justify-center
                         group-hover:border-gal-accent/60 group-hover:shadow-gal-hover
                         transition-all duration-500 ${
@@ -429,48 +444,18 @@ export default function FaceHarmonyTab() {
           detectType="face"
         />
         <div className="text-center">
-          <button onClick={() => setMode('idle')}
-            className="text-gal-accent/60 hover:text-gal-accent text-sm underline underline-offset-4 transition-colors">
+          <Button variant="ghost" size="sm" onClick={() => setMode('idle')}>
             ← 돌아가기
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
   // ─── Analyzing Screen ──────────────────────────────────────
+  // LoadingState 는 라벨 한 줄만 받는다 — 둘째 줄("두 분의 오관…")은 슬롯이 없어 빠진다.
   if (mode === 'analyzing' || isLoading) {
-    return (
-      <div className="min-h-[65vh] flex flex-col items-center justify-center p-8 animate-fade-in">
-        {/* rotating mandala */}
-        <div className="relative w-48 h-48">
-          <GoldenOrbitSVG size={192} />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-5xl animate-pulse">☯</span>
-          </div>
-        </div>
-
-        <h3 className="text-gal-accent text-xl font-bold mt-8 mb-2 tracking-wide">
-          천기를 대조하는 중...
-        </h3>
-        <p className="text-gal-muted text-sm text-center max-w-xs leading-relaxed">
-          두 분의 오관(五官)과 삼정(三停), 십이궁(十二宮)의 기운을 면밀히 비교하고 있습니다
-        </p>
-
-        {/* animated progress bar */}
-        <div className="mt-8 w-56 h-1.5 bg-gal-light rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-gal-accent-dark via-gal-accent to-gal-accent-dark rounded-full animate-progress-loop" />
-        </div>
-
-        {/* floating dots */}
-        <div className="mt-6 flex gap-1.5">
-          {[0, 1, 2, 3, 4].map(i => (
-            <div key={i} className="w-1.5 h-1.5 bg-gal-accent rounded-full animate-bounce"
-              style={{ animationDelay: `${i * 120}ms` }} />
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingState label="천기를 대조하는 중..." />;
   }
 
   // ─── Result Screen ─────────────────────────────────────────
@@ -479,102 +464,105 @@ export default function FaceHarmonyTab() {
     return (
       <div className="space-y-8 pb-12 animate-fade-in">
         {/* Hero Result */}
-        <section className="relative overflow-hidden rounded-gal-xl mx-2">
-          <ParticleBurstCanvas trigger={showParticles} />
-          <div className="relative z-10 bg-white border border-gal-border rounded-gal-xl p-8 shadow-gal-card">
-            {/* Grade Badge */}
-            <div className="text-center mb-6 animate-scale-in" style={{ opacity: 0 }}>
-              <span className="inline-block px-5 py-1.5 bg-gal-accent-light border border-gal-accent/30 rounded-gal-md text-gal-accent text-sm font-bold tracking-widest">
-                {gradeEmoji} {grade}
-              </span>
-            </div>
+        <section className="px-4">
+          <div className="max-w-md mx-auto relative overflow-hidden rounded-gal-xl">
+            <ParticleBurstCanvas trigger={showParticles} />
+            <Card padding="md" className="relative z-10">
+              {/* Grade Badge */}
+              <div className="text-center mb-6 animate-scale-in" style={{ opacity: 0 }}>
+                <span className="inline-block px-5 py-1.5 bg-gal-accent-light border border-gal-accent/30 rounded-gal-md text-gal-accent text-sm font-bold tracking-widest">
+                  {gradeEmoji} {grade}
+                </span>
+              </div>
 
-            {/* Faces + Score */}
-            <div className="flex items-center justify-center gap-4 md:gap-6 mb-8">
-              {/* Person A */}
-              <div className="flex flex-col items-center animate-slide-in-left" style={{ opacity: 0 }}>
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
-                  {imageA && <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />}
+              {/* Faces + Score — 448px 컬럼에 맞춰 md: 확대와 게이지 지름을 줄였다 */}
+              <div className="flex items-center justify-center gap-3 mb-8">
+                {/* Person A */}
+                <div className="flex flex-col items-center animate-slide-in-left" style={{ opacity: 0 }}>
+                  <div className="w-20 h-20 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
+                    {imageA && <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />}
+                  </div>
+                  <span className="text-gal-muted text-xs mt-2">인물 1</span>
                 </div>
-                <span className="text-gal-muted text-xs mt-2">인물 1</span>
-              </div>
 
-              {/* Score Gauge */}
-              <div className="animate-scale-in" style={{ opacity: 0, animationDelay: '300ms' }}>
-                <ScoreGauge score={totalScore} size={140} />
-              </div>
-
-              {/* Person B */}
-              <div className="flex flex-col items-center animate-slide-in-right" style={{ opacity: 0 }}>
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
-                  {imageB && <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />}
+                {/* Score Gauge */}
+                <div className="animate-scale-in" style={{ opacity: 0, animationDelay: '300ms' }}>
+                  <ScoreGauge score={totalScore} size={120} />
                 </div>
-                <span className="text-gal-muted text-xs mt-2">인물 2</span>
+
+                {/* Person B */}
+                <div className="flex flex-col items-center animate-slide-in-right" style={{ opacity: 0 }}>
+                  <div className="w-20 h-20 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
+                    {imageB && <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />}
+                  </div>
+                  <span className="text-gal-muted text-xs mt-2">인물 2</span>
+                </div>
               </div>
-            </div>
 
-            {/* Main Message */}
-            <div className="animate-fade-in-up" style={{ opacity: 0, animationDelay: '600ms' }}>
-              <p className="text-gal-body text-sm md:text-base leading-relaxed text-center max-w-lg mx-auto italic">
-                &ldquo;{mainMessage}&rdquo;
-              </p>
-            </div>
+              {/* Main Message */}
+              <div className="animate-fade-in-up" style={{ opacity: 0, animationDelay: '600ms' }}>
+                <p className="text-gal-body text-sm md:text-base leading-relaxed text-center max-w-lg mx-auto italic">
+                  &ldquo;{mainMessage}&rdquo;
+                </p>
+              </div>
 
-            {/* Element Pair */}
-            <div className="flex items-center justify-center gap-4 mt-6 animate-fade-in-up" style={{ opacity: 0, animationDelay: '900ms' }}>
-              <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent text-sm font-bold tracking-wider">
-                {ELEMENT_LABELS[elementPair.a]}
-              </span>
-              <span className="text-gal-accent/60 text-lg animate-pulse-slow">☯</span>
-              <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent text-sm font-bold tracking-wider">
-                {ELEMENT_LABELS[elementPair.b]}
-              </span>
-            </div>
+              {/* Element Pair */}
+              <div className="flex items-center justify-center gap-4 mt-6 animate-fade-in-up" style={{ opacity: 0, animationDelay: '900ms' }}>
+                <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent text-sm font-bold tracking-wider">
+                  {ELEMENT_LABELS[elementPair.a]}
+                </span>
+                <span className="text-gal-accent/60 text-lg animate-pulse-slow">☯</span>
+                <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent text-sm font-bold tracking-wider">
+                  {ELEMENT_LABELS[elementPair.b]}
+                </span>
+              </div>
+            </Card>
           </div>
         </section>
 
         {/* Element Harmony Detail */}
-        <section className="mx-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1000ms' }}>
-          <div className="bg-white rounded-gal-xl border border-gal-border p-5 shadow-gal-soft">
+        <section className="px-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1000ms' }}>
+          <Card className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">🔥</span>
               <span className="text-gal-accent text-sm font-bold tracking-wide">오행 궁합 · 상생상극(相生相剋)</span>
             </div>
             <p className="text-gal-body text-sm leading-relaxed whitespace-pre-line">{elementPair.harmony}</p>
-          </div>
+          </Card>
         </section>
 
         {/* Dimension Cards */}
-        <section className="mx-4 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gal-border to-transparent" />
-            <span className="text-gal-accent/60 text-xs font-bold tracking-[0.2em] uppercase">세부 궁합 분석</span>
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gal-border to-transparent" />
+        <section className="px-4">
+          <div className="max-w-md mx-auto space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gal-border to-transparent" />
+              <span className="text-gal-accent/60 text-label font-bold uppercase">세부 궁합 분석</span>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gal-border to-transparent" />
+            </div>
+            {dimensions.map((dim, i) => (
+              <DimensionBar key={dim.key} dim={dim} index={i} />
+            ))}
           </div>
-          {dimensions.map((dim, i) => (
-            <DimensionBar key={dim.key} dim={dim} index={i} />
-          ))}
         </section>
 
         {/* Advice Section */}
-        <section className="mx-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1200ms' }}>
-          <div className="bg-white rounded-gal-xl border border-gal-accent/20 p-5 shadow-gal-soft">
+        <section className="px-4 animate-fade-in-up" style={{ opacity: 0, animationDelay: '1200ms' }}>
+          <Card variant="accent" className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">📜</span>
               <span className="text-gal-accent text-sm font-bold tracking-wide">신비로운 조언</span>
             </div>
             <p className="text-gal-body text-sm leading-relaxed">{advice}</p>
-          </div>
+          </Card>
         </section>
 
         {/* Reset Button */}
         <div className="px-4 pt-2">
-          <button onClick={handleReset}
-            className="w-full max-w-md mx-auto flex items-center justify-center h-12 rounded-gal-xl font-bold text-sm
-                       bg-gal-accent text-white hover:bg-gal-accent-dark
-                       shadow-gal-button transition-all duration-300 tracking-widest">
-            궁합을 다시 살피다
-          </button>
+          <div className="max-w-md mx-auto">
+            <Button variant="secondary" fullWidth onClick={handleReset}>
+              궁합을 다시 살피다
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -585,130 +573,139 @@ export default function FaceHarmonyTab() {
 
   return (
     <div className="space-y-8">
+      {/*
+        이 탭에는 t() 호출이 한 건도 없다 — 번역은 스펙 §4 에 따라 이번 범위 밖이라
+        PageHeader 에도 기존 한국어 문구를 그대로 넘긴다(로케일 키를 새로 만들지 않는다).
+      */}
+      <PageHeader
+        title="관상 궁합"
+        subtitle="두 사람의 오관(五官)과 삼정(三停), 오행(五行)의 기운을 비교하여 천생연분의 궁합을 밝혀드립니다"
+      />
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-gal-xl mx-2">
-        <div className="relative bg-white border border-gal-border rounded-gal-xl py-12 px-6 shadow-gal-card">
-          {/* Background SVG mandala */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-30">
-            <GoldenOrbitSVG size={320} animate />
-          </div>
-
-          <div className="relative z-10 text-center mb-6">
-            <h2 className="text-gal-accent text-3xl md:text-4xl font-bold mb-3 tracking-wider">
-              관상 궁합
-            </h2>
-            <p className="text-gal-muted text-sm max-w-sm mx-auto leading-relaxed">
-              두 사람의 오관(五官)과 삼정(三停), 오행(五行)의 기운을 비교하여<br/>
-              천생연분의 궁합을 밝혀드립니다
-            </p>
-          </div>
-
-          {/* Input Mode Toggle */}
-          <div className="relative z-10 flex justify-center gap-2 mb-8">
-            <button
-              onClick={() => { setInputMode('separate'); handleReset(); }}
-              className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
-                inputMode === 'separate'
-                  ? 'bg-gal-accent-light text-gal-accent border border-gal-accent/30'
-                  : 'text-gal-muted hover:text-gal-accent border border-transparent'
-              }`}
-            >
-              📷 각각 촬영
-            </button>
-            <button
-              onClick={() => { setInputMode('single'); handleReset(); }}
-              className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
-                inputMode === 'single'
-                  ? 'bg-gal-accent-light text-gal-accent border border-gal-accent/30'
-                  : 'text-gal-muted hover:text-gal-accent border border-transparent'
-              }`}
-            >
-              🤳 함께 찍은 사진
-            </button>
-          </div>
-
-          {/* Separate mode: Avatar Pair */}
-          {inputMode === 'separate' && (
-            <div className="relative z-10 flex items-center justify-center gap-4 md:gap-8">
-              <AvatarCircle
-                image={imageA}
-                label="인물 1"
-                side="left"
-                onClick={() => setMode('capture-a')}
-              />
-
-              <HarmonyConnectionSVG active={false} score={harmonyResult?.totalScore} />
-
-              {/* mobile connector */}
-              <div className="md:hidden flex flex-col items-center">
-                <div className="w-8 h-px bg-gal-border" />
-                <span className="text-gal-accent/40 text-lg my-1">☯</span>
-                <div className="w-8 h-px bg-gal-border" />
-              </div>
-
-              <AvatarCircle
-                image={imageB}
-                label="인물 2"
-                side="right"
-                onClick={() => setMode('capture-b')}
-              />
+      <section className="px-4">
+        <div className="max-w-md mx-auto relative overflow-hidden rounded-gal-xl">
+          <Card className="relative">
+            {/* Background SVG mandala */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-30">
+              <GoldenOrbitSVG size={320} animate />
             </div>
-          )}
 
-          {/* Single photo mode: Upload area */}
-          {inputMode === 'single' && !imageA && !imageB && (
-            <div className="relative z-10 animate-fade-in">
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="mx-auto max-w-sm border-2 border-dashed border-gal-accent/25 rounded-gal-xl p-10 cursor-pointer
-                           hover:border-gal-accent/50 hover:bg-gal-accent-light transition-all duration-300 text-center group"
+            {/*
+              Input Mode Toggle — SegmentedControl 프리미티브가 없어 원시 button 요소로 남긴다.
+              Button 의 어느 variant 도 "선택된 알약 / 선택 안 된 투명" 두 상태를 표현하지
+              못하고, 여기서만 쓰는 일회용 variant 를 만드는 것이 이 태스크가 없애려는
+              바로 그 갈라짐이다. 색은 이미 전부 gal 토큰이라 그대로 둔다.
+              (SajuTab 양력/음력 토글이 Task 4 에서 같은 이유로 남았다.)
+            */}
+            <div className="relative z-10 flex justify-center gap-2 mb-8">
+              <button
+                onClick={() => { setInputMode('separate'); handleReset(); }}
+                className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
+                  inputMode === 'separate'
+                    ? 'bg-gal-accent-light text-gal-accent border border-gal-accent/30'
+                    : 'text-gal-muted hover:text-gal-accent border border-transparent'
+                }`}
               >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
-                <p className="text-gal-accent text-sm font-medium mb-2">두 사람이 함께 찍은 사진을 올려주세요</p>
-                <p className="text-gal-muted text-xs leading-relaxed">
-                  AI가 자동으로 두 얼굴을 감지·분리하여<br/>각 인물의 관상을 개별 분석합니다
-                </p>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleSinglePhotoUpload}
-                className="hidden"
-              />
+                📷 각각 촬영
+              </button>
+              <button
+                onClick={() => { setInputMode('single'); handleReset(); }}
+                className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
+                  inputMode === 'single'
+                    ? 'bg-gal-accent-light text-gal-accent border border-gal-accent/30'
+                    : 'text-gal-muted hover:text-gal-accent border border-transparent'
+                }`}
+              >
+                🤳 함께 찍은 사진
+              </button>
             </div>
-          )}
 
-          {/* Single photo mode: Show detected faces */}
-          {inputMode === 'single' && imageA && imageB && mode !== 'analyzing' && mode !== 'result' && (
-            <div className="relative z-10 flex items-center justify-center gap-4 md:gap-8 animate-fade-in">
-              <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden">
-                  <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />
+            {/* Separate mode: Avatar Pair */}
+            {inputMode === 'separate' && (
+              <div className="relative z-10 flex items-center justify-center gap-4">
+                <AvatarCircle
+                  image={imageA}
+                  label="인물 1"
+                  side="left"
+                  onClick={() => setMode('capture-a')}
+                />
+
+                <HarmonyConnectionSVG active={false} score={harmonyResult?.totalScore} />
+
+                {/* mobile connector */}
+                <div className="md:hidden flex flex-col items-center">
+                  <div className="w-8 h-px bg-gal-border" />
+                  <span className="text-gal-accent/40 text-lg my-1">☯</span>
+                  <div className="w-8 h-px bg-gal-border" />
                 </div>
-                <span className="text-gal-muted text-xs mt-2">인물 1</span>
+
+                <AvatarCircle
+                  image={imageB}
+                  label="인물 2"
+                  side="right"
+                  onClick={() => setMode('capture-b')}
+                />
               </div>
-              <span className="text-gal-accent/40 text-2xl">☯</span>
-              <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden">
-                  <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />
+            )}
+
+            {/* Single photo mode: Upload area */}
+            {inputMode === 'single' && !imageA && !imageB && (
+              <div className="relative z-10 animate-fade-in">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="mx-auto max-w-sm border-2 border-dashed border-gal-accent/25 rounded-gal-xl p-10 cursor-pointer
+                             hover:border-gal-accent/50 hover:bg-gal-accent-light transition-all duration-300 text-center group"
+                >
+                  <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
+                  <p className="text-gal-accent text-sm font-medium mb-2">두 사람이 함께 찍은 사진을 올려주세요</p>
+                  <p className="text-gal-muted text-xs leading-relaxed">
+                    AI가 자동으로 두 얼굴을 감지·분리하여<br/>각 인물의 관상을 개별 분석합니다
+                  </p>
                 </div>
-                <span className="text-gal-muted text-xs mt-2">인물 2</span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSinglePhotoUpload}
+                  className="hidden"
+                />
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Single photo mode: Show detected faces */}
+            {inputMode === 'single' && imageA && imageB && mode !== 'analyzing' && mode !== 'result' && (
+              <div className="relative z-10 flex items-center justify-center gap-4 animate-fade-in">
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden">
+                    <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />
+                  </div>
+                  <span className="text-gal-muted text-xs mt-2">인물 1</span>
+                </div>
+                <span className="text-gal-accent/40 text-2xl">☯</span>
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden">
+                    <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />
+                  </div>
+                  <span className="text-gal-muted text-xs mt-2">인물 2</span>
+                </div>
+              </div>
+            )}
+          </Card>
         </div>
       </section>
 
-      {/* Error message */}
+      {/* Error message — Card 에 상태 변형이 없어 div 로 남긴다. 색만 status 토큰으로. */}
       {(detectionError || error) && (
-        <div className="mx-4 bg-red-50 rounded-gal-xl border border-red-200 p-4 text-center text-red-600 text-sm animate-fade-in">
-          {detectionError || error}
+        <div className="px-4 animate-fade-in">
+          <div className="max-w-md mx-auto rounded-gal-xl border border-status-danger/30 bg-status-danger-light p-4 text-center text-status-danger text-sm">
+            {detectionError || error}
+          </div>
         </div>
       )}
 
       {/* Instruction / Action */}
-      <section className="mx-4">
+      <section className="px-4">
         {inputMode === 'separate' && (!imageA || !imageB) ? (
           <div className="text-center space-y-4 animate-fade-in-up" style={{ opacity: 0 }}>
             <p className="text-gal-muted text-sm">
@@ -721,53 +718,49 @@ export default function FaceHarmonyTab() {
             </p>
             <div className="flex justify-center gap-3">
               {!imageA && (
-                <button onClick={() => setMode('capture-a')}
-                  className="px-6 py-3 bg-gal-accent-light border border-gal-accent/20 rounded-gal-xl text-gal-accent text-sm font-medium
-                             hover:bg-gal-accent/10 transition-all duration-300">
+                <Button variant="secondary" onClick={() => setMode('capture-a')}>
                   📷 인물 1 촬영
-                </button>
+                </Button>
               )}
               {!imageB && (
-                <button onClick={() => setMode('capture-b')}
-                  className="px-6 py-3 bg-gal-accent-light border border-gal-accent/20 rounded-gal-xl text-gal-accent text-sm font-medium
-                             hover:bg-gal-accent/10 transition-all duration-300">
+                <Button variant="secondary" onClick={() => setMode('capture-b')}>
                   📷 인물 2 촬영
-                </button>
+                </Button>
               )}
             </div>
           </div>
         ) : inputMode === 'separate' && imageA && imageB ? (
-          <div className="text-center animate-scale-in" style={{ opacity: 0 }}>
-            <button onClick={startAnalysis}
-              className="px-10 py-4 bg-gal-accent text-white font-bold
-                         rounded-gal-xl shadow-gal-button hover:bg-gal-accent-dark
-                         hover:scale-105 active:scale-95 transition-all duration-300 text-lg tracking-wide">
+          <div className="max-w-md mx-auto text-center animate-scale-in" style={{ opacity: 0 }}>
+            <Button variant="primary" size="lg" onClick={startAnalysis}>
               궁합 분석 시작
-            </button>
-            <button onClick={handleReset}
-              className="block mx-auto mt-4 text-gal-muted hover:text-gal-body text-xs underline underline-offset-4 transition-colors">
-              처음부터 다시
-            </button>
+            </Button>
+            <div className="mt-4">
+              <Button variant="ghost" size="sm" onClick={handleReset}>
+                처음부터 다시
+              </Button>
+            </div>
           </div>
         ) : null}
       </section>
 
       {/* Feature Description Cards */}
       {!imageA && !imageB && (
-        <section className="mx-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-          {[
-            { icon: '👁️', title: '오관 상보 분석', desc: '눈·코·입·이마·얼굴형의 상보성을 분석하여 6가지 차원의 궁합을 측정합니다' },
-            { icon: '☯', title: '오행 상생·상극', desc: '얼굴 비율에서 도출한 오행(木火土金水) 원소의 궁합을 판별합니다' },
-            { icon: '⏳', title: '삼정 시기 조화', desc: '초년·중년·말년의 운의 흐름이 서로 어떻게 맞물리는지 분석합니다' },
-          ].map((card, i) => (
-            <div key={i} className="bg-white rounded-gal-xl border border-gal-border p-4
-                                    animate-fade-in-up group hover:border-gal-accent/30 hover:shadow-gal-hover
-                                    cursor-default shadow-gal-soft" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
-              <span className="text-xl mb-2 block group-hover:scale-110 transition-transform duration-300 inline-block">{card.icon}</span>
-              <h4 className="text-gal-accent text-sm font-bold mb-1 group-hover:text-gal-accent-dark transition-colors">{card.title}</h4>
-              <p className="text-gal-muted text-xs leading-relaxed group-hover:text-gal-body transition-colors">{card.desc}</p>
-            </div>
-          ))}
+        <section className="px-4">
+          <div className="max-w-md mx-auto grid grid-cols-1 gap-3">
+            {[
+              { icon: '👁️', title: '오관 상보 분석', desc: '눈·코·입·이마·얼굴형의 상보성을 분석하여 6가지 차원의 궁합을 측정합니다' },
+              { icon: '☯', title: '오행 상생·상극', desc: '얼굴 비율에서 도출한 오행(木火土金水) 원소의 궁합을 판별합니다' },
+              { icon: '⏳', title: '삼정 시기 조화', desc: '초년·중년·말년의 운의 흐름이 서로 어떻게 맞물리는지 분석합니다' },
+            ].map((card, i) => (
+              <div key={i} className="animate-fade-in-up" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
+                <Card padding="sm" className="group hover:border-gal-accent/30 hover:shadow-gal-hover cursor-default">
+                  <span className="text-xl mb-2 block group-hover:scale-110 transition-transform duration-300 inline-block">{card.icon}</span>
+                  <h4 className="text-gal-accent text-sm font-bold mb-1 group-hover:text-gal-accent-dark transition-colors">{card.title}</h4>
+                  <p className="text-gal-muted text-xs leading-relaxed group-hover:text-gal-body transition-colors">{card.desc}</p>
+                </Card>
+              </div>
+            ))}
+          </div>
         </section>
       )}
     </div>

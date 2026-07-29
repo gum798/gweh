@@ -6,6 +6,11 @@ import { useMoonPhase } from '../../hooks/useMoonPhase';
 import { generateOmen, getOverallEnergy, getEnergyLabel } from '../../utils/omenGenerator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { PageHeader } from '../ui/PageHeader';
+import { LoadingState } from '../ui/LoadingState';
+import { LevelPill } from '../ui/LevelPill';
 
 const DataPanel = lazy(() => import('../DataPanel'));
 
@@ -314,32 +319,21 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
   if (!location) {
     return (
       <div className="space-y-8">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden rounded-gal-xl">
-          <div
-            className="flex min-h-[45vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
-            style={{
-              backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.95) 10%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%), url("https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=800&q=80")`,
-            }}
-          >
-            <div className="flex flex-col gap-3 max-w-2xl">
-              <h1 className="text-gal-black text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-                {t('omenTab.heroTitle1')} <br />
-                <span className="text-gal-accent italic font-light">{t('omenTab.heroTitle2')}</span>
-              </h1>
-              <p className="text-gal-accent text-base font-medium mb-1">
-                {t('omenTab.heroSubtitle')}
-              </p>
-              <p className="text-gal-body text-sm font-light leading-relaxed max-w-xs mx-auto">
-                {t('omenTab.heroDesc')}
-              </p>
-            </div>
-          </div>
-        </section>
+        {/*
+          이 자리에는 omenTab.heroTitle1/2 를 렌더하는 h1 이 있었다 — 저장소의
+          세 번째 브랜드 표기이고, 기본 탭의 첫 화면이라 앱을 열면 헤더 로고와
+          다른 이름이 곧바로 보였다. 브랜드 문자열 통일은 Task 8 소관이므로
+          여기서는 렌더만 지우고 로케일 키는 그대로 둔다.
+          제목은 이미 LocationPrompt 가 쓰는 location.title 을 재사용한다.
+        */}
+        <PageHeader
+          title={t('location.title')}
+          subtitle={t('omenTab.heroSubtitle')}
+        />
 
         {/* Location Request */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+          <Card className="max-w-md mx-auto">
             <div className="text-center mb-6">
               <div className="h-16 w-16 rounded-full border border-gal-accent/30 flex items-center justify-center shadow-gal-soft mx-auto mb-4">
                 <span className="text-3xl">🔮</span>
@@ -351,48 +345,29 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               </p>
             </div>
 
+            {/* Card 에 상태 변형이 없어 배너는 div 로 남긴다 — 색만 status 토큰으로. */}
             {locationError && (
-              <div className="bg-red-50 rounded-gal-lg border border-red-200 p-4 mb-6 text-center text-red-600 text-sm">
+              <div className="rounded-gal-lg border border-status-danger/30 bg-status-danger-light p-4 mb-6 text-center text-status-danger text-sm">
                 {locationError}
               </div>
             )}
 
             <div className="space-y-3">
-              <button
-                onClick={requestLocation}
-                className="w-full flex items-center justify-center rounded-gal-xl h-14 px-8 bg-gal-accent text-white text-base font-bold tracking-widest uppercase transition-all shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
-              >
+              <Button variant="primary" size="lg" fullWidth onClick={requestLocation}>
                 {t('location.startButton')}
-              </button>
+              </Button>
 
             </div>
-          </div>
+          </Card>
         </section>
       </div>
     );
   }
 
   // 로딩 화면
+  // LoadingState 는 라벨 한 줄만 받는다 — omenTab.sensing 둘째 줄은 슬롯이 없어 빠진다.
   if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-gal-accent/30 animate-ping"></div>
-          <div className="h-24 w-24 rounded-full border border-gal-accent/50 flex items-center justify-center shadow-gal-soft">
-            <span className="text-4xl animate-pulse">🔮</span>
-          </div>
-        </div>
-        <h3 className="text-gal-black text-xl font-bold mt-8 mb-2">{t('omenTab.readingSigns')}</h3>
-        <p className="text-gal-muted text-sm text-center max-w-xs">
-          {t('omenTab.sensing')}
-        </p>
-        <div className="mt-6 flex gap-1">
-          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-        </div>
-      </div>
-    );
+    return <LoadingState label={t('omenTab.readingSigns')} />;
   }
 
   // 에러 화면
@@ -406,8 +381,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
 
     return (
       <div className="px-4 py-8">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-red-200 p-8 text-center shadow-gal-card">
-          <div className="h-16 w-16 rounded-full border border-red-300 flex items-center justify-center mx-auto mb-6">
+        {/* Card 에 상태 변형이 없어 오류 표면은 div 로 남긴다 — 색만 status 토큰으로. */}
+        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-status-danger/30 p-8 text-center shadow-gal-card">
+          <div className="h-16 w-16 rounded-full border border-status-danger/40 flex items-center justify-center mx-auto mb-6">
             <span className="text-3xl">⚠️</span>
           </div>
           <h2 className="text-gal-black text-xl font-bold mb-2">{t('omenTab.cannotRead')}</h2>
@@ -416,12 +392,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               <p key={i}>{msg}</p>
             ))}
           </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-8 py-3 bg-gal-accent text-white rounded-gal-xl font-bold uppercase tracking-widest text-sm hover:bg-gal-accent-dark hover:scale-105 transition-all shadow-gal-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
-          >
+          <Button variant="primary" onClick={() => window.location.reload()}>
             {t('omenTab.readAgain')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -439,19 +412,20 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           <p className="text-gal-muted text-sm">
             {t('omenTab.underSky', { city: weather.cityName })}
           </p>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={requestLocation}
-            className="text-gal-accent/60 hover:text-gal-accent text-xs transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent rounded-gal-md"
             aria-label={t('location.startButton')}
           >
             <span aria-hidden="true">📍</span>
-          </button>
+          </Button>
         </div>
       )}
 
       {/* 메인 괘 카드 */}
       <section className="px-4">
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+        <Card className="max-w-md mx-auto">
           {/* 에너지 지표 */}
           <div className="flex justify-between items-center mb-6">
             <span className="text-gal-muted text-xs uppercase tracking-widest">{t('omenCard.energyFlow')}</span>
@@ -462,14 +436,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   style={{ width: `${energy}%` }}
                 />
               </div>
-              <span className={`text-sm font-medium ${energyInfo.label === '대길' ? 'text-amber-500' :
-                energyInfo.label === '길' ? 'text-green-500' :
-                  energyInfo.label === '평' ? 'text-gal-body' :
-                    energyInfo.label === '소흉' ? 'text-orange-500' :
-                      'text-red-500'
-                }`}>
-                {energyInfo.label}
-              </span>
+              <LevelPill level={energyInfo.label} />
             </div>
           </div>
 
@@ -495,7 +462,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               })} {t('omenCard.celestialSign')}
             </p>
           </div>
-        </div>
+        </Card>
       </section>
 
       {/* 세부 괘 */}
@@ -503,10 +470,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
         <div className="max-w-md mx-auto space-y-6">
           <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent px-1">{t('omenTab.detailedOmens')}</h4>
           {omen?.details?.map((detail, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card"
-            >
+            <Card key={index}>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">{detail.icon}</span>
                 <span className="text-gal-black font-bold">{detail.category}</span>
@@ -514,7 +478,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               <p className="text-gal-body text-sm leading-relaxed">
                 {detail.message}
               </p>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
@@ -527,20 +491,21 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               {t('omenTab.personalSaju')}
             </h4>
             {personalLoading ? (
-              <div className="bg-white rounded-gal-xl border border-gal-accent/20 p-6 text-center shadow-gal-card">
+              <Card variant="accent" className="text-center">
                 <div className="flex gap-1 justify-center mb-2">
                   <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                   <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-gal-muted text-sm">{t('omenTab.loadingPersonal')}</p>
-              </div>
+              </Card>
             ) : personalError ? (
-              <div className="bg-white rounded-gal-xl border border-red-200 p-6 text-center shadow-gal-card">
-                <p className="text-red-500 text-sm">{personalError}</p>
+              // Card 에 상태 변형이 없어 오류 표면은 div 로 남긴다 — 색만 status 토큰으로.
+              <div className="bg-white rounded-gal-xl border border-status-danger/30 p-6 text-center shadow-gal-card">
+                <p className="text-status-danger text-sm">{personalError}</p>
               </div>
             ) : personalOmen ? (
-              <div className="bg-white rounded-gal-xl border border-gal-accent/20 p-5 space-y-4 shadow-gal-card">
+              <Card variant="accent" className="space-y-4">
                 {personalOmen.headline && <p className="text-gal-dark text-base italic text-center">"{personalOmen.headline}"</p>}
 
                 {personalOmen.saju_reading && (
@@ -583,11 +548,11 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   {personalOmen.caution && (
                   <div>
                     <span className="text-gal-muted text-xs block mb-1">{t('omenTab.caution')}</span>
-                    <span className="text-orange-500 text-sm">{personalOmen.caution}</span>
+                    <span className="text-status-warning text-sm">{personalOmen.caution}</span>
                   </div>
                   )}
                 </div>
-              </div>
+              </Card>
             ) : null}
           </div>
         </section>
@@ -598,11 +563,11 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
         <div className="max-w-md mx-auto">
           {isSubscribed ? (
             // Subscriber: show daily style
-            <div className="bg-white rounded-gal-xl border border-gal-accent/20 p-5 shadow-gal-card">
+            <Card variant="accent">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">👔</span>
                 <h4 className="text-gal-black font-bold text-sm">{t('sub.dailyStyleTitle')}</h4>
-                <span className="ml-auto text-[10px] text-gal-accent bg-gal-accent-light px-2 py-0.5 rounded-gal-md font-bold uppercase tracking-wider">
+                <span className="ml-auto text-xs text-gal-accent bg-gal-accent-light px-2 py-0.5 rounded-gal-md font-bold uppercase tracking-wider">
                   {t('sub.badge')}
                 </span>
               </div>
@@ -639,12 +604,12 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   </div>
                 </div>
               ) : null}
-            </div>
+            </Card>
           ) : (
             // Non-subscriber: locked preview with blur
-            <div className="relative overflow-hidden rounded-gal-xl border border-gal-border">
+            <Card padding="sm" className="relative overflow-hidden">
               {/* Blurred fake content */}
-              <div className="bg-white p-5 blur-sm select-none pointer-events-none">
+              <div className="blur-sm select-none pointer-events-none">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-lg">👔</span>
                   <span className="text-gal-black font-bold text-sm">{t('sub.dailyStyleTitle')}</span>
@@ -662,37 +627,36 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   <span className="text-xl">🔒</span>
                 </div>
                 <p className="text-gal-body text-sm font-medium mb-1">{t('sub.locked')}</p>
-                <button
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="mt-2"
                   onClick={() => {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-xl text-white text-xs font-bold tracking-wide transition-all shadow-gal-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
                 >
                   {t('sub.unlockStyle')}
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           )}
         </div>
       </section>
 
       {/* 천기 원천 토글 */}
       <div className="text-center">
-        <button
-          onClick={toggleShowData}
-          className="px-6 py-2 text-gal-accent text-sm hover:text-gal-accent-dark transition-colors"
-        >
+        <Button variant="ghost" size="sm" onClick={toggleShowData}>
           {showData ? `${t('data.source')} ▲` : `${t('data.source')} ▼`}
-        </button>
+        </Button>
       </div>
 
       {showData && (
         <div className="px-4 animate-fade-in">
           <Suspense fallback={
-            <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 text-center text-gal-muted shadow-gal-card">
+            <Card className="max-w-md mx-auto text-center text-gal-muted">
               {t('omenTab.gatheringEnergy')}
-            </div>
+            </Card>
           }>
             <DataPanel
               weather={weather}

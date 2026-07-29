@@ -3,6 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { getEnergyLabel } from '../../utils/omenGenerator';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { LevelPill } from '../ui/LevelPill';
+
+// 공유 카드는 <canvas> 에 그리므로 Tailwind 클래스를 쓸 수 없고 hex 를 직접 넣어야 한다.
+// 값은 tailwind.config.js 의 팔레트를 그대로 옮긴 것이며, 흩어져 있던 리터럴 13개를
+// 여기 5개로 모아 토큰이 바뀔 때 고칠 곳을 한 곳으로 만든다.
+const CARD_SURFACE = '#ffffff'; // 흰 바탕
+const CARD_ACCENT = '#2ea3f2';  // gal-accent
+const CARD_INK = '#1a1a1a';     // gal-black
+const CARD_BODY = '#666666';    // gal-body
+const CARD_MUTED = '#999999';   // gal-muted
 
 function generateDestinyCard(
   dateStr: string,
@@ -20,7 +32,7 @@ function generateDestinyCard(
     const ctx = canvas.getContext('2d')!;
 
     // Background — clean white
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = CARD_SURFACE;
     ctx.fillRect(0, 0, W, H);
 
     // Subtle radial accent glow
@@ -51,12 +63,12 @@ function generateDestinyCard(
 
     // Title
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#2ea3f2';
+    ctx.fillStyle = CARD_ACCENT;
     ctx.font = 'bold 28px "Noto Sans KR", sans-serif';
     ctx.fillText('MYSTIC AI', W / 2, 80);
 
     // Subtitle
-    ctx.fillStyle = '#999999';
+    ctx.fillStyle = CARD_MUTED;
     ctx.font = '10px sans-serif';
     ctx.letterSpacing = '4px';
     ctx.fillText('U N V E I L   Y O U R   D E S T I N Y', W / 2, 105);
@@ -70,7 +82,7 @@ function generateDestinyCard(
     ctx.fillRect(100, 120, W - 200, 1);
 
     // Date
-    ctx.fillStyle = '#666666';
+    ctx.fillStyle = CARD_BODY;
     ctx.font = '13px sans-serif';
     ctx.fillText(dateStr, W / 2, 152);
 
@@ -78,11 +90,11 @@ function generateDestinyCard(
 
     // Energy label
     if (energyLabel) {
-      ctx.fillStyle = '#2ea3f2';
+      ctx.fillStyle = CARD_ACCENT;
       ctx.font = 'bold 10px sans-serif';
       ctx.fillText('TODAY\'S ENERGY', W / 2, y);
       y += 30;
-      ctx.fillStyle = '#1a1a1a';
+      ctx.fillStyle = CARD_INK;
       ctx.font = 'bold 36px "Noto Sans KR", sans-serif';
       ctx.fillText(energyLabel, W / 2, y);
       y += 20;
@@ -91,7 +103,7 @@ function generateDestinyCard(
     // Omen message
     if (omenMessage) {
       y += 15;
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = CARD_BODY;
       ctx.font = 'italic 14px "Noto Sans KR", sans-serif';
       const lines = wrapText(ctx, `"${omenMessage}"`, W - 120);
       lines.forEach((line) => {
@@ -108,11 +120,11 @@ function generateDestinyCard(
 
     // Fortune level
     if (fortuneLevel) {
-      ctx.fillStyle = '#2ea3f2';
+      ctx.fillStyle = CARD_ACCENT;
       ctx.font = 'bold 10px sans-serif';
       ctx.fillText('FORTUNE', W / 2, y);
       y += 28;
-      ctx.fillStyle = '#1a1a1a';
+      ctx.fillStyle = CARD_INK;
       ctx.font = 'bold 24px "Noto Sans KR", sans-serif';
       ctx.fillText(fortuneLevel, W / 2, y);
       y += 15;
@@ -121,7 +133,7 @@ function generateDestinyCard(
     // Fortune overall
     if (fortuneOverall) {
       y += 10;
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = CARD_BODY;
       ctx.font = '13px "Noto Sans KR", sans-serif';
       const lines = wrapText(ctx, fortuneOverall, W - 120);
       lines.forEach((line) => {
@@ -136,11 +148,11 @@ function generateDestinyCard(
       ctx.fillStyle = divGrad;
       ctx.fillRect(100, y, W - 200, 1);
       y += 25;
-      ctx.fillStyle = '#2ea3f2';
+      ctx.fillStyle = CARD_ACCENT;
       ctx.font = 'bold 10px sans-serif';
       ctx.fillText('ADVICE', W / 2, y);
       y += 22;
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = CARD_BODY;
       ctx.font = 'italic 13px "Noto Sans KR", sans-serif';
       const lines = wrapText(ctx, `"${advice}"`, W - 120);
       lines.forEach((line) => {
@@ -153,7 +165,7 @@ function generateDestinyCard(
     const footerY = H - 45;
     ctx.fillStyle = divGrad;
     ctx.fillRect(100, footerY - 10, W - 200, 1);
-    ctx.fillStyle = '#999999';
+    ctx.fillStyle = CARD_MUTED;
     ctx.font = '9px sans-serif';
     ctx.fillText('mystic-ai.com', W / 2, footerY + 10);
 
@@ -317,16 +329,6 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
   const hasAnyData = fortune || dailyReading || dailyStyle;
   const isLoading = loading || fortuneLoading;
 
-  const getLevelStyle = (level: string) => {
-    if (!level) return 'bg-gal-light text-gal-body border-gal-border';
-    const l = level.toLowerCase();
-    if (level === '대길' || l === 'excellent') return 'bg-yellow-50 text-yellow-600 border-yellow-200';
-    if (level === '길' || l === 'good') return 'bg-green-50 text-green-600 border-green-200';
-    if (level === '평' || l === 'neutral') return 'bg-gray-50 text-gray-600 border-gray-200';
-    if (level === '소흉' || l === 'caution') return 'bg-orange-50 text-orange-600 border-orange-200';
-    return 'bg-red-50 text-red-600 border-red-200';
-  };
-
   const handleShareDestiny = useCallback(async () => {
     setShareStatus('generating');
     try {
@@ -378,8 +380,8 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
               <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full" />
             </div>
 
-            <div className="relative overflow-hidden rounded-gal-xl border border-gal-border">
-              <div className="bg-white p-5 blur-sm select-none pointer-events-none space-y-4">
+            <Card padding="sm" className="relative overflow-hidden">
+              <div className="blur-sm select-none pointer-events-none space-y-4">
                 <div className="text-center">
                   <span className="text-4xl" aria-hidden="true">📊</span>
                   <p className="text-gal-black font-bold mt-2">{t('summary.title')}</p>
@@ -389,7 +391,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-gal-light rounded-gal-lg p-3 text-center">
-                    <span className="text-green-600 font-bold">길</span>
+                    <span className="text-status-success font-bold">길</span>
                     <p className="text-gal-muted text-xs">운세</p>
                   </div>
                   <div className="bg-gal-light rounded-gal-lg p-3 text-center">
@@ -403,17 +405,19 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                   <span className="text-xl">🔒</span>
                 </div>
                 <p className="text-gal-body text-sm font-medium mb-1">{t('sub.locked')}</p>
-                <button
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="mt-2"
                   onClick={() => {
                     if (!session) { onLoginRequired(); return; }
                     subscribe();
                   }}
-                  className="mt-2 px-6 py-2 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-lg text-white text-xs font-bold tracking-wide transition-all shadow-gal-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
                 >
                   {t('summary.unlock')}
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         </section>
       </div>
@@ -429,7 +433,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         </div>
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
-            <div className="bg-white rounded-gal-xl border border-gal-accent p-10 relative overflow-hidden shadow-gal-card">
+            <Card variant="accent" padding="lg" className="relative overflow-hidden">
               {/* Animated icon */}
               <div className="relative inline-block mb-5">
                 <div className="absolute inset-0 rounded-full border border-gal-accent/30 animate-ping opacity-30" style={{ animationDuration: '3s' }} />
@@ -449,7 +453,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 {i18n.language === 'ko' ? '천기를 모으는 중...' : 'Gathering celestial energies...'}
               </p>
               <p className="text-gal-muted text-xs leading-relaxed relative">{t('summary.noData')}</p>
-            </div>
+            </Card>
           </div>
         </section>
       </div>
@@ -466,7 +470,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 헤더 */}
       <section className="px-4">
         <div className="max-w-md mx-auto text-center">
-          <span className="text-gal-accent text-[10px] font-bold uppercase tracking-[0.3em]">{t('sub.badge')}</span>
+          <span className="text-gal-accent text-label font-bold uppercase">{t('sub.badge')}</span>
           <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('summary.title')}</h3>
           <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full" />
         </div>
@@ -475,7 +479,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 1. 스타일 추천 */}
       {(dailyStyle || loading) && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">👔</span>
               <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
@@ -513,14 +517,14 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               </div>
             ) : null}
-          </div>
+          </Card>
         </section>
       )}
 
       {/* 2. 에너지 + 괘 */}
       {(energyLabel || dailyReading?.omen_message) && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
             {energyLabel && (
               <div className="text-center">
@@ -532,19 +536,17 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 "{dailyReading.omen_message}"
               </p>
             )}
-          </div>
+          </Card>
         </section>
       )}
 
       {/* 3. 운세 요약 */}
       {fortune?.overall && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
             {fortune.level && <div className="text-center mb-4">
-              <span className={`inline-block px-4 py-2 rounded-gal-md text-sm font-bold border ${getLevelStyle(fortune.level)}`}>
-                {fortune.level}
-              </span>
+              <LevelPill level={fortune.level} />
             </div>}
             <p className="text-gal-body text-sm leading-relaxed text-center italic mb-4">
               "{fortune.overall}"
@@ -565,31 +567,31 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </section>
       )}
 
       {/* 3-1. 조언 + 행운 정보 */}
       {fortune?.advice && (
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             <p className="text-gal-body text-sm leading-relaxed mb-5">"{fortune.advice}"</p>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {fortune.luckyColor && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
+                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyColor}</span>
               </div>}
               {fortune.luckyNumber != null && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
+                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyNumber}</span>
               </div>}
               {fortune.luckyDirection && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
+                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyDirection}</span>
               </div>}
             </div>
-          </div>
+          </Card>
         </section>
       )}
 
@@ -597,14 +599,13 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {hasAnyData && (
         <section className="px-4">
           <div className="max-w-md mx-auto text-center">
-            <button
+            <Button
+              variant="primary"
               onClick={handleShareDestiny}
-              disabled={shareStatus === 'generating'}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-gal-accent hover:bg-gal-accent-dark rounded-gal-xl text-white text-sm font-bold tracking-wide transition-all shadow-gal-button hover:shadow-gal-hover hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
+              loading={shareStatus === 'generating'}
             >
               {shareStatus === 'generating' ? (
                 <>
-                  <span className="animate-spin text-sm">&#9697;</span>
                   {i18n.language === 'ko' ? '생성 중...' : 'Generating...'}
                 </>
               ) : shareStatus === 'shared' ? (
@@ -629,7 +630,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                   {i18n.language === 'ko' ? '운명 공유하기' : 'Share Destiny'}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </section>
       )}
