@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
+import AppHeader from './components/layout/AppHeader';
 import AuthModal from './components/auth/AuthModal';
 import ProfileModal from './components/auth/ProfileModal';
 import { useSubscription } from './contexts/SubscriptionContext';
@@ -54,7 +55,20 @@ function App() {
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     window.location.hash = tab;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 이전에는 window.scrollTo({top:0}) 이었다. 히어로가 생기기 전에 쓰인 코드라
+    // 탭을 누를 때마다 865px 위 히어로 안으로 되돌아갔다. 콘텐츠 상단으로 보낸다.
+    document.getElementById('app-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  // 뒤로/앞으로 가기 대응. 이 리스너가 없어 브라우저 히스토리가 죽어 있었다.
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      const validTabs = ['omen', 'fortune', 'fashion', 'face', 'harmony', 'palm', 'saju', 'summary'];
+      if (validTabs.includes(hash)) setActiveTab(hash);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   const openAuthModal = useCallback(() => {
@@ -128,6 +142,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
+      <a
+        href="#app-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gal-accent focus:text-white focus:rounded-gal-md"
+      >
+        {tc('a11y.skipToContent')}
+      </a>
+      <AppHeader onLogin={() => setAuthModalOpen(true)} onProfile={() => setProfileModalOpen(true)} />
+
       {/* Subscription banner (floating badge) */}
       <SubscriptionBanner onLoginRequired={openAuthModal} />
 
@@ -142,20 +164,19 @@ function App() {
       )}
 
       {/* Full-screen Hero */}
-      <HeroSection
-        onLogin={() => setAuthModalOpen(true)}
-        onProfile={() => setProfileModalOpen(true)}
-        onTabChange={handleTabChange}
-      />
+      <HeroSection onTabChange={handleTabChange} />
+
+      {/* Navigation — 컨테이너 밖. 안에 있으면 1280px 에서 864px 섬이 된다. */}
+      <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Content */}
-      <div id="app-content" className="relative container mx-auto px-4 pt-8 max-w-4xl">
+      {/* scroll-mt-28: 헤더(57px) + 스티키 네비(57~61px) 아래에 착지시킨다.
+          scrollIntoView 는 sticky 요소를 보정하지 않아, 없으면 콘텐츠 상단이
+          네비 뒤로 숨는다. 렌더 레이아웃에는 영향이 없다(스크롤 앵커 전용). */}
+      <div id="app-content" className="relative container mx-auto px-4 pt-8 max-w-4xl scroll-mt-28">
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
-
-        {/* Navigation */}
-        <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* Tab content */}
         <main>

@@ -78,6 +78,7 @@
   "energy.neutral": "Neutral",
   "energy.caution": "Caution",
   "energy.careful": "Be Careful",
+  "a11y.skipToContent": "Skip to content",
   "error.weather": "Unable to fetch weather data",
   "error.nasa": "Unable to fetch NASA data",
   "error.earthquake": "Unable to fetch earthquake data",

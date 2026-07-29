@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 
 interface HeroProps {
-  onLogin: () => void;
-  onProfile: () => void;
   onTabChange: (tab: string) => void;
 }
 
@@ -16,10 +13,8 @@ const services = [
   { id: 'fashion', icon: 'fashion', labelKey: 'hero.fashion', descKey: 'hero.fashionDesc' },
 ];
 
-export default function HeroSection({ onLogin, onProfile, onTabChange }: HeroProps) {
-  const { t, i18n } = useTranslation();
-  const { t: tAuth } = useTranslation('auth');
-  const { user } = useAuth();
+export default function HeroSection({ onTabChange }: HeroProps) {
+  const { t } = useTranslation();
 
   const handleServiceClick = (tabId: string) => {
     onTabChange(tabId);
@@ -44,42 +39,6 @@ export default function HeroSection({ onLogin, onProfile, onTabChange }: HeroPro
         <div className="hero-grid" />
         {/* Noise texture */}
         <div className="hero-noise" />
-      </div>
-
-      {/* === Top bar (lang + auth) === */}
-      <div className="relative z-20 flex justify-between items-center px-5 py-4 md:px-8 md:py-5">
-        <button
-          onClick={() => {
-            const newLang = i18n.language === 'ko' ? 'en' : 'ko';
-            i18n.changeLanguage(newLang);
-            localStorage.setItem('mystic_language', newLang);
-            document.documentElement.lang = newLang;
-          }}
-          aria-label={i18n.language === 'ko' ? 'Switch to English' : '한국어로 전환'}
-          className="text-[11px] text-white/40 hover:text-white/80 border border-white/10 hover:border-white/25 w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-300 font-medium"
-        >
-          {i18n.language === 'ko' ? 'EN' : 'KO'}
-        </button>
-
-        {user ? (
-          <button
-            onClick={onProfile}
-            className="text-[11px] text-white/40 hover:text-white/80 border border-white/10 hover:border-white/25 h-10 px-4 flex items-center rounded-lg transition-all duration-300 truncate max-w-[160px]"
-          >
-            {user.email}
-          </button>
-        ) : (
-          <button
-            onClick={onLogin}
-            className="text-[11px] text-white/60 hover:text-white border border-white/15 hover:border-white/35 h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300"
-          >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M5 20c0-4 3-6 7-6s7 2 7 6" />
-            </svg>
-            {tAuth('login')}
-          </button>
-        )}
       </div>
 
       {/* === Center content === */}

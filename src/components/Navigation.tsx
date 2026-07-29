@@ -22,8 +22,8 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
   const { t } = useTranslation();
 
   return (
-    <nav className="sticky top-0 z-40 bg-white border-b border-gal-border p-1.5 sm:p-2 mb-6 shadow-gal-nav">
-      <div className="flex justify-center overflow-x-auto gap-0.5 sm:gap-1 scrollbar-hide snap-x" role="tablist">
+    <nav className="sticky top-14 z-40 bg-white border-b border-gal-border mb-6 shadow-gal-nav">
+      <div className="flex justify-start lg:justify-center overflow-x-auto gap-0.5 sm:gap-1 scrollbar-hide snap-x px-2 py-1.5 sm:py-2" role="tablist">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -33,7 +33,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
               aria-selected={isActive}
               onClick={() => onTabChange(tab.id)}
               className={`
-                nav-tab-glow relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-gal-md flex-shrink-0 snap-start
+                nav-tab-glow relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 min-h-[44px] rounded-gal-md flex-shrink-0 snap-start
                 transition-all duration-200 font-medium
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-1
                 ${isActive
