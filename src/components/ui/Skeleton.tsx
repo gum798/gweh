@@ -1,3 +1,5 @@
+import { defaultRadius } from './radius';
+
 interface SkeletonProps {
   variant?: 'text' | 'card' | 'circle' | 'rectangular';
   width?: string;
@@ -13,8 +15,21 @@ export function Skeleton({
 }: SkeletonProps) {
   const baseClasses = 'animate-shimmer bg-gradient-to-r from-gal-light via-gal-bg to-gal-light bg-[length:200%_100%]';
 
+  // 반지름을 variant 표에서 **분리**한다. 예전에는 한 문자열에 섞여 있어서 호출부
+  // className 의 반지름이 조용히 졌다: Tailwind 는 반지름 유틸리티를 클래스명
+  // 알파벳순으로 내보내고 특이성이 전부 같아 뒤에 나온 것이 이긴다. 그래서
+  // `<Skeleton variant="rectangular" className="rounded-full" />` 는 알약이 아니라
+  // 4px 로 렌더됐다 — 이 파일 아래 SkeletonOmenTab 의 에너지 바가 실제 피해자다.
+  // 근거와 순서표는 ./radius.ts 주석 참조.
   const variantClasses = {
-    text: 'h-4 rounded-gal-sm',
+    text: 'h-4',
+    card: '',
+    circle: '',
+    rectangular: '',
+  };
+
+  const variantRadius = {
+    text: 'rounded-gal-sm',
     card: 'rounded-gal-xl',
     circle: 'rounded-full',
     rectangular: 'rounded-gal-md',
@@ -26,7 +41,7 @@ export function Skeleton({
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${defaultRadius(className, variantRadius[variant])} ${className}`}
       style={style}
     />
   );

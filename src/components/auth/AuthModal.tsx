@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { FOCUSABLE_SELECTOR } from '../../lib/focusTrap';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -18,13 +19,42 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // ESC 키로 모달 닫기
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // onClose 는 App.tsx 에서 인라인 화살표로 내려온다 — App 이 리렌더될 때마다
+  // 새 함수다. 아래 이펙트의 클린업이 포커스를 **복원**하므로, onClose 를 deps 에
+  // 두면 App 리렌더 한 번에 이펙트가 재실행되면서 사용자가 입력 중이던 필드에서
+  // 포커스를 뺏어 첫 번째 요소로 되돌린다. ref 로 최신 값만 읽고 deps 에서 뺀다.
+  // (기존 ESC 전용 이펙트는 클린업이 리스너 해제뿐이라 이 문제가 없었다.)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  // ESC 닫기 + 포커스 트랩 + 포커스 복원.
   useEffect(() => {
     if (!isOpen) return;
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const focusables = () =>
+      Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []);
+
+    focusables()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onCloseRef.current(); return; }
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen]);
 
   // Body scroll lock
   useEffect(() => {
@@ -89,17 +119,25 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     // 레이어 서열: 네비 40 < 헤더 50 < 토스트 60 < 모달 70.
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50" />
+      {/* role="dialog" 는 바깥 오버레이가 아니라 이 패널에 붙인다. 오버레이는
+          배경 클릭으로 닫는 백드롭까지 포함하는 범위라, 거기에 dialog 를 걸면
+          백드롭이 다이얼로그 내용의 일부라고 선언하는 셈이 된다. 포커스 트랩이
+          훑는 범위(dialogRef)와도 이쪽이 일치한다. */}
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
         className="relative w-full max-w-md bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
+        <button onClick={onClose} aria-label={t('close')} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
           &times;
         </button>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-gal-black text-center mb-6">
+        <h2 id="auth-modal-title" className="text-2xl font-bold text-gal-black text-center mb-6">
           {mode === 'forgot' ? t('forgotPassword') : mode === 'login' ? t('login') : t('signup')}
         </h2>
 

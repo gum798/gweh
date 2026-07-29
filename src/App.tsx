@@ -142,15 +142,19 @@ function App() {
       {/* Subscription banner (floating badge) */}
       <SubscriptionBanner onLoginRequired={openAuthModal} />
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] animate-fade-in">
-          <div className="bg-gal-accent text-white px-6 py-3 rounded-gal-xl shadow-gal-card text-sm font-medium flex items-center gap-2">
+      {/* Toast — 라이브 리전은 **항상 렌더**한다. 예전처럼 `{toast && <div …>}` 로
+          컨테이너째 껐다 켜면 스크린리더가 리전이 DOM 에 삽입되는 순간과 내용이
+          채워지는 순간을 구분하지 못해 첫 알림을 통째로 놓친다. 리전은 미리 있고
+          안쪽 내용만 바뀌어야 한다. 비어 있을 때는 크기가 0 이라 클릭도 막지 않는다.
+          (animate-fade-in 은 실제로 나타나는 안쪽으로 옮겼다.) */}
+      <div role="status" aria-live="polite" className="fixed top-4 left-1/2 -translate-x-1/2 z-[60]">
+        {toast && (
+          <div className="bg-gal-accent text-white px-6 py-3 rounded-gal-xl shadow-gal-card text-sm font-medium flex items-center gap-2 animate-fade-in">
             {toast}
             <button onClick={() => setToast(null)} aria-label="Close" className="ml-2 text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-gal-sm">&times;</button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Full-screen Hero */}
       <HeroSection onTabChange={handleTabChange} />

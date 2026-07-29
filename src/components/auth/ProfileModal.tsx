@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { FOCUSABLE_SELECTOR } from '../../lib/focusTrap';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -20,13 +21,42 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [profile, setProfile] = useState<{ height?: number; weight?: number; photo_url?: string; birth_date?: string; birth_hour?: number; calendar_type?: string } | null>(null);
 
-  // ESC 키로 모달 닫기
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // onClose 는 App.tsx 에서 인라인 화살표로 내려온다 — App 이 리렌더될 때마다
+  // 새 함수다. 아래 이펙트의 클린업이 포커스를 **복원**하므로, onClose 를 deps 에
+  // 두면 App 리렌더 한 번에 이펙트가 재실행되면서 포커스를 첫 번째 요소로 되돌린다.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  // ESC 닫기 + 포커스 트랩 + 포커스 복원.
+  // 이 모달은 열려 있는 동안 내용이 바뀐다(삭제 확인·해지 확인 블록). 그래서
+  // 포커스 가능 목록을 한 번 스냅샷하지 않고 Tab 마다 다시 질의한다.
   useEffect(() => {
     if (!isOpen) return;
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const focusables = () =>
+      Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []);
+
+    focusables()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onCloseRef.current(); return; }
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen]);
 
   // Body scroll lock
   useEffect(() => {
@@ -95,15 +125,21 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     // 레이어 서열: 네비 40 < 헤더 50 < 토스트 60 < 모달 70.
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50" />
+      {/* role="dialog" 는 바깥 오버레이가 아니라 이 패널에 붙인다 — 오버레이는
+          백드롭까지 포함하는 범위이고, 포커스 트랩이 훑는 범위도 이쪽이다. */}
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-modal-title"
         className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
+        <button onClick={onClose} aria-label={t('close')} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
           &times;
         </button>
 
-        <h2 className="text-2xl font-bold text-gal-black text-center mb-6">{t('myPage')}</h2>
+        <h2 id="profile-modal-title" className="text-2xl font-bold text-gal-black text-center mb-6">{t('myPage')}</h2>
 
         {/* Account Info */}
         <div className="space-y-3 mb-6">

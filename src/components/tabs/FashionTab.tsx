@@ -464,9 +464,12 @@ export default function FashionTab() {
           <div className="max-w-md mx-auto aspect-square relative flex items-center justify-center">
             {/* Border */}
             <div className="absolute inset-0 rounded-gal-xl border border-gal-accent/20 shadow-gal-soft"></div>
-            <div
+            {/* 맨 div onClick 이 아니라 진짜 button 이어야 키보드로 사진을 넣을 수 있다.
+                프록시하는 input[type=file] 이 hidden 이라 대체 경로가 없었다. */}
+            <button
+              type="button"
               onClick={triggerFileInput}
-              className="w-full h-full bg-white rounded-gal-xl flex flex-col items-center justify-center p-8 text-center cursor-pointer border-dashed border-2 border-gal-accent/20 hover:border-gal-accent/50 transition-all group shadow-gal-card"
+              className="w-full h-full bg-white rounded-gal-xl flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-gal-accent/20 hover:border-gal-accent/50 transition-all group shadow-gal-card"
             >
               {capturedImage ? (
                 <img
@@ -493,7 +496,7 @@ export default function FashionTab() {
                   </div>
                 </>
               )}
-            </div>
+            </button>
             <input
               ref={fileInputRef}
               type="file"

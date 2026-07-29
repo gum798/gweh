@@ -247,7 +247,10 @@ export default function CameraCapture({
 
       {mode === 'camera' && !hasError ? (
         <div className="flex flex-col items-center gap-4">
-          <div className="relative rounded-gal-xl overflow-hidden border-2 border-gal-accent/30">
+          {/* aspect-square 는 스트림이 붙기 **전에** 자리를 예약한다. 없으면 video 가
+              UA 기본 300×150 으로 그려졌다가 스트림이 붙는 순간 정사각형으로 커지면서
+              아래 촬영 버튼이 통째로 밀린다 — 사용자가 버튼으로 손을 뻗는 바로 그 타이밍이다. */}
+          <div className="relative aspect-square w-full rounded-gal-xl overflow-hidden border-2 border-gal-accent/30">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -255,7 +258,7 @@ export default function CameraCapture({
               videoConstraints={videoConstraints}
               onUserMedia={handleUserMedia}
               onUserMediaError={handleUserMediaError}
-              className="rounded-gal-xl"
+              className="w-full h-full object-cover rounded-gal-xl"
               mirrored={true}
             />
             <canvas
@@ -304,14 +307,18 @@ export default function CameraCapture({
             </p>
           )}
 
-          <div
+          {/* 예전에는 맨 div onClick 이었다 — tabIndex 도 role 도 키 핸들러도 없고,
+              프록시하는 input[type=file] 은 hidden 이라 키보드만 쓰는 사용자는
+              사진을 아예 넣을 수 없었다. 진짜 button 이면 Tab/Enter/Space 가 공짜다. */}
+          <button
+            type="button"
             onClick={triggerFileInput}
-            className="border-2 border-dashed border-gal-accent/30 rounded-gal-xl p-12 cursor-pointer
+            className="border-2 border-dashed border-gal-accent/30 rounded-gal-xl p-12
                        hover:border-gal-accent/50 transition-colors"
           >
             <div className="text-4xl mb-2">📷</div>
             <p className="text-gal-muted">{t('camera.clickToSelect')}</p>
-          </div>
+          </button>
 
           <input
             ref={fileInputRef}

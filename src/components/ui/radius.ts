@@ -39,9 +39,13 @@ const DEFAULT_RADIUS = 'rounded-gal-xl';
  * 프리미티브가 방출할 기본 반지름 클래스.
  * 호출부가 이미 shorthand 반지름을 줬으면 빈 문자열을 돌려 충돌 자체를 없앤다.
  *
- * Button 과 Card 가 **같은 함수**를 부른다. 정규식을 두 파일에 복사하면
+ * Button·Card·Skeleton 이 **같은 함수**를 부른다. 정규식을 세 파일에 복사하면
  * 한쪽만 고쳐지는 순간 다시 조용한 실패로 돌아간다.
+ *
+ * `fallback` 은 기본값이 프리미티브마다 다를 때 쓴다 — Skeleton 은 variant 별로
+ * 기본 반지름이 넷이라 하나의 상수로는 표현되지 않는다. 인자를 생략하면 Button·
+ * Card 가 쓰던 값 그대로다.
  */
-export function defaultRadius(className: string): string {
-  return SHORTHAND_RADIUS.test(className) ? '' : DEFAULT_RADIUS;
+export function defaultRadius(className: string, fallback: string = DEFAULT_RADIUS): string {
+  return SHORTHAND_RADIUS.test(className) ? '' : fallback;
 }

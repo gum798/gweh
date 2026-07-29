@@ -233,8 +233,11 @@ function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) 
 function AvatarCircle({
   image, label, side, onClick, ready
 }: { image?: string | null; label: string; side: 'left' | 'right'; onClick: () => void; ready?: boolean }) {
+  // 맨 div onClick 이었다. 이 컴포넌트가 두 번 렌더되므로 키보드로 닿지 않는
+  // 업로드 타깃이 한 번에 두 개 생겼다 — 궁합 탭의 인물 1·인물 2 양쪽.
   return (
-    <div className={`relative group cursor-pointer ${side === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}
+    <button type="button"
+      className={`relative group ${side === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}
       style={{ opacity: 0 }} onClick={onClick}>
       <div className="relative">
         {/* outer ring -- enhanced when ready */}
@@ -278,7 +281,7 @@ function AvatarCircle({
         )}
       </div>
       <p className="text-center mt-3 text-gal-body font-medium text-sm tracking-wide">{label}</p>
-    </div>
+    </button>
   );
 }
 
@@ -663,9 +666,13 @@ export default function FaceHarmonyTab() {
             {/* Single photo mode: Upload area */}
             {inputMode === 'single' && !imageA && !imageB && (
               <div className="relative z-10 animate-fade-in">
-                <div
+                {/* 맨 div onClick 이면 키보드로 도달할 수 없다. block 은 스타일 추가가 아니라
+                    유지다 — button 기본 display 는 inline-block 이라 그대로 두면 mx-auto
+                    중앙정렬과 max-w-sm 의 블록 폭 거동이 함께 죽는다. */}
+                <button
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="mx-auto max-w-sm border-2 border-dashed border-gal-accent/25 rounded-gal-xl p-10 cursor-pointer
+                  className="block mx-auto max-w-sm border-2 border-dashed border-gal-accent/25 rounded-gal-xl p-10
                              hover:border-gal-accent/50 hover:bg-gal-accent-light transition-all duration-300 text-center group"
                 >
                   <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
@@ -673,7 +680,7 @@ export default function FaceHarmonyTab() {
                   <p className="text-gal-muted text-xs leading-relaxed">
                     AI가 자동으로 두 얼굴을 감지·분리하여<br/>각 인물의 관상을 개별 분석합니다
                   </p>
-                </div>
+                </button>
                 <input
                   ref={fileInputRef}
                   type="file"
