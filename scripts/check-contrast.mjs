@@ -1,3 +1,6 @@
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
+
 // WCAG 대비 계산. 색을 검증 없이 고르는 것이 이번 개편의 원인이었다.
 const rel = (hex) => {
   const h = hex.replace('#', '');
@@ -10,9 +13,39 @@ export const ratio = (a, b) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
-// 아래는 CLI 로 직접 실행할 때만 돈다. 가드가 없으면 `ratio` 를 import 하는 쪽에서
-// 최상위 process.exit() 이 프로세스를 죽인다 (Task 7 이 이 모듈을 import 할 수 있다).
-if (import.meta.url === `file://${process.argv[1]}`) {
+// 아래 CLI 실행부는 이 파일을 직접 실행할 때만 돈다.
+// 실패 모드가 "조용한 통과(exit 0, 무출력)" 라서 문자열 비교로는 부족하다. 양쪽을 모두
+// 실제 경로로 정규화해서 비교한다:
+//   - 심링크: import.meta.url 은 realpath 로 해석되는데 argv[1] 은 링크 경로 그대로다.
+//     (macOS /tmp -> /private/tmp 가 대표적) — pathToFileURL 만으로는 이게 안 잡힌다.
+//   - 공백·비ASCII: import.meta.url 은 퍼센트 인코딩된다 — fileURLToPath 로 디코딩해서 맞춘다.
+//   - Windows: `file://C:\...` 수동 조립이 깨진다 — 양쪽 다 네이티브 경로로 비교해 회피.
+//   - import 시: argv[1] 이 undefined 라 그대로 쓰면 TypeError 로 죽는다 — 먼저 걸러낸다.
+// ratio 는 가드 밖이라 import 해도 프로세스가 죽지 않는다.
+const isMain = (() => {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(entry);
+  } catch {
+    return false;
+  }
+})();
+
+if (isMain) {
+  const BLACK = '#1a1a1a';   // gal-black — 본문 기본 잉크
+  const WHITE = '#ffffff';
+
+  // 상태색은 잉크(Tailwind 700) / 틴트(Tailwind 100) 쌍이다.
+  // 한 값이 잉크와 표면을 겸할 수 없다 — 잉크는 흰 바탕 위 글자용, 틴트는 gal-black 글자를
+  // 얹는 표면용. 파일에 이미 있는 gal-accent / gal-accent-light 선례를 그대로 따른다.
+  const STATUS = {
+    success: ['#15803d', '#dcfce7'],
+    warning: ['#b45309', '#fef3c7'],
+    danger:  ['#b91c1c', '#fee2e2'],
+    info:    ['#1d4ed8', '#dbeafe'],
+  };
+
   // [전경, 배경, 라벨, 최소요구]
   const PAIRS = process.argv[2] === '--dark'
     ? [
@@ -26,9 +59,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         ['#8b8299', '#1e1630', 'text-muted on surface', 4.5],
       ]
     : [
-        ['#666666', '#ffffff', 'gal-body (현행)', 4.5],
-        ['#999999', '#ffffff', 'gal-muted (현행)', 4.5],
-        ['#2ea3f2', '#ffffff', 'gal-accent (현행)', 4.5],
+        ['#666666', WHITE, 'gal-body (현행)', 4.5],
+        ['#999999', WHITE, 'gal-muted (현행)', 4.5],
+        ['#2ea3f2', WHITE, 'gal-accent (현행)', 4.5],
+        // text-status-* : 흰 바탕 위 글자
+        ...Object.entries(STATUS).map(([n, [ink]]) => [ink, WHITE, `text-status-${n}`, 4.5]),
+        // bg-status-*-light : 틴트 표면 위 gal-black 본문
+        ...Object.entries(STATUS).map(([n, [, tint]]) => [BLACK, tint, `gal-black on ${n}-light`, 4.5]),
+        // 배지 조합 : 틴트 위에 같은 계열 잉크
+        ...Object.entries(STATUS).map(([n, [ink, tint]]) => [ink, tint, `${n} ink on ${n}-light`, 4.5]),
       ];
 
   let failed = 0;

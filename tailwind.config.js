@@ -18,10 +18,18 @@ export default {
         "gal-accent-dark": "#1a8fd8",
         "gal-accent-light": "#eaf6fe",
         "gal-footer": "#111111",
-        "status-success": "#15803d",
-        "status-warning": "#b45309",
-        "status-danger":  "#b91c1c",
-        "status-info":    "#1d4ed8",
+        // 상태색은 잉크/틴트 쌍이다 (gal-accent / gal-accent-light 선례).
+        // 한 값이 글자색과 배경을 겸할 수 없다 — 잉크는 흰 바탕 위 4.5:1 을 만족하지만
+        // 배경으로 쓰면 그 위의 gal-black 본문이 2.60~3.47 로 떨어진다.
+        // 잉크 = Tailwind 700, 틴트 = Tailwind 100. 전부 scripts/check-contrast.mjs 로 검증됨.
+        "status-success":       "#15803d",  // 흰 바탕 위 글자
+        "status-success-light": "#dcfce7",  // gal-black 본문을 얹는 표면
+        "status-warning":       "#b45309",
+        "status-warning-light": "#fef3c7",
+        "status-danger":        "#b91c1c",
+        "status-danger-light":  "#fee2e2",
+        "status-info":          "#1d4ed8",
+        "status-info-light":    "#dbeafe",
       },
       fontFamily: {
         "display": ["Space Grotesk", "Noto Sans KR", "system-ui", "sans-serif"],
@@ -32,10 +40,10 @@ export default {
       // 향후 Tailwind 업데이트와 어긋날 뿐이고, 다르게 쓰면 기존 마크업이 조용히 바뀐다.
       // 여기엔 Tailwind 에 없는 라벨 단계만 더한다.
       fontSize: {
-        // 라벨용 — 현재 text-[10px]/text-[11px] + tracking-[0.3em]/[0.2em] 조합으로
-        // 흩어져 있는 것을 한 클래스로 흡수한다 (크기+자간을 함께 나른다).
-        'label':   ['0.625rem', { lineHeight: '0.875rem', letterSpacing: '0.3em' }],
-        'label-lg':['0.6875rem',{ lineHeight: '1rem',     letterSpacing: '0.2em' }],
+        // eyebrow 라벨 — text-[10px] + tracking-[0.3em] 조합 9곳을 크기+자간 통째로 흡수한다.
+        // label-lg(11px/0.2em)는 넣지 않는다: text-[11px] 4곳 중 3곳은 자간 클래스가 아예 없고
+        // 1곳은 0.5em 이라 0.2em 을 원하는 소비자가 하나도 없다.
+        'label': ['0.625rem', { lineHeight: '0.875rem', letterSpacing: '0.3em' }],
       },
       // letterSpacing 은 의도적으로 확장하지 않는다. Tailwind 기본 6단계
       // (tighter/tight/normal/wide/wider/widest) 를 덮어쓰면 기존 101곳이 조용히 바뀐다.
