@@ -484,10 +484,10 @@ export default function FashionTab() {
                     {t('upload.description')}
                   </p>
                   <div className="mt-6 flex gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-gal-md bg-gal-bg border border-gal-border text-xs font-bold uppercase tracking-tight text-gal-body">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-gal-md bg-gal-bg border border-gal-border text-label font-bold uppercase text-gal-body">
                       ✓ {t('upload.frontView')}
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-gal-md bg-gal-bg border border-gal-border text-xs font-bold uppercase tracking-tight text-gal-body">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-gal-md bg-gal-bg border border-gal-border text-label font-bold uppercase text-gal-body">
                       ○ {t('upload.sideView')}
                     </div>
                   </div>

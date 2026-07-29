@@ -526,9 +526,20 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
         <section className="px-4">
           <Card variant="accent" className="max-w-md mx-auto">
             <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
+            {/*
+              energyLabel.color 는 읽지 않는다. getEnergyLabel()(utils/omenGenerator.ts)이
+              CSS 클래스명을 값으로 돌려주는데, 그게 원시 팔레트의 400 단계라 흰 바탕에서
+              1.4~1.7:1 밖에 안 나온다. 클래스명이 다른 모듈에서 조립되므로 이 파일을
+              훑는 감사에는 잡히지도 않는다. 같은 라벨을 OmenTab 이 LevelPill 로
+              렌더하므로 여기도 같은 프리미티브를 쓴다 — 한 값이 탭마다 다른 색으로
+              보이는 것이 이 태스크가 없애려는 갈라짐이다.
+              utils 가 클래스명을 내보내는 문제 자체는 별건이라 손대지 않는다.
+              (주석에 그 클래스명을 적지 않는 이유: Tailwind content 스캐너가 주석 속
+               클래스명까지 실제 CSS 로 내보낸다.)
+            */}
             {energyLabel && (
               <div className="text-center">
-                <span className={`text-3xl font-bold ${energyLabel.color}`}>{energyLabel.label}</span>
+                <LevelPill level={energyLabel.label} />
               </div>
             )}
             {dailyReading?.omen_message && (
@@ -579,15 +590,15 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
             <p className="text-gal-body text-sm leading-relaxed mb-5">"{fortune.advice}"</p>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {fortune.luckyColor && <div className="text-center">
-                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
+                <span className="text-gal-muted text-label uppercase block mb-1">{t('fortune.luckyColor')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyColor}</span>
               </div>}
               {fortune.luckyNumber != null && <div className="text-center">
-                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
+                <span className="text-gal-muted text-label uppercase block mb-1">{t('fortune.luckyNumber')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyNumber}</span>
               </div>}
               {fortune.luckyDirection && <div className="text-center">
-                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
+                <span className="text-gal-muted text-label uppercase block mb-1">{t('fortune.luckyDirection')}</span>
                 <span className="text-gal-black text-sm font-medium">{fortune.luckyDirection}</span>
               </div>}
             </div>

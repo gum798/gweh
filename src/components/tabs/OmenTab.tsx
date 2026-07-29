@@ -567,7 +567,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">👔</span>
                 <h4 className="text-gal-black font-bold text-sm">{t('sub.dailyStyleTitle')}</h4>
-                <span className="ml-auto text-xs text-gal-accent bg-gal-accent-light px-2 py-0.5 rounded-gal-md font-bold uppercase tracking-wider">
+                <span className="ml-auto text-label text-gal-accent bg-gal-accent-light px-2 py-0.5 rounded-gal-md font-bold uppercase">
                   {t('sub.badge')}
                 </span>
               </div>
