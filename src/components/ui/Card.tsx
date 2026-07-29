@@ -8,7 +8,7 @@ interface CardProps {
   padding?: Padding;
   // 'article' 은 넣지 않는다. 탭 8개에 <section> 은 56곳 있지만 <article> 은 0곳이다.
   // 브리프의 Interfaces 블록도 'div'|'section' 두 가지만 약속한다 — 코드 블록의
-  // 세 번째 값은 소비자가 없다. 아무도 쓰지 않는 옵션은 text-label-lg 를 지운 것과
+  // 세 번째 값은 소비자가 없다. 아무도 쓰지 않는 옵션은 Task 1 이 지운 라벨 유틸리티와
   // 같은 문제이고, 실제 수요가 생기면 그때 한 줄로 추가하면 된다.
   as?: 'div' | 'section';
   className?: string;

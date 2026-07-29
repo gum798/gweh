@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { PageHeader } from '../ui/PageHeader';
+import { LoadingState } from '../ui/LoadingState';
+import { LevelPill } from '../ui/LevelPill';
 
 interface FortuneResult {
   level: string;
@@ -172,14 +177,6 @@ export default function FortuneTab() {
     }
   };
 
-  const getLevelStyle = (level: string) => {
-    if (level === '대길') return 'bg-amber-50 text-amber-600 border-amber-200';
-    if (level === '길') return 'bg-green-50 text-green-600 border-green-200';
-    if (level === '평') return 'bg-gray-100 text-gray-600 border-gray-200';
-    if (level === '소흉') return 'bg-orange-50 text-orange-600 border-orange-200';
-    return 'bg-red-50 text-red-600 border-red-200';
-  };
-
   const getLevelEmoji = (level: string) => {
     if (level === '대길') return '✨';
     if (level === '길') return '🌟';
@@ -190,22 +187,7 @@ export default function FortuneTab() {
 
   // 로딩 화면
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full border border-gal-accent/30 animate-ping" />
-          <div className="h-24 w-24 rounded-full border border-gal-accent/50 flex items-center justify-center shadow-gal-soft">
-            <span className="text-4xl animate-pulse">🔮</span>
-          </div>
-        </div>
-        <h3 className="text-gal-black text-xl font-bold mt-8 mb-2">{t('fortune.analyzing')}</h3>
-        <div className="mt-4 flex gap-1">
-          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-        </div>
-      </div>
-    );
+    return <LoadingState label={t('fortune.analyzing')} />;
   }
 
   // 결과 화면
@@ -228,17 +210,15 @@ export default function FortuneTab() {
 
         {/* 헤더 */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent/20 p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             {result.level && <div className="text-center mb-4">
               <span className="text-5xl mb-3 block">{getLevelEmoji(result.level)}</span>
-              <span className={`inline-block px-4 py-2 rounded-gal-xl text-sm font-bold border ${getLevelStyle(result.level)}`}>
-                {result.level}
-              </span>
+              <LevelPill level={result.level} />
             </div>}
             {result.overall && <p className="text-gal-body text-base leading-relaxed text-center italic">
               "{result.overall}"
             </p>}
-          </div>
+          </Card>
         </section>
 
         {/* 세부 운세 */}
@@ -250,47 +230,46 @@ export default function FortuneTab() {
               { icon: '💰', label: t('fortune.wealth'), text: result.wealth },
               { icon: '🏥', label: t('fortune.health'), text: result.health },
             ].filter((item) => item.text).map((item) => (
-              <div key={item.label} className="bg-white rounded-gal-xl border border-gal-border p-4 shadow-gal-card">
+              <Card key={item.label} padding="sm">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">{item.icon}</span>
                   <span className="text-gal-black font-bold text-sm">{item.label}</span>
                 </div>
                 <p className="text-gal-body text-sm leading-relaxed">{item.text}</p>
-              </div>
+              </Card>
             ))}
           </div>
         </section>
 
         {/* 조언 + 행운 */}
         <section className="px-4">
-          <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-accent/20 p-6 shadow-gal-card">
+          <Card variant="accent" className="max-w-md mx-auto">
             <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             {result.advice && <p className="text-gal-dark text-sm leading-relaxed mb-5">"{result.advice}"</p>}
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {result.luckyColor && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
+                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyColor')}</span>
                 <span className="text-gal-black text-sm font-medium">{result.luckyColor}</span>
               </div>}
               {result.luckyNumber != null && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
+                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyNumber')}</span>
                 <span className="text-gal-black text-sm font-medium">{result.luckyNumber}</span>
               </div>}
               {result.luckyDirection && <div className="text-center">
-                <span className="text-gal-muted text-[10px] uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
+                <span className="text-gal-muted text-xs uppercase tracking-widest block mb-1">{t('fortune.luckyDirection')}</span>
                 <span className="text-gal-black text-sm font-medium">{result.luckyDirection}</span>
               </div>}
             </div>
-          </div>
+          </Card>
         </section>
 
         {/* 다시 보기 */}
         <div className="px-4 pt-2">
-          <button
-            onClick={handleNewReading}
-            className="w-full max-w-md mx-auto flex items-center justify-center bg-gal-black text-white h-12 rounded-gal-lg font-bold text-sm uppercase tracking-widest hover:bg-gal-accent hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2"
-          >
-            {t('fortune.newReading')}
-          </button>
+          <div className="max-w-md mx-auto">
+            <Button variant="secondary" fullWidth onClick={handleNewReading}>
+              {t('fortune.newReading')}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -299,25 +278,11 @@ export default function FortuneTab() {
   // 입력 화면
   return (
     <div className="space-y-8">
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-gal-xl">
-        <div
-          className="flex min-h-[40vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-end pb-12 px-6 text-center"
-          style={{
-            backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.95) 10%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%), url("https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80")`,
-          }}
-        >
-          <div className="flex flex-col gap-3 max-w-2xl">
-            <h1 className="text-gal-black text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-              {t('fortune.heroTitle1')} <br />
-              <span className="text-gal-accent italic font-light">{t('fortune.heroTitle2')}</span>
-            </h1>
-            <p className="text-gal-body text-sm font-light leading-relaxed max-w-xs mx-auto">
-              {t('fortune.heroDesc')}
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow={t('fortune.heroTitle1')}
+        title={t('fortune.heroTitle2')}
+        subtitle={t('fortune.heroDesc')}
+      />
 
       {/* 입력 폼 */}
       <section className="px-4">
@@ -328,7 +293,7 @@ export default function FortuneTab() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-white rounded-gal-xl border border-gal-border p-6 space-y-6 shadow-gal-card">
+            <Card className="space-y-6">
               <label className="block">
                 <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-2">{t('fortune.birthYear')}</p>
                 <select
@@ -346,22 +311,15 @@ export default function FortuneTab() {
                   ))}
                 </select>
               </label>
-            </div>
+            </Card>
 
             {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
+              <p className="text-status-danger text-sm text-center">{error}</p>
             )}
 
-            <button
-              type="submit"
-              disabled={!birthYear}
-              className={`w-full flex items-center justify-center rounded-gal-xl h-14 px-8 text-base font-bold tracking-widest uppercase transition-all ${birthYear
-                ? 'bg-gal-accent text-white shadow-gal-button border border-gal-accent hover:bg-gal-accent-dark hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2'
-                : 'bg-gal-light text-gal-muted cursor-not-allowed'
-                }`}
-            >
+            <Button type="submit" variant="primary" size="lg" fullWidth disabled={!birthYear}>
               {t('fortune.viewFortune')}
-            </button>
+            </Button>
           </form>
         </div>
       </section>
