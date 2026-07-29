@@ -24,10 +24,12 @@ export default {
         // 잉크 = Tailwind 700, 틴트 = Tailwind 100. 전부 scripts/check-contrast.mjs 로 검증됨.
         "status-success":       "#15803d",  // 흰 바탕 위 글자
         "status-success-light": "#dcfce7",  // gal-black 본문을 얹는 표면
-        "status-warning":       "#b45309",
-        // amber-100(#fef3c7)은 잉크와 4.5097:1 로 여유가 0.22% 뿐이라 6단계 색 교체 때
-        // 임계선을 넘기 쉽다. amber-50 으로 낮춰 4.84:1 확보.
-        "status-warning-light": "#fffbeb",
+        // amber-700(#b45309)은 틴트 위에서 4.5097:1 로 여유가 0.22% 뿐이었다.
+        // 틴트를 amber-50 으로 옮겨 봤으나 표면이 gal-bg 보다도 안 보였다(1.037 < 1.044).
+        // 약한 쪽은 틴트가 아니라 잉크였으므로 amber-800 으로 어둡게 해서 해결한다:
+        // 흰 바탕 7.09:1, 틴트 위 6.37:1. 틴트는 형제 3색과 같은 100 단계로 복귀.
+        "status-warning":       "#92400e",
+        "status-warning-light": "#fef3c7",
         "status-danger":        "#b91c1c",
         "status-danger-light":  "#fee2e2",
         "status-info":          "#1d4ed8",

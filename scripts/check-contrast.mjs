@@ -98,6 +98,9 @@ if (isMain) {
         ...STATUS.map((n) => [BLACK, hex(`status-${n}-light`), `gal-black on ${n}-light`, 4.5]),
         // 배지 조합 : 틴트 위에 같은 계열 잉크
         ...STATUS.map((n) => [hex(`status-${n}`), hex(`status-${n}-light`), `${n} ink on ${n}-light`, 4.5]),
+        // 표면 식별 : 틴트가 흰 페이지 위에서 구분되는가.
+        // 이걸 재지 않고 가정했기 때문에 amber-50 틴트가 gal-bg 보다 안 보이는 채로 통과했다.
+        ...STATUS.map((n) => [hex(`status-${n}-light`), WHITE, `${n}-light on page`, 1.5]),
       ];
 
   let failed = 0;
