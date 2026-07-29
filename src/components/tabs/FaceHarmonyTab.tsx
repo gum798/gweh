@@ -478,12 +478,19 @@ export default function FaceHarmonyTab() {
                 </span>
               </div>
 
-              {/* Faces + Score — 위 아바타 행과 같은 276px 예산.
-                80 + 96(게이지) + 80 + gap-2 2개(16) = 272. */}
+              {/*
+              Faces + Score — 위 아바타 행과 같은 276px 예산.
+              64 + 120(게이지) + 64 + gap-2 2개(16) = 264.
+              예산을 게이지가 아니라 얼굴에서 뺀다: ScoreGauge 는 size 를 받으면서도
+              점수 글자(text-5xl)와 stroke(8)·반지름 보정(-14)은 고정이라, 지름을
+              줄이면 링 안쪽 반지름만 작아지고 숫자는 그대로여서 두 자리 점수가
+              링 위에 얹힌다(totalScore 는 30..99 로 항상 두 자리다).
+              결과 화면의 초점은 점수이므로 부차 요소인 얼굴 원을 줄인다.
+            */}
               <div className="flex items-center justify-center gap-2 mb-8">
                 {/* Person A */}
                 <div className="flex flex-col items-center animate-slide-in-left" style={{ opacity: 0 }}>
-                  <div className="w-20 h-20 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
+                  <div className="w-16 h-16 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
                     {imageA && <img src={imageA} alt="인물 1" className="w-full h-full object-cover" />}
                   </div>
                   <span className="text-gal-muted text-xs mt-2">인물 1</span>
@@ -491,12 +498,12 @@ export default function FaceHarmonyTab() {
 
                 {/* Score Gauge */}
                 <div className="animate-scale-in" style={{ opacity: 0, animationDelay: '300ms' }}>
-                  <ScoreGauge score={totalScore} size={96} />
+                  <ScoreGauge score={totalScore} size={120} />
                 </div>
 
                 {/* Person B */}
                 <div className="flex flex-col items-center animate-slide-in-right" style={{ opacity: 0 }}>
-                  <div className="w-20 h-20 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
+                  <div className="w-16 h-16 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
                     {imageB && <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />}
                   </div>
                   <span className="text-gal-muted text-xs mt-2">인물 2</span>
