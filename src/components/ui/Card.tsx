@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { defaultRadius } from './radius';
 
 type Variant = 'base' | 'accent' | 'muted';
 type Padding = 'sm' | 'md' | 'lg';
@@ -27,7 +28,7 @@ const PADDINGS: Record<Padding, string> = { sm: 'p-4', md: 'p-6', lg: 'p-8' };
 
 export function Card({ variant = 'base', padding = 'md', as: Tag = 'div', className = '', children }: CardProps) {
   return (
-    <Tag className={`rounded-gal-xl ${VARIANTS[variant]} ${PADDINGS[padding]} ${className}`}>
+    <Tag className={`${defaultRadius(className)} ${VARIANTS[variant]} ${PADDINGS[padding]} ${className}`}>
       {children}
     </Tag>
   );
