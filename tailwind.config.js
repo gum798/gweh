@@ -28,32 +28,18 @@ export default {
         "heading": ["Space Grotesk", "Noto Sans KR", "sans-serif"],
         "body":    ["Noto Sans KR", "Space Grotesk", "system-ui", "sans-serif"],
       },
+      // xs~8xl 은 Tailwind 기본 스케일을 그대로 쓴다 — 재선언하면 값이 같아도
+      // 향후 Tailwind 업데이트와 어긋날 뿐이고, 다르게 쓰면 기존 마크업이 조용히 바뀐다.
+      // 여기엔 Tailwind 에 없는 라벨 단계만 더한다.
       fontSize: {
-        'xs':   ['0.75rem',  { lineHeight: '1rem' }],
-        'sm':   ['0.875rem', { lineHeight: '1.25rem' }],
-        'base': ['1rem',     { lineHeight: '1.5rem' }],
-        'lg':   ['1.125rem', { lineHeight: '1.75rem' }],
-        'xl':   ['1.25rem',  { lineHeight: '1.75rem' }],
-        '2xl':  ['1.5rem',   { lineHeight: '2rem' }],
-        '3xl':  ['1.875rem', { lineHeight: '2.25rem' }],
-        '4xl':  ['2.25rem',  { lineHeight: '2.5rem' }],
-        '5xl':  ['3rem',     { lineHeight: '1.1' }],
-        '6xl':  ['3.75rem',  { lineHeight: '1.05' }],
-        '7xl':  ['4.5rem',   { lineHeight: '1' }],
-        '8xl':  ['6rem',     { lineHeight: '1' }],
-        // 라벨용 — 현재 text-[10px]/text-[11px] 로 흩어져 있는 것을 흡수한다
+        // 라벨용 — 현재 text-[10px]/text-[11px] + tracking-[0.3em]/[0.2em] 조합으로
+        // 흩어져 있는 것을 한 클래스로 흡수한다 (크기+자간을 함께 나른다).
         'label':   ['0.625rem', { lineHeight: '0.875rem', letterSpacing: '0.3em' }],
         'label-lg':['0.6875rem',{ lineHeight: '1rem',     letterSpacing: '0.2em' }],
       },
-      letterSpacing: {
-        'tightest': '-0.05em',
-        'tighter':  '-0.03em',
-        'tight':    '-0.015em',
-        'normal':   '0',
-        'wide':     '0.05em',
-        'wider':    '0.1em',
-        'widest':   '0.3em',
-      },
+      // letterSpacing 은 의도적으로 확장하지 않는다. Tailwind 기본 6단계
+      // (tighter/tight/normal/wide/wider/widest) 를 덮어쓰면 기존 101곳이 조용히 바뀐다.
+      // 유일한 실수요였던 0.3em eyebrow 는 위 text-label 이 자간까지 함께 나르므로 불필요하다.
       borderRadius: {
         "gal-sm": "2px",
         "gal-md": "4px",
