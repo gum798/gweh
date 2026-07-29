@@ -244,11 +244,14 @@ function AvatarCircle({
             : 'border-gal-accent/20 animate-pulse-slow'
         }`} />
         {/*
-          max-w-md 안에서는 md: 확대가 들어갈 자리가 없다 — 448px 컬럼에서
-          160px 원 두 개와 120px 커넥터는 합이 컨테이너를 넘는다. 한 단계 줄여
-          390px 에서도 잘리지 않게 한다(변경 전에는 이미 잘리고 있었다).
+          390px 에서 이 행에 주어지는 폭은 276px 이다:
+          390 − 32(#app-content px-4) − 32(section px-4) − 48(Card p-6) − 2(border).
+          아바타 96 + 커넥터 32 + 아바타 96 + gap-4 2개(32) = 256 으로 맞춘다.
+          (w-28 은 288 이라 20px 넘쳐 flex 가 래퍼를 줄이는데, 안쪽 고정폭 원은
+           줄지 않으므로 카드 패딩으로 삐져나온다. headless Chrome 실측값이다.)
+          md: 확대는 두지 않는다 — 컨테이너가 max-w-md 로 고정이라 자리가 없다.
         */}
-        <div className={`w-28 h-28 rounded-full border-2 overflow-hidden
+        <div className={`w-24 h-24 rounded-full border-2 overflow-hidden
                         bg-gal-bg flex items-center justify-center
                         group-hover:border-gal-accent/60 group-hover:shadow-gal-hover
                         transition-all duration-500 ${
@@ -475,8 +478,9 @@ export default function FaceHarmonyTab() {
                 </span>
               </div>
 
-              {/* Faces + Score — 448px 컬럼에 맞춰 md: 확대와 게이지 지름을 줄였다 */}
-              <div className="flex items-center justify-center gap-3 mb-8">
+              {/* Faces + Score — 위 아바타 행과 같은 276px 예산.
+                80 + 96(게이지) + 80 + gap-2 2개(16) = 272. */}
+              <div className="flex items-center justify-center gap-2 mb-8">
                 {/* Person A */}
                 <div className="flex flex-col items-center animate-slide-in-left" style={{ opacity: 0 }}>
                   <div className="w-20 h-20 rounded-full border-2 border-gal-accent/40 overflow-hidden shadow-gal-card">
@@ -487,7 +491,7 @@ export default function FaceHarmonyTab() {
 
                 {/* Score Gauge */}
                 <div className="animate-scale-in" style={{ opacity: 0, animationDelay: '300ms' }}>
-                  <ScoreGauge score={totalScore} size={120} />
+                  <ScoreGauge score={totalScore} size={96} />
                 </div>
 
                 {/* Person B */}
