@@ -469,7 +469,7 @@ export default function FashionTab() {
             <button
               type="button"
               onClick={triggerFileInput}
-              className="w-full h-full bg-gal-light rounded-gal-xl flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-gal-accent/20 hover:border-gal-accent/50 transition-all group shadow-gal-card"
+              className="w-full h-full bg-gal-light rounded-gal-xl flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-gal-accent-ink/75 hover:border-gal-accent-ink transition-all group shadow-gal-card"
             >
               {capturedImage ? (
                 <img

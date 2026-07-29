@@ -250,11 +250,17 @@ export default function SajuTab() {
               <Card className="space-y-6">
 
                 {/* Calendar Type Toggle */}
+                {/* 선택 표시는 슬라이딩 썸이다. 채움색만으로는 트랙 대비 2.43:1 이라
+                    어느 쪽이 선택됐는지가 1.4.11 의 3:1 을 못 넘는다. 채움은 브랜드
+                    보라 그대로 두고(그 위 흰 글씨 7.64:1) **잉크 테두리**를 둘러
+                    경계로 8.72:1 을 만든다. 썸을 통째로 밝은 색으로 바꾸는 쪽은
+                    글자를 어둡게 뒤집어야 하는데, 썸이 300ms 동안 미끄러지는 사이
+                    글자만 먼저 어두워져 트랙 위에서 1:1 이 되는 구간이 생긴다. */}
                 <div>
                   <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-3">{tc('saju.calendarType')}</p>
                   <div className="relative flex bg-gal-bg rounded-gal-lg p-1 border border-gal-border">
                     <div
-                      className="absolute top-1 bottom-1 rounded-gal-md bg-gal-accent shadow-gal-button transition-all duration-300 ease-out"
+                      className="absolute top-1 bottom-1 rounded-gal-md bg-gal-accent border border-gal-accent-ink shadow-gal-button transition-all duration-300 ease-out"
                       style={{
                         left: calendarType === 'solar' ? '4px' : '50%',
                         width: 'calc(50% - 4px)',
@@ -352,14 +358,19 @@ export default function SajuTab() {
                         onClick={() => setIsLeapMonth(prev => !prev)}
                         className={`flex items-center gap-2 px-3 py-2 rounded-gal-md text-xs font-medium transition-all ${
                           isLeapMonth
-                            ? 'bg-gal-accent/10 text-gal-accent-ink border border-gal-accent/30'
+                            ? 'bg-gal-accent/10 text-gal-accent-ink border border-gal-accent-ink'
                             : 'bg-gal-bg text-gal-muted border border-gal-border hover:text-gal-body'
                         }`}
                       >
+                        {/* 트랙 색은 켜짐이 꺼짐보다 **밝아야** 한다. 값 교체 직후에는
+                            켜짐 #5b13ec(L=0.087) < 꺼짐 #8175a4(L=0.201) 로 꺼진 쪽이
+                            2.3배 밝았다 — 흰 바탕에서는 맞고 #161022 위에서는 거꾸로다.
+                            켜짐을 잉크로 올리고 손잡이를 페이지색으로 뒤집는다:
+                            손잡이 대비 켜짐 8.72:1 / 꺼짐 4.43:1, 트랙 대비 배경 둘 다 3:1 이상. */}
                         <div className={`w-8 h-[18px] rounded-full relative transition-colors ${
-                          isLeapMonth ? 'bg-gal-accent' : 'bg-gal-border'
+                          isLeapMonth ? 'bg-gal-accent-ink' : 'bg-gal-border'
                         }`}>
-                          <div className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform ${
+                          <div className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-gal-bg shadow-sm transition-transform ${
                             isLeapMonth ? 'translate-x-[16px]' : 'translate-x-[2px]'
                           }`} />
                         </div>

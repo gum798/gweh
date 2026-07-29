@@ -28,7 +28,7 @@ function GoldenOrbitSVG({ size = 240, animate = true }: { size?: number; animate
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 m-auto pointer-events-none">
       {/* outer dashed ring */}
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(46,163,242,0.25)" strokeWidth="1.5"
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(184,165,255,0.3)" strokeWidth="1.5"
         strokeDasharray="8 6" className={animate ? 'animate-spin-slow origin-center' : ''} />
       {/* inner ring */}
       <circle cx={size / 2} cy={size / 2} r={r * 0.85} fill="none" stroke="rgba(184,165,255,0.25)" strokeWidth="1" />
@@ -39,7 +39,7 @@ function GoldenOrbitSVG({ size = 240, animate = true }: { size?: number; animate
         const cy = size / 2 + Math.sin(angle) * (r * 0.92);
         return (
           <text key={i} x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
-            fill="rgba(46,163,242,0.4)" fontSize="14" fontFamily="serif"
+            fill={ACCENT} fontSize="14" fontFamily="serif"
             style={{ animationDelay: `${i * 0.15}s` }}>
             {rune}
           </text>
@@ -246,11 +246,14 @@ function AvatarCircle({
       className={`relative group ${side === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right'}`}
       style={{ opacity: 0 }} onClick={onClick}>
       <div className="relative">
-        {/* outer ring -- enhanced when ready */}
-        <div className={`absolute -inset-3 rounded-full border transition-all duration-700 ${
+        {/* outer ring — 장식용 후광이다. 컨트롤의 경계는 아래 2px 원이 지고,
+            이 링은 그 바깥에서 상태를 한 번 더 말한다. aria-hidden 으로 명시해
+            "컨트롤을 식별하는 시각 정보"에서 빼고, 그래도 보이도록 토큰으로 올린다
+            (채움색 20% 알파는 카드 대비 1.08:1 이라 사실상 렌더되지 않았다). */}
+        <div aria-hidden="true" className={`absolute -inset-3 rounded-full border transition-all duration-700 ${
           ready
-            ? 'border-gal-accent/50 shadow-gal-card'
-            : 'border-gal-accent/20 animate-pulse-slow'
+            ? 'border-gal-accent-ink/60 shadow-gal-card'
+            : 'border-gal-border/50 animate-pulse-slow'
         }`} />
         {/*
           390px 에서 이 행에 주어지는 폭은 276px 이다:
@@ -262,9 +265,9 @@ function AvatarCircle({
         */}
         <div className={`w-24 h-24 rounded-full border-2 overflow-hidden
                         bg-gal-bg flex items-center justify-center
-                        group-hover:border-gal-accent/60 group-hover:shadow-gal-hover
+                        group-hover:border-gal-accent-ink group-hover:shadow-gal-hover
                         transition-all duration-500 ${
-                          ready ? 'border-gal-accent/50' : 'border-gal-border'
+                          ready ? 'border-gal-accent-ink' : 'border-gal-border'
                         }`}>
           {image ? (
             <img src={image} alt={label} className="w-full h-full object-cover" />
@@ -606,8 +609,12 @@ export default function FaceHarmonyTab() {
       <section className="px-4">
         <div className="max-w-md mx-auto relative overflow-hidden rounded-gal-xl">
           <Card className="relative">
-            {/* Background SVG mandala */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-30">
+            {/* Background SVG mandala — 순수 장식이다.
+                컨테이너가 opacity-30 이라 안의 글리프는 읽는 텍스트가 아니라 텍스처다
+                (렌더 결과는 카드 대비 1.81:1). 그래서 aria-hidden 이고,
+                fill 값 자체는 면 위 6.57:1 인 잉크 토큰으로 올려 뒀다 —
+                이 SVG 는 다른 곳에서 opacity 없이 쓰일 수도 있다. */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-30" aria-hidden="true">
               <GoldenOrbitSVG size={320} animate />
             </div>
 
@@ -623,7 +630,7 @@ export default function FaceHarmonyTab() {
                 onClick={() => { setInputMode('separate'); handleReset(); }}
                 className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
                   inputMode === 'separate'
-                    ? 'bg-gal-accent-light text-gal-accent-ink border border-gal-accent/30'
+                    ? 'bg-gal-accent-light text-gal-accent-ink border border-gal-accent-ink'
                     : 'text-gal-muted hover:text-gal-accent-ink border border-transparent'
                 }`}
               >
@@ -633,7 +640,7 @@ export default function FaceHarmonyTab() {
                 onClick={() => { setInputMode('single'); handleReset(); }}
                 className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
                   inputMode === 'single'
-                    ? 'bg-gal-accent-light text-gal-accent-ink border border-gal-accent/30'
+                    ? 'bg-gal-accent-light text-gal-accent-ink border border-gal-accent-ink'
                     : 'text-gal-muted hover:text-gal-accent-ink border border-transparent'
                 }`}
               >

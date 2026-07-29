@@ -222,7 +222,7 @@ export default function FaceTab() {
               onClick={() => handleModeSelect('both')}
               className="w-full text-left group"
             >
-              <Card variant="accent" className="transition-all group-hover:border-gal-accent-dark group-hover:shadow-gal-hover">
+              <Card variant="accent" className="transition-all group-hover:border-gal-accent-ink group-hover:shadow-gal-hover">
                 <div className="flex items-center gap-4">
                   <div className="bg-gal-accent-light p-4 rounded-gal-lg group-hover:bg-gal-accent/10 transition-colors">
                     <span className="text-3xl">✨</span>

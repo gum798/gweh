@@ -20,7 +20,11 @@ interface CardProps {
 // base 는 SajuTab.tsx:426 의 레시피다.
 const VARIANTS: Record<Variant, string> = {
   base:   'bg-gal-light border border-gal-border shadow-gal-card',
-  accent: 'bg-gal-light border border-gal-accent/40 shadow-gal-card',
+  // accent 의 테두리는 이 카드가 '강조된 카드'임을 알리는 유일한 신호다.
+  // 값 교체 직후에는 채움색 40% 알파여서 카드 면 대비 1.20:1 — 변형이 있는데
+  // base 와 구분되지 않는 상태였다. 잉크 70% 로 올려 3:1 을 넘긴다(3.94:1).
+  // (알파 표기를 주석에 적지 않는 이유는 Button.tsx 아래쪽 주석에 있다.)
+  accent: 'bg-gal-light border border-gal-accent-ink/70 shadow-gal-card',
   muted:  'bg-gal-bg border border-gal-border',
 };
 

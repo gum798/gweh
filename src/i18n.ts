@@ -19,6 +19,14 @@ import enAuth from './locales/en/auth.json';
 
 const savedLanguage = localStorage.getItem('mystic_language') || 'ko';
 
+// html[lang] 도 여기서 맞춘다. 지금까지 이 속성을 쓰는 곳은 AppHeader 의 토글
+// 하나뿐이었고, 그래서 index.html 에 박힌 "ko" 가 새로고침마다 되살아났다.
+// 결과적으로 src/index.css 의 `html[lang="en"] { font-size: 17px }` — 영문
+// 광학 보정 — 이 **토글 직후에만** 적용되고 재방문에는 적용되지 않았다.
+// 두 렌더가 39px(히어로 기준) 차이 나므로 레이아웃 검증이 매번 다른 답을 준다.
+// 진짜 최악은 사용자가 토글한 뒤의 상태이고, 그쪽을 기본으로 삼아야 맞다.
+document.documentElement.lang = savedLanguage;
+
 i18n.use(initReactI18next).init({
   resources: {
     ko: {

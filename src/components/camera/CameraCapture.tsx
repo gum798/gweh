@@ -2,6 +2,12 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { useTranslation } from 'react-i18next';
 
+// 스캔 HUD 는 <canvas> 라 Tailwind 클래스를 못 쓴다. 파란 시절 리터럴 17개가
+// 그대로 남아 있던 곳이다 — 클래스만 바꾸는 치환으로는 잡히지 않는 부류다.
+// 두 값은 그라디언트의 밝은 끝/어두운 끝이다.
+const HUD_INK = '184, 165, 255';  // gal-accent-ink
+const HUD_FILL = '91, 19, 236';   // gal-accent
+
 // TensorFlow 모듈들을 dynamic import로 변경 (bundle-defer-third-party)
 // 2MB+ 번들을 초기 로딩에서 제외하고 필요할 때만 로드
 type TFModule = typeof import('@tensorflow/tfjs');
@@ -325,8 +331,8 @@ export default function CameraCapture({
           <button
             type="button"
             onClick={triggerFileInput}
-            className="border-2 border-dashed border-gal-accent/30 rounded-gal-xl p-12
-                       hover:border-gal-accent/50 transition-colors"
+            className="border-2 border-dashed border-gal-accent-ink/75 rounded-gal-xl p-12
+                       hover:border-gal-accent-ink transition-colors"
           >
             <div className="text-4xl mb-2">📷</div>
             <p className="text-gal-muted">{t('camera.clickToSelect')}</p>
@@ -412,8 +418,8 @@ function drawHandSkeleton(ctx, keypoints, time) {
       // 그라데이션 라인
       const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
       const alpha = 0.6 + Math.sin(time * 2 + index * 0.2) * 0.2;
-      gradient.addColorStop(0, `rgba(46, 163, 242, ${alpha})`);
-      gradient.addColorStop(1, `rgba(26, 143, 216, ${alpha})`);
+      gradient.addColorStop(0, `rgba(${HUD_INK}, ${alpha})`);
+      gradient.addColorStop(1, `rgba(${HUD_FILL}, ${alpha})`);
 
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
@@ -427,7 +433,7 @@ function drawHandSkeleton(ctx, keypoints, time) {
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
-      ctx.strokeStyle = `rgba(46, 163, 242, 0.3)`;
+      ctx.strokeStyle = `rgba(${HUD_INK}, 0.3)`;
       ctx.lineWidth = 8;
       ctx.stroke();
     }
@@ -448,14 +454,14 @@ function drawHandKeypoints(ctx, keypoints, time) {
     // 외부 글로우
     ctx.beginPath();
     ctx.arc(point.x, point.y, size + 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(46, 163, 242, 0.2)';
+    ctx.fillStyle = `rgba(${HUD_INK}, 0.2)`;
     ctx.fill();
 
     // 메인 포인트
     const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, size);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.5, 'rgba(46, 163, 242, 1)');
-    gradient.addColorStop(1, 'rgba(26, 143, 216, 0.8)');
+    gradient.addColorStop(0.5, `rgba(${HUD_INK}, 1)`);
+    gradient.addColorStop(1, `rgba(${HUD_FILL}, 0.8)`);
 
     ctx.beginPath();
     ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
@@ -471,7 +477,7 @@ function drawHandKeypoints(ctx, keypoints, time) {
     if (isWrist) {
       ctx.beginPath();
       ctx.arc(point.x, point.y, size + 8, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(46, 163, 242, ${0.3 + Math.sin(time * 2) * 0.2})`;
+      ctx.strokeStyle = `rgba(${HUD_INK}, ${0.3 + Math.sin(time * 2) * 0.2})`;
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 4]);
       ctx.lineDashOffset = -time * 10;
@@ -502,7 +508,7 @@ function drawPalmArea(ctx, keypoints, time) {
   // 중앙 심볼
   const symbolAlpha = 0.2 + Math.sin(time * 2) * 0.1;
   ctx.font = `${palmSize * 0.5}px serif`;
-  ctx.fillStyle = `rgba(46, 163, 242, ${symbolAlpha})`;
+  ctx.fillStyle = `rgba(${HUD_INK}, ${symbolAlpha})`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('☯', centerX, centerY);
@@ -514,7 +520,7 @@ function drawPalmArea(ctx, keypoints, time) {
 
   ctx.beginPath();
   ctx.arc(0, 0, palmSize * 0.8, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(46, 163, 242, 0.15)`;
+  ctx.strokeStyle = `rgba(${HUD_INK}, 0.15)`;
   ctx.lineWidth = 1;
   ctx.setLineDash([8, 8]);
   ctx.stroke();
@@ -527,9 +533,9 @@ function drawDetectionCircle(ctx, x, y, radius, time) {
   const pulseRadius = radius + Math.sin(time * 2) * 5;
 
   const gradient = ctx.createRadialGradient(x, y, pulseRadius * 0.8, x, y, pulseRadius * 1.3);
-  gradient.addColorStop(0, 'rgba(46, 163, 242, 0)');
-  gradient.addColorStop(0.5, 'rgba(46, 163, 242, 0.15)');
-  gradient.addColorStop(1, 'rgba(46, 163, 242, 0)');
+  gradient.addColorStop(0, `rgba(${HUD_INK}, 0)`);
+  gradient.addColorStop(0.5, `rgba(${HUD_INK}, 0.15)`);
+  gradient.addColorStop(1, `rgba(${HUD_INK}, 0)`);
 
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius * 1.3, 0, Math.PI * 2);
@@ -538,7 +544,7 @@ function drawDetectionCircle(ctx, x, y, radius, time) {
 
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(46, 163, 242, 0.8)';
+  ctx.strokeStyle = `rgba(${HUD_INK}, 0.8)`;
   ctx.lineWidth = 2;
   ctx.setLineDash([10, 5]);
   ctx.lineDashOffset = -time * 20;
@@ -547,7 +553,7 @@ function drawDetectionCircle(ctx, x, y, radius, time) {
 
   ctx.beginPath();
   ctx.arc(x, y, pulseRadius * 0.85, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(46, 163, 242, 0.4)';
+  ctx.strokeStyle = `rgba(${HUD_INK}, 0.4)`;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -558,12 +564,12 @@ function drawDetectionCircle(ctx, x, y, radius, time) {
 
     ctx.beginPath();
     ctx.arc(x + dx, y + dy, 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(46, 163, 242, 0.9)';
+    ctx.fillStyle = `rgba(${HUD_INK}, 0.9)`;
     ctx.fill();
   }
 
   ctx.font = `${radius * 0.3}px serif`;
-  ctx.fillStyle = `rgba(46, 163, 242, ${0.3 + Math.sin(time * 3) * 0.1})`;
+  ctx.fillStyle = `rgba(${HUD_INK}, ${0.3 + Math.sin(time * 3) * 0.1})`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('☯', x, y);
@@ -578,7 +584,7 @@ function drawSparkle(ctx, x, y, time) {
   ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
   ctx.fill();
 
-  ctx.strokeStyle = `rgba(46, 163, 242, ${alpha * 0.7})`;
+  ctx.strokeStyle = `rgba(${HUD_INK}, ${alpha * 0.7})`;
   ctx.lineWidth = 1;
 
   ctx.beginPath();

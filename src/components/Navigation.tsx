@@ -39,7 +39,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
                   transition-all duration-200 font-medium
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent-ink focus-visible:ring-offset-1
                   ${isActive
-                    ? 'bg-gal-accent-light text-gal-accent-ink border-b-2 border-gal-accent'
+                    ? 'bg-gal-accent-light text-gal-accent-ink border-b-2 border-gal-accent-ink'
                     : 'text-gal-muted hover:text-gal-body hover:bg-gal-light border-b-2 border-transparent'
                   }
                 `}

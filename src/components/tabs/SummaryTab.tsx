@@ -18,6 +18,12 @@ const CARD_ACCENT = '#b8a5ff';  // gal-accent-ink — 8.72:1
 const CARD_INK = '#f6f6f8';     // gal-black     — 17.20:1
 const CARD_BODY = '#b8b0c8';    // gal-body      — 8.91:1
 const CARD_MUTED = '#9c93ad';   // gal-muted     — 6.36:1
+// 장식선·글로우는 알파를 쓰므로 hex 가 아니라 RGB 트리플로 둔다.
+// 이 두 줄이 없어서 파란 시절 리터럴 5개가 그대로 남아 있었다 —
+// 특히 안쪽 테두리가 rgba(229,229,229,·) 즉 **옛 gal-border 흰 선**이었다.
+// preflight 기본 테두리색과 같은 부류의 실패다.
+const CARD_ACCENT_RGB = '184,165,255'; // gal-accent-ink
+const CARD_LINE_RGB = '129,117,164';   // gal-border
 
 function generateDestinyCard(
   dateStr: string,
@@ -34,30 +40,30 @@ function generateDestinyCard(
     canvas.height = H;
     const ctx = canvas.getContext('2d')!;
 
-    // Background — clean white
+    // Background — 다크 페이지색. 앱은 다크인데 내보낸 이미지만 흰색이면 안 된다.
     ctx.fillStyle = CARD_SURFACE;
     ctx.fillRect(0, 0, W, H);
 
     // Subtle radial accent glow
     const glow = ctx.createRadialGradient(W / 2, H / 3, 0, W / 2, H / 3, 300);
-    glow.addColorStop(0, 'rgba(46,163,242,0.04)');
+    glow.addColorStop(0, `rgba(${CARD_ACCENT_RGB},0.10)`);
     glow.addColorStop(1, 'transparent');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
 
     // Decorative border
-    ctx.strokeStyle = 'rgba(46,163,242,0.3)';
+    ctx.strokeStyle = `rgba(${CARD_ACCENT_RGB},0.35)`;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(24, 24, W - 48, H - 48);
 
     // Inner border
-    ctx.strokeStyle = 'rgba(229,229,229,0.6)';
+    ctx.strokeStyle = `rgba(${CARD_LINE_RGB},0.7)`;
     ctx.lineWidth = 1;
     ctx.strokeRect(32, 32, W - 64, H - 64);
 
     // Corner ornaments
     const ornSize = 16;
-    ctx.fillStyle = 'rgba(46,163,242,0.5)';
+    ctx.fillStyle = `rgba(${CARD_ACCENT_RGB},0.6)`;
     [[32, 32], [W - 32, 32], [32, H - 32], [W - 32, H - 32]].forEach(([x, y]) => {
       ctx.beginPath();
       ctx.arc(x, y, ornSize / 2, 0, Math.PI * 2);
@@ -79,7 +85,7 @@ function generateDestinyCard(
     // Divider
     const divGrad = ctx.createLinearGradient(100, 0, W - 100, 0);
     divGrad.addColorStop(0, 'transparent');
-    divGrad.addColorStop(0.5, 'rgba(46,163,242,0.4)');
+    divGrad.addColorStop(0.5, `rgba(${CARD_ACCENT_RGB},0.5)`);
     divGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = divGrad;
     ctx.fillRect(100, 120, W - 200, 1);
@@ -490,9 +496,9 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
             {loading && !dailyStyle ? (
               <div className="text-center py-4">
                 <div className="flex gap-1 justify-center mb-2">
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-gal-muted text-sm">{t('sub.loadingStyle')}</p>
               </div>

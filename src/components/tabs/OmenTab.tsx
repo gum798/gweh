@@ -493,9 +493,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
             {personalLoading ? (
               <Card variant="accent" className="text-center">
                 <div className="flex gap-1 justify-center mb-2">
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
                 <p className="text-gal-muted text-sm">{t('omenTab.loadingPersonal')}</p>
               </Card>
@@ -574,9 +574,9 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               {styleLoading ? (
                 <div className="text-center py-6">
                   <div className="flex gap-1 justify-center mb-2">
-                    <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-gal-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-gal-accent-ink rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                   <p className="text-gal-muted text-sm">{t('sub.loadingStyle')}</p>
                 </div>

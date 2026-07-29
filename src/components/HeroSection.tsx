@@ -50,16 +50,28 @@ export default function HeroSection({ onTabChange }: HeroProps) {
           </h1>
         </div>
 
-        {/* Sub-tagline */}
-        {/* 흰색 알파는 전부 토큰으로 바꿨다. text-white/25 는 히어로 배경 위에서
-            1.9:1, /35 는 3.3:1 로 둘 다 본문 AA(4.5:1) 미달이었다 — 히어로가
+        {/* ── U11: 폴드 안에 CTA 를 넣는다 ────────────────────────────────
+            min-h 는 **바닥**이지 천장이 아니다. dvh 로 바꿔도 375×667 에서는
+            히어로 내용의 고유 높이가 가용 높이(667 − 헤더 56 = 611px)를 넘어
+            CTA 가 밖으로 밀렸다: ko +12.3 / en +33.4 / en+lang +69.3px.
+
+            간격 값은 하나도 건드리지 않는다. 대신 **장식 두 덩어리**를 좁은
+            폭에서 렌더하지 않는다 — 아래 태그라인(영문 브랜드 문구, h1 이
+            이미 같은 내용을 말한다)과 aria-hidden 장식 구분선.
+            둘이 자기 높이 + 아래 여백까지 합쳐 약 108px(루트 16px 기준)이라
+            세 조건을 모두 폴드 안으로 되돌린다. md 이상에서는 그대로 나온다.
+
+            색 메모: 흰색 알파를 토큰으로 바꾼 자리다. 예전 값은 히어로 배경
+            위에서 각각 1.9:1 과 3.3:1 로 본문 AA 미달이었다 — 히어로가
             "장식"이라는 이유로 예외가 되지는 않는다. 실제 문구가 들어 있다. */}
-        <p className="text-[10px] md:text-[11px] text-gal-muted uppercase tracking-[0.5em] mb-12 md:mb-14 hero-fade hero-fade-1">
+
+        {/* Sub-tagline */}
+        <p className="hidden md:block text-[10px] md:text-[11px] text-gal-muted uppercase tracking-[0.5em] mb-12 md:mb-14 hero-fade hero-fade-1">
           Unveil Your Destiny
         </p>
 
         {/* Decorative divider */}
-        <div className="flex items-center gap-3 mb-10 md:mb-12 hero-fade hero-fade-2" aria-hidden="true">
+        <div className="hidden md:flex items-center gap-3 mb-10 md:mb-12 hero-fade hero-fade-2" aria-hidden="true">
           <div className="w-8 h-px bg-white/10" />
           <div className="w-1.5 h-1.5 rounded-full bg-gal-accent-ink/70" />
           <div className="w-8 h-px bg-white/10" />
@@ -83,7 +95,7 @@ export default function HeroSection({ onTabChange }: HeroProps) {
             <button
               key={item.id}
               onClick={() => handleServiceClick(item.id)}
-              className="hero-card group flex flex-col items-center gap-2 py-3.5 md:py-4 px-1.5 rounded-xl border border-gal-border/70 bg-white/[0.05] hover:bg-white/[0.10] hover:border-gal-accent-ink transition-all duration-300"
+              className="hero-card group flex flex-col items-center gap-2 py-3.5 md:py-4 px-1.5 rounded-xl border border-gal-border bg-white/[0.05] hover:bg-white/[0.10] hover:border-gal-accent-ink transition-all duration-300"
             >
               <ServiceIcon type={item.icon} />
               <span className="text-[9px] md:text-[10px] text-gal-body group-hover:text-gal-black tracking-[0.12em] uppercase transition-colors duration-300 leading-tight text-center">
@@ -106,16 +118,17 @@ export default function HeroSection({ onTabChange }: HeroProps) {
       </div>
 
       {/* === Scroll indicator ===
-          셋을 한꺼번에 고친다.
+          셋을 한꺼번에 고친다. (주의: 이 주석에 살아 있는 유틸리티 이름을 적으면
+          Tailwind content 스캐너가 그것까지 CSS 로 내보낸다. 아래는 전부 서술이다.)
           1) 가운데 정렬을 transform 이 아니라 flex 로 한다. 예전에는 이 컨테이너가
-             `left-1/2 -translate-x-1/2` 와 `hero-fade` 를 함께 달고 있었는데,
+             수평 중앙 정렬용 transform 과 .hero-fade 를 함께 달고 있었는데,
              .hero-fade 의 `transform: translateY(28px)` 이 유틸리티와 특이성이 같고
-             CSS 에서 더 뒤에 나와 **-translate-x-1/2 를 통째로 이겼다** — 셰브런이
+             CSS 에서 더 뒤에 나와 **정렬용 transform 을 통째로 이겼다** — 셰브런이
              화면 중앙이 아니라 중앙에서 오른쪽으로 자기 폭의 절반만큼 밀려 있었다.
              (애니메이션을 안쪽 button 으로 내리면 두 transform 이 겹치지 않는다.)
-          2) 아래 그라디언트보다 위에 둔다(z-20 > z-10). 예전에는 둘 다 z-10 이라
+          2) 아래 그라디언트보다 위 층에 둔다. 예전에는 둘의 z 값이 같아서
              DOM 순서상 나중인 그라디언트가 셰브런 위에 덮였다.
-          3) 색을 text-white/15(자기 배경 위 1.56:1)에서 본문 토큰으로 올린다. */}
+          3) 색을 흰색 15% 알파(자기 배경 위 1.56:1)에서 본문 토큰으로 올린다. */}
       <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
         <button onClick={scrollToContent} className="text-gal-body hover:text-gal-black transition-colors duration-300 hero-fade hero-fade-4" aria-label="Scroll down">
           <svg className="w-5 h-5 animate-bounce" viewBox="0 0 20 20" fill="currentColor">
