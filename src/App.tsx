@@ -202,7 +202,7 @@ function App() {
                 // 들어가면 이 핸들러를 지우면 된다.
                 onClick={(e) => e.preventDefault()}
                 aria-label={social.label}
-                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent flex items-center justify-center text-gal-muted hover:text-gal-accent-ink transition-all duration-200 hover:scale-105 active:scale-95"
+                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent-ink flex items-center justify-center text-gal-muted hover:text-gal-accent-ink transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d={social.path} />

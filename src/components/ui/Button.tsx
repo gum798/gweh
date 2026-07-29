@@ -20,7 +20,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // 토큰 값을 바꿔 고친다. 여기서 다른 색을 쓰면 그 수정이 이 파일만 비껴간다.
 const VARIANTS: Record<Variant, string> = {
   primary:   'bg-gal-accent text-white hover:bg-gal-accent-dark shadow-gal-button',
-  secondary: 'bg-gal-light text-gal-black border border-gal-border hover:border-gal-accent',
+  secondary: 'bg-gal-light text-gal-black border border-gal-border hover:border-gal-accent-ink',
   ghost:     'bg-transparent text-gal-body hover:text-gal-black hover:bg-gal-light',
   danger:    'bg-status-danger text-gal-bg hover:opacity-90',
 };

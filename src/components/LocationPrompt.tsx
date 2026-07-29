@@ -42,7 +42,7 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
             onClick={onSkip}
             className="w-full px-8 py-3 bg-gal-light border border-gal-border
                        text-gal-body font-medium rounded-gal-md
-                       hover:border-gal-accent hover:text-gal-accent-ink
+                       hover:border-gal-accent-ink hover:text-gal-accent-ink
                        transition-all duration-200"
           >
             {t('location.skipButton')}

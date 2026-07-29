@@ -42,7 +42,7 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
           <div
             key={index}
             className="bg-gal-bg rounded-gal-lg p-4 border border-gal-border
-                       hover:border-gal-accent transition-colors duration-200"
+                       hover:border-gal-accent-ink transition-colors duration-200"
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl">{detail.icon}</span>
