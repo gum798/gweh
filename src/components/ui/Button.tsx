@@ -1,0 +1,78 @@
+import { forwardRef, type ButtonHTMLAttributes } from 'react';
+
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Size = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: Variant;
+  size?: Size;
+  fullWidth?: boolean;
+  loading?: boolean;
+}
+
+// 감사 시점 버튼 41개에 서로 다른 클래스 조합 29가지가 있었다. 여기로 수렴한다.
+//
+// 색은 전부 토큰에서 온다 — 하드코딩된 hex 가 하나도 없어야
+// scripts/check-contrast.mjs 가 실제로 이 버튼들을 검사하는 것이 된다.
+// primary 의 bg-gal-accent 는 현재 흰 글자와 2.75:1 로 AA 미달이지만,
+// 이는 게이트가 이미 알고 있는 기존 실패 2건 중 하나이고 Task 7 이
+// 토큰 값을 바꿔 고친다. 여기서 다른 색을 쓰면 그 수정이 이 파일만 비껴간다.
+const VARIANTS: Record<Variant, string> = {
+  primary:   'bg-gal-accent text-white hover:bg-gal-accent-dark shadow-gal-button',
+  secondary: 'bg-white text-gal-black border border-gal-border hover:border-gal-accent',
+  ghost:     'bg-transparent text-gal-body hover:text-gal-black hover:bg-gal-light',
+  danger:    'bg-status-danger text-white hover:opacity-90',
+};
+
+// min-h 는 간격이 아니라 크기다 — "임의값 금지" 규칙(간격)의 대상이 아니다.
+// Tailwind 3.4 의 스케일에 44px(2.75rem) 단계가 있지만 임의값을 유지한다:
+//   1. 이 저장소의 기존 터치 타깃 표기가 전부 임의값이다 — AppHeader 3곳,
+//      Navigation 1곳, OmenTab 1곳. 스케일 표기 사용처는 0곳이다.
+//   2. 44 는 리듬값이 아니라 터치 타깃 상수다(WCAG 2.5.5 / Apple HIG).
+//      임의값은 그 의도를 말하지만 스케일 숫자는 감춘다.
+//   3. lg 의 52px 에는 대응 토큰이 아예 없다 — Tailwind 기본 스케일은 11 다음이
+//      12, 14 로 13 단계가 없다. 세 줄짜리 표에서 두 줄만 스케일 표기를 쓰면
+//      나중에 누군가 52px 도 없는 토큰으로 "정리"하고, Tailwind 는 모르는
+//      유틸리티에 아무것도 내보내지 않으므로 높이 규칙이 조용히 사라진다.
+//      Task 1 이 지운 라벨 유틸리티로 이미 겪은 실패 모드다.
+//
+// 주의: 주석에도 살아 있는 유틸리티 이름을 적지 말 것. Tailwind 의 content
+// 스캐너는 파일 텍스트를 정규식으로 훑기 때문에 주석 속 클래스명도 실제 CSS
+// 규칙을 만들어낸다(이 주석의 초안이 죽은 규칙 2개를 번들에 넣었다).
+const SIZES: Record<Size, string> = {
+  sm: 'text-xs px-3 min-h-[44px]',
+  md: 'text-sm px-5 min-h-[44px]',
+  lg: 'text-base px-7 min-h-[52px]',
+};
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = 'primary', size = 'md', fullWidth, loading, disabled, className = '', children, ...rest },
+  ref
+) {
+  return (
+    <button
+      ref={ref}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      className={[
+        'inline-flex items-center justify-center gap-2 rounded-gal-xl font-medium',
+        'transition-all duration-200 active:scale-[0.98]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2',
+        'disabled:opacity-50 disabled:pointer-events-none',
+        VARIANTS[variant],
+        SIZES[size],
+        fullWidth ? 'w-full' : '',
+        className,
+      ].filter(Boolean).join(' ')}
+      {...rest}
+    >
+      {loading && (
+        <span
+          className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin"
+          aria-hidden="true"
+        />
+      )}
+      {children}
+    </button>
+  );
+});
