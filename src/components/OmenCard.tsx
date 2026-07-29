@@ -16,9 +16,9 @@ export default memo(function OmenCard({ omen, weather, moon, earthquake }) {
       <div className="flex justify-between items-center mb-6">
         <span className="data-label">{t('omenCard.energyFlow')}</span>
         <div className="flex items-center gap-2">
-          <div className="w-24 h-2 bg-gal-light rounded-gal-md overflow-hidden">
+          <div className="w-24 h-2 bg-gal-bg rounded-gal-md overflow-hidden">
             <div
-              className="h-full bg-gal-accent transition-all duration-1000 rounded-gal-md"
+              className="h-full bg-gal-accent-ink transition-all duration-1000 rounded-gal-md"
               style={{ width: `${energy}%` }}
             />
           </div>

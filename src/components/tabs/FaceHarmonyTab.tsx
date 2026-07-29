@@ -14,8 +14,12 @@ import { LoadingState } from '../ui/LoadingState';
 // 여기 흩어져 있던 파랑 리터럴 12개 중 4개는 설정 어디에도 없는 값이었다 —
 // 그 넷을 없애고 나머지를 이 두 상수로 모은다. (원래 값을 주석에 적지 않는 이유:
 // 감사 스크립트가 파일 텍스트에서 색 리터럴을 세기 때문에 주석이 계수를 부풀린다.)
-const ACCENT = '#2ea3f2';
-const ACCENT_DARK = '#1a8fd8';
+// SVG/캔버스는 Tailwind 클래스를 못 쓰므로 hex 를 직접 쓴다.
+// 잉크(#b8a5ff)를 기준값으로 둔다 — 채움색 #5b13ec 는 다크 배경 위 2.43:1 이라
+// 선·입자·게이지 같은 그래픽 객체의 3:1(WCAG 1.4.11)을 만족하지 못한다.
+const ACCENT = '#b8a5ff';       // gal-accent-ink
+const ACCENT_DARK = '#5b13ec';  // gal-accent — 그라디언트의 어두운 끝
+const SURFACE = '#30254e';      // gal-light — 배지 원판
 
 // ─── Animated SVG: Orbiting ring with runes ────────────────────────
 function GoldenOrbitSVG({ size = 240, animate = true }: { size?: number; animate?: boolean }) {
@@ -27,7 +31,7 @@ function GoldenOrbitSVG({ size = 240, animate = true }: { size?: number; animate
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(46,163,242,0.25)" strokeWidth="1.5"
         strokeDasharray="8 6" className={animate ? 'animate-spin-slow origin-center' : ''} />
       {/* inner ring */}
-      <circle cx={size / 2} cy={size / 2} r={r * 0.85} fill="none" stroke="rgba(46,163,242,0.15)" strokeWidth="1" />
+      <circle cx={size / 2} cy={size / 2} r={r * 0.85} fill="none" stroke="rgba(184,165,255,0.25)" strokeWidth="1" />
       {/* rune characters placed around the ring */}
       {runes.map((rune, i) => {
         const angle = (i / runes.length) * Math.PI * 2 - Math.PI / 2;
@@ -51,13 +55,13 @@ function HarmonyConnectionSVG({ active, score }: { active: boolean; score?: numb
     <svg width="120" height="60" viewBox="0 0 120 60" className="hidden md:block flex-shrink-0">
       <defs>
         <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="rgba(46,163,242,0.1)" />
-          <stop offset="50%" stopColor="rgba(46,163,242,0.8)" />
-          <stop offset="100%" stopColor="rgba(46,163,242,0.1)" />
+          <stop offset="0%" stopColor="rgba(184,165,255,0.15)" />
+          <stop offset="50%" stopColor="rgba(184,165,255,0.9)" />
+          <stop offset="100%" stopColor="rgba(184,165,255,0.15)" />
         </linearGradient>
       </defs>
       {/* base line */}
-      <line x1="10" y1="30" x2="110" y2="30" stroke="rgba(46,163,242,0.15)" strokeWidth="2" />
+      <line x1="10" y1="30" x2="110" y2="30" stroke="rgba(184,165,255,0.25)" strokeWidth="2" />
       {/* animated line */}
       {active && (
         <line x1="10" y1="30" x2="110" y2="30" stroke="url(#lineGrad)" strokeWidth="3">
@@ -76,7 +80,7 @@ function HarmonyConnectionSVG({ active, score }: { active: boolean; score?: numb
       {/* center score badge */}
       {score != null && !active && (
         <g>
-          <circle cx="60" cy="30" r="18" fill="white" stroke={ACCENT} strokeWidth="1.5" />
+          <circle cx="60" cy="30" r="18" fill={SURFACE} stroke={ACCENT} strokeWidth="1.5" />
           <text x="60" y="31" textAnchor="middle" dominantBaseline="central"
             fill={ACCENT} fontSize="12" fontWeight="bold">{score}%</text>
         </g>
@@ -179,7 +183,7 @@ function ScoreGauge({ score, size = 180 }: { score: number; size?: number }) {
           </linearGradient>
         </defs>
         {/* background circle */}
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(46,163,242,0.1)" strokeWidth="8" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(184,165,255,0.18)" strokeWidth="8" />
         {/* score arc */}
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#gaugeGrad)" strokeWidth="8"
           strokeLinecap="round" strokeDasharray={circumference}
@@ -188,10 +192,10 @@ function ScoreGauge({ score, size = 180 }: { score: number; size?: number }) {
           style={{ transition: 'stroke-dashoffset 1.8s cubic-bezier(0.34, 1, 0.64, 1)' }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-bold text-gal-accent animate-count-up">
+        <span className="text-5xl font-bold text-gal-accent-ink animate-count-up">
           {animatedScore}
         </span>
-        <span className="text-gal-accent/60 text-sm font-medium tracking-wider">점</span>
+        <span className="text-gal-accent-ink text-sm font-medium tracking-wider">점</span>
       </div>
     </div>
   );
@@ -199,9 +203,11 @@ function ScoreGauge({ score, size = 180 }: { score: number; size?: number }) {
 
 // ─── Dimension Bar ────────────────────────────────────────────────────────
 function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) {
-  const barColor = dim.score >= 85 ? 'from-gal-accent to-gal-accent/70'
-    : dim.score >= 70 ? 'from-gal-accent-dark to-gal-accent'
-    : 'from-gal-accent-dark to-gal-accent-dark/70';
+  // 막대는 그래픽 객체다. 채움색(#5b13ec)만으로 그리면 우물(#161022) 위 2.43:1 로
+  // 눈금이 읽히지 않아, 밝은 끝을 잉크로 잡고 어두운 끝만 채움색으로 둔다.
+  const barColor = dim.score >= 85 ? 'from-gal-accent-ink to-gal-accent-ink/70'
+    : dim.score >= 70 ? 'from-gal-accent-ink to-gal-accent'
+    : 'from-gal-accent to-gal-accent-dark';
 
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: `${index * 120}ms`, opacity: 0 }}>
@@ -211,12 +217,12 @@ function DimensionBar({ dim, index }: { dim: HarmonyDimension; index: number }) 
             <span className="text-lg">{dim.icon}</span>
             <span className="text-gal-black text-sm font-medium">{dim.label}</span>
           </div>
-          <span className={`text-sm font-bold ${dim.score >= 85 ? 'text-gal-accent' : dim.score >= 70 ? 'text-gal-accent-dark' : 'text-gal-body'}`}>
+          <span className={`text-sm font-bold ${dim.score >= 85 ? 'text-gal-accent-ink' : dim.score >= 70 ? 'text-gal-dark' : 'text-gal-body'}`}>
             {dim.score}점
           </span>
         </div>
         {/* bar */}
-        <div className="h-2 bg-gal-light rounded-full overflow-hidden mb-3">
+        <div className="h-2 bg-gal-bg rounded-full overflow-hidden mb-3">
           <div className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-1000 ease-out`}
             style={{ width: `${dim.score}%`, transitionDelay: `${index * 120 + 300}ms` }} />
         </div>
@@ -440,7 +446,7 @@ export default function FaceHarmonyTab() {
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="text-center mb-4">
-          <h3 className="text-gal-accent text-lg font-bold">{label}의 얼굴을 촬영하세요</h3>
+          <h3 className="text-gal-accent-ink text-lg font-bold">{label}의 얼굴을 촬영하세요</h3>
           <p className="text-gal-muted text-sm mt-1">정면을 바라보고 밝은 곳에서 촬영하면 정확도가 높아집니다</p>
         </div>
         <CameraCapture
@@ -476,7 +482,7 @@ export default function FaceHarmonyTab() {
             <Card padding="md" className="relative z-10">
               {/* Grade Badge */}
               <div className="text-center mb-6 animate-scale-in" style={{ opacity: 0 }}>
-                <span className="inline-block px-5 py-1.5 bg-gal-accent-light border border-gal-accent/30 rounded-gal-md text-gal-accent text-sm font-bold tracking-widest">
+                <span className="inline-block px-5 py-1.5 bg-gal-accent-light border border-gal-accent/30 rounded-gal-md text-gal-accent-ink text-sm font-bold tracking-widest">
                   {gradeEmoji} {grade}
                 </span>
               </div>
@@ -522,11 +528,11 @@ export default function FaceHarmonyTab() {
 
               {/* Element Pair */}
               <div className="flex items-center justify-center gap-4 mt-6 animate-fade-in-up" style={{ opacity: 0, animationDelay: '900ms' }}>
-                <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent text-sm font-bold tracking-wider">
+                <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent-ink text-sm font-bold tracking-wider">
                   {ELEMENT_LABELS[elementPair.a]}
                 </span>
-                <span className="text-gal-accent/60 text-lg animate-pulse-slow">☯</span>
-                <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent text-sm font-bold tracking-wider">
+                <span className="text-gal-accent-ink text-lg animate-pulse-slow">☯</span>
+                <span className="px-4 py-1.5 bg-gal-accent-light border border-gal-accent/20 rounded-gal-md text-gal-accent-ink text-sm font-bold tracking-wider">
                   {ELEMENT_LABELS[elementPair.b]}
                 </span>
               </div>
@@ -539,7 +545,7 @@ export default function FaceHarmonyTab() {
           <Card className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">🔥</span>
-              <span className="text-gal-accent text-sm font-bold tracking-wide">오행 궁합 · 상생상극(相生相剋)</span>
+              <span className="text-gal-accent-ink text-sm font-bold tracking-wide">오행 궁합 · 상생상극(相生相剋)</span>
             </div>
             <p className="text-gal-body text-sm leading-relaxed whitespace-pre-line">{elementPair.harmony}</p>
           </Card>
@@ -550,7 +556,7 @@ export default function FaceHarmonyTab() {
           <div className="max-w-md mx-auto space-y-3">
             <div className="flex items-center gap-2 mb-1">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gal-border to-transparent" />
-              <span className="text-gal-accent/60 text-label font-bold uppercase">세부 궁합 분석</span>
+              <span className="text-gal-accent-ink text-label font-bold uppercase">세부 궁합 분석</span>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gal-border to-transparent" />
             </div>
             {dimensions.map((dim, i) => (
@@ -564,7 +570,7 @@ export default function FaceHarmonyTab() {
           <Card variant="accent" className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">📜</span>
-              <span className="text-gal-accent text-sm font-bold tracking-wide">신비로운 조언</span>
+              <span className="text-gal-accent-ink text-sm font-bold tracking-wide">신비로운 조언</span>
             </div>
             <p className="text-gal-body text-sm leading-relaxed">{advice}</p>
           </Card>
@@ -617,8 +623,8 @@ export default function FaceHarmonyTab() {
                 onClick={() => { setInputMode('separate'); handleReset(); }}
                 className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
                   inputMode === 'separate'
-                    ? 'bg-gal-accent-light text-gal-accent border border-gal-accent/30'
-                    : 'text-gal-muted hover:text-gal-accent border border-transparent'
+                    ? 'bg-gal-accent-light text-gal-accent-ink border border-gal-accent/30'
+                    : 'text-gal-muted hover:text-gal-accent-ink border border-transparent'
                 }`}
               >
                 📷 각각 촬영
@@ -627,8 +633,8 @@ export default function FaceHarmonyTab() {
                 onClick={() => { setInputMode('single'); handleReset(); }}
                 className={`px-4 py-2 rounded-gal-lg text-xs font-medium transition-all duration-300 ${
                   inputMode === 'single'
-                    ? 'bg-gal-accent-light text-gal-accent border border-gal-accent/30'
-                    : 'text-gal-muted hover:text-gal-accent border border-transparent'
+                    ? 'bg-gal-accent-light text-gal-accent-ink border border-gal-accent/30'
+                    : 'text-gal-muted hover:text-gal-accent-ink border border-transparent'
                 }`}
               >
                 🤳 함께 찍은 사진
@@ -650,7 +656,7 @@ export default function FaceHarmonyTab() {
                 {/* mobile connector */}
                 <div className="md:hidden flex flex-col items-center">
                   <div className="w-8 h-px bg-gal-border" />
-                  <span className="text-gal-accent/40 text-lg my-1">☯</span>
+                  <span className="text-gal-accent-ink text-lg my-1">☯</span>
                   <div className="w-8 h-px bg-gal-border" />
                 </div>
 
@@ -678,7 +684,7 @@ export default function FaceHarmonyTab() {
                              hover:border-gal-accent/50 hover:bg-gal-accent-light transition-all duration-300 text-center group"
                 >
                   <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">👥</div>
-                  <p className="text-gal-accent text-sm font-medium mb-2">두 사람이 함께 찍은 사진을 올려주세요</p>
+                  <p className="text-gal-accent-ink text-sm font-medium mb-2">두 사람이 함께 찍은 사진을 올려주세요</p>
                   <p className="text-gal-muted text-xs leading-relaxed">
                     AI가 자동으로 두 얼굴을 감지·분리하여<br/>각 인물의 관상을 개별 분석합니다
                   </p>
@@ -702,7 +708,7 @@ export default function FaceHarmonyTab() {
                   </div>
                   <span className="text-gal-muted text-xs mt-2">인물 1</span>
                 </div>
-                <span className="text-gal-accent/40 text-2xl">☯</span>
+                <span className="text-gal-accent-ink text-2xl">☯</span>
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 rounded-full border-2 border-gal-accent/40 overflow-hidden">
                     <img src={imageB} alt="인물 2" className="w-full h-full object-cover" />
@@ -775,7 +781,7 @@ export default function FaceHarmonyTab() {
               <div key={i} className="animate-fade-in-up" style={{ opacity: 0, animationDelay: `${i * 150 + 300}ms` }}>
                 <Card padding="sm" className="group hover:border-gal-accent/30 hover:shadow-gal-hover cursor-default">
                   <span className="text-xl mb-2 block group-hover:scale-110 transition-transform duration-300 inline-block">{card.icon}</span>
-                  <h4 className="text-gal-accent text-sm font-bold mb-1 group-hover:text-gal-accent-dark transition-colors">{card.title}</h4>
+                  <h4 className="text-gal-accent-ink text-sm font-bold mb-1 group-hover:text-gal-black transition-colors">{card.title}</h4>
                   <p className="text-gal-muted text-xs leading-relaxed group-hover:text-gal-body transition-colors">{card.desc}</p>
                 </Card>
               </div>

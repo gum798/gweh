@@ -244,7 +244,7 @@ export default function FortuneTab() {
         {/* 조언 + 행운 */}
         <section className="px-4">
           <Card variant="accent" className="max-w-md mx-auto">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             {result.advice && <p className="text-gal-dark text-sm leading-relaxed mb-5">"{result.advice}"</p>}
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {result.luckyColor && <div className="text-center">
@@ -302,12 +302,12 @@ export default function FortuneTab() {
                     setBirthYear(e.target.value);
                     if (e.target.value) localStorage.setItem(BIRTH_YEAR_KEY, e.target.value);
                   }}
-                  className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-4 text-lg font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                  className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-4 text-lg font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                   required
                 >
-                  <option value="" disabled className="bg-white">Select Year</option>
+                  <option value="" disabled className="bg-gal-light">Select Year</option>
                   {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <option key={year} value={year} className="bg-white">{year}</option>
+                    <option key={year} value={year} className="bg-gal-light">{year}</option>
                   ))}
                 </select>
               </label>

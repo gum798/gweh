@@ -28,7 +28,7 @@ const ELEMENT_BG = {
   목: 'bg-status-success-light border-status-success/30',
   화: 'bg-status-danger-light border-status-danger/30',
   토: 'bg-status-warning-light border-status-warning/30',
-  금: 'bg-gal-light border-gal-border',
+  금: 'bg-gal-bg border-gal-border',
   수: 'bg-status-info-light border-status-info/30',
 };
 
@@ -293,7 +293,7 @@ export default function SajuTab() {
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-white"
+                      className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-gal-light"
                       required
                     />
                   ) : (
@@ -304,7 +304,7 @@ export default function SajuTab() {
                           <select
                             value={lunarYear}
                             onChange={(e) => setLunarYear(e.target.value)}
-                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                             required
                           >
                             <option value="" disabled>{tc('saju.year')}</option>
@@ -319,7 +319,7 @@ export default function SajuTab() {
                           <select
                             value={lunarMonth}
                             onChange={(e) => setLunarMonth(e.target.value)}
-                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                             required
                           >
                             <option value="" disabled>{tc('saju.month')}</option>
@@ -334,7 +334,7 @@ export default function SajuTab() {
                           <select
                             value={lunarDay}
                             onChange={(e) => setLunarDay(e.target.value)}
-                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                            className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-3 text-sm font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                             required
                           >
                             <option value="" disabled>{tc('saju.day')}</option>
@@ -352,7 +352,7 @@ export default function SajuTab() {
                         onClick={() => setIsLeapMonth(prev => !prev)}
                         className={`flex items-center gap-2 px-3 py-2 rounded-gal-md text-xs font-medium transition-all ${
                           isLeapMonth
-                            ? 'bg-gal-accent/10 text-gal-accent border border-gal-accent/30'
+                            ? 'bg-gal-accent/10 text-gal-accent-ink border border-gal-accent/30'
                             : 'bg-gal-bg text-gal-muted border border-gal-border hover:text-gal-body'
                         }`}
                       >
@@ -378,10 +378,10 @@ export default function SajuTab() {
                   <select
                     value={birthHour}
                     onChange={(e) => setBirthHour(e.target.value)}
-                    className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 px-4 text-base font-medium transition-all focus:bg-white appearance-none cursor-pointer"
+                    className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-4 text-base font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                   >
                     {hourOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="bg-white">
+                      <option key={opt.value} value={opt.value} className="bg-gal-light">
                         {opt.label}
                       </option>
                     ))}
@@ -409,7 +409,7 @@ export default function SajuTab() {
         <Card className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-gal-accent text-label font-bold uppercase">{tc('saju.fourPillars')}</span>
+              <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('saju.fourPillars')}</span>
               <h3 className="text-gal-black text-xl font-bold tracking-tight">{t('title')}</h3>
             </div>
             <div className="h-12 w-12 rounded-full border border-gal-accent/30 flex items-center justify-center shadow-gal-soft">
@@ -423,7 +423,7 @@ export default function SajuTab() {
 
           {/* 일간 정보 */}
           <div className="bg-gal-bg rounded-gal-lg p-4 border border-gal-border">
-            <p className="text-gal-accent text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
+            <p className="text-gal-accent-ink text-xs uppercase tracking-widest mb-2">{t('dayMaster')}</p>
             <p className="text-gal-black text-2xl font-bold">{dayMaster.name}</p>
             <p className="text-gal-muted text-sm mt-1">
               {tc('saju.dayMasterEnergy', { nature: dayMaster.nature, trait: dayMaster.trait })}
@@ -438,7 +438,7 @@ export default function SajuTab() {
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl">{{ '쥐': '🐀', '소': '🐂', '호랑이': '🐅', '토끼': '🐇', '용': '🐉', '뱀': '🐍', '말': '🐎', '양': '🐏', '원숭이': '🐒', '닭': '🐓', '개': '🐕', '돼지': '🐖' }[zodiac] || '🐉'}</span>
             <div>
-              <p className="text-gal-accent text-xs uppercase tracking-widest">{t('zodiac')}</p>
+              <p className="text-gal-accent-ink text-xs uppercase tracking-widest">{t('zodiac')}</p>
               <p className="text-gal-black font-bold text-lg">{tc('saju.zodiacSuffix', { zodiac })}</p>
             </div>
           </div>
@@ -451,7 +451,7 @@ export default function SajuTab() {
       {/* 사주팔자 표 */}
       <section className="px-4">
         <Card className="max-w-md mx-auto">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('chart')}</h4>
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('chart')}</h4>
           <div className="grid grid-cols-4 gap-2 text-center">
             {pillars.map((p, i) => (
               <div key={i} className="bg-gal-bg rounded-gal-lg p-3 border border-gal-border">
@@ -472,7 +472,7 @@ export default function SajuTab() {
       {/* 오행 분석 */}
       <section className="px-4">
         <Card className="max-w-md mx-auto">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('fiveElements')}</h4>
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('fiveElements')}</h4>
           <div className="flex justify-center gap-2 mb-4">
             {Object.entries(elementAnalysis.distribution).map(([element, count]) => (
               <div
@@ -495,7 +495,7 @@ export default function SajuTab() {
       {/* 오늘의 운세 */}
       <section className="px-4">
         <Card variant="accent" className="max-w-md mx-auto">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('todayFortune')}</h4>
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('todayFortune')}</h4>
           <div className="text-center">
             <div className="mb-4">
               <LevelPill level={todayFortune.level} />

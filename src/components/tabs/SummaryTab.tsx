@@ -10,11 +10,14 @@ import { LevelPill } from '../ui/LevelPill';
 // 공유 카드는 <canvas> 에 그리므로 Tailwind 클래스를 쓸 수 없고 hex 를 직접 넣어야 한다.
 // 값은 tailwind.config.js 의 팔레트를 그대로 옮긴 것이며, 흩어져 있던 리터럴 13개를
 // 여기 5개로 모아 토큰이 바뀔 때 고칠 곳을 한 곳으로 만든다.
-const CARD_SURFACE = '#ffffff'; // 흰 바탕
-const CARD_ACCENT = '#2ea3f2';  // gal-accent
-const CARD_INK = '#1a1a1a';     // gal-black
-const CARD_BODY = '#666666';    // gal-body
-const CARD_MUTED = '#999999';   // gal-muted
+// 공유 카드도 다크다 — 앱은 다크인데 내보낸 이미지만 흰색이면 SNS 에서 다른 서비스로 보인다.
+// 액센트는 채움(#5b13ec)이 아니라 잉크(#b8a5ff)를 쓴다. 이 값들은 캔버스에서 배경 위
+// **글자색**으로 쓰이므로 채움색을 넣으면 카드 배경 위 2.43:1 로 떨어진다.
+const CARD_SURFACE = '#161022'; // gal-bg
+const CARD_ACCENT = '#b8a5ff';  // gal-accent-ink — 8.72:1
+const CARD_INK = '#f6f6f8';     // gal-black     — 17.20:1
+const CARD_BODY = '#b8b0c8';    // gal-body      — 8.91:1
+const CARD_MUTED = '#9c93ad';   // gal-muted     — 6.36:1
 
 function generateDestinyCard(
   dateStr: string,
@@ -386,21 +389,21 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                   <span className="text-4xl" aria-hidden="true">📊</span>
                   <p className="text-gal-black font-bold mt-2">{t('summary.title')}</p>
                 </div>
-                <div className="bg-gal-light rounded-gal-lg p-4">
+                <div className="bg-gal-bg rounded-gal-lg p-4">
                   <p className="text-gal-body text-sm">{i18n.language === 'ko' ? '오늘의 에너지가 길(吉)로 흐르고 있습니다. 금(金) 기운이 안정적이며, 보름달의 양(陽) 기운이 충만합니다.' : 'Today\'s energy flows with good fortune. Metal energy is stable, and the full moon\'s yang energy is abundant.'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gal-light rounded-gal-lg p-3 text-center">
+                  <div className="bg-gal-bg rounded-gal-lg p-3 text-center">
                     <span className="text-status-success font-bold">길</span>
                     <p className="text-gal-muted text-xs">운세</p>
                   </div>
-                  <div className="bg-gal-light rounded-gal-lg p-3 text-center">
-                    <span className="text-gal-accent font-bold">대길</span>
+                  <div className="bg-gal-bg rounded-gal-lg p-3 text-center">
+                    <span className="text-gal-accent-ink font-bold">대길</span>
                     <p className="text-gal-muted text-xs">사주</p>
                   </div>
                 </div>
               </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gal-bg/80">
                 <div className="h-12 w-12 rounded-full border border-gal-accent flex items-center justify-center mb-3 shadow-gal-soft">
                   <span className="text-xl">🔒</span>
                 </div>
@@ -438,7 +441,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
               <div className="relative inline-block mb-5">
                 <div className="absolute inset-0 rounded-full border border-gal-accent/30 animate-ping opacity-30" style={{ animationDuration: '3s' }} />
                 <div className="relative h-16 w-16 mx-auto rounded-full border border-gal-accent flex items-center justify-center shadow-gal-soft bg-gal-accent-light">
-                  <svg className="w-7 h-7 text-gal-accent animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-7 h-7 text-gal-accent-ink animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" strokeOpacity="0.5" />
                     <circle cx="12" cy="12" r="4" strokeOpacity="0.8" />
                     <line x1="12" y1="2" x2="12" y2="6" strokeOpacity="0.3" />
@@ -449,7 +452,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 </div>
               </div>
               <h3 className="text-gal-black text-lg font-bold mb-2 relative">{t('summary.title')}</h3>
-              <p className="text-gal-accent text-sm font-medium mb-1.5 animate-pulse-slow relative">
+              <p className="text-gal-accent-ink text-sm font-medium mb-1.5 animate-pulse-slow relative">
                 {i18n.language === 'ko' ? '천기를 모으는 중...' : 'Gathering celestial energies...'}
               </p>
               <p className="text-gal-muted text-xs leading-relaxed relative">{t('summary.noData')}</p>
@@ -470,7 +473,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {/* 헤더 */}
       <section className="px-4">
         <div className="max-w-md mx-auto text-center">
-          <span className="text-gal-accent text-label font-bold uppercase">{t('sub.badge')}</span>
+          <span className="text-gal-accent-ink text-label font-bold uppercase">{t('sub.badge')}</span>
           <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('summary.title')}</h3>
           <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full" />
         </div>
@@ -482,7 +485,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
           <Card variant="accent" className="max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">👔</span>
-              <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
+              <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest">{t('sub.dailyStyleTitle')}</h4>
             </div>
             {loading && !dailyStyle ? (
               <div className="text-center py-4">
@@ -500,7 +503,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 <div className="flex flex-wrap gap-2">
                   <span className="text-gal-muted text-xs">{t('sub.styleColors')}:</span>
                   {dailyStyle.colors?.map((color: string, i: number) => (
-                    <span key={i} className="text-gal-accent text-xs bg-gal-accent-light px-2 py-0.5 rounded-gal-md">
+                    <span key={i} className="text-gal-accent-ink text-xs bg-gal-accent-light px-2 py-0.5 rounded-gal-md">
                       {color}
                     </span>
                   ))}
@@ -525,7 +528,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {(energyLabel || dailyReading?.omen_message) && (
         <section className="px-4">
           <Card variant="accent" className="max-w-md mx-auto">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('summary.todayEnergy')}</h4>
             {/*
               energyLabel.color 는 읽지 않는다. getEnergyLabel()(utils/omenGenerator.ts)이
               CSS 클래스명을 값으로 돌려주는데, 그게 원시 팔레트의 400 단계라 흰 바탕에서
@@ -555,7 +558,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {fortune?.overall && (
         <section className="px-4">
           <Card variant="accent" className="max-w-md mx-auto">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('summary.fortuneSummary')}</h4>
             {fortune.level && <div className="text-center mb-4">
               <LevelPill level={fortune.level} />
             </div>}
@@ -569,7 +572,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
                 { icon: '💰', label: t('fortune.wealth'), text: fortune.wealth },
                 { icon: '🏥', label: t('fortune.health'), text: fortune.health },
               ].filter((item) => item.text).map((item) => (
-                <div key={item.label} className="bg-gal-light rounded-gal-lg p-3">
+                <div key={item.label} className="bg-gal-bg rounded-gal-lg p-3">
                   <div className="flex items-center gap-1 mb-1">
                     <span className="text-sm">{item.icon}</span>
                     <span className="text-gal-black text-xs font-bold">{item.label}</span>
@@ -586,7 +589,7 @@ export default function SummaryTab({ onLoginRequired }: SummaryTabProps) {
       {fortune?.advice && (
         <section className="px-4">
           <Card variant="accent" className="max-w-md mx-auto">
-            <h4 className="text-gal-accent text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
+            <h4 className="text-gal-accent-ink text-xs font-bold uppercase tracking-widest mb-4">{t('fortune.advice')}</h4>
             <p className="text-gal-body text-sm leading-relaxed mb-5">"{fortune.advice}"</p>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gal-border">
               {fortune.luckyColor && <div className="text-center">

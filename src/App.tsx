@@ -112,7 +112,7 @@ function App() {
     const defaultFallback = (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
         <div className="h-16 w-16 rounded-gal-xl border border-gal-border flex items-center justify-center">
-          <div className="h-6 w-6 rounded-full border-2 border-gal-accent border-t-transparent animate-spin" />
+          <div className="h-6 w-6 rounded-full border-2 border-gal-accent-ink border-t-transparent animate-spin" />
         </div>
         <p className="text-gal-muted text-sm mt-6">Loading...</p>
       </div>
@@ -130,7 +130,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-dvh bg-gal-bg">
       <a
         href="#app-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gal-accent focus:text-white focus:rounded-gal-md"
@@ -201,7 +201,7 @@ function App() {
                 // 들어가면 이 핸들러를 지우면 된다.
                 onClick={(e) => e.preventDefault()}
                 aria-label={social.label}
-                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent flex items-center justify-center text-gal-muted hover:text-gal-accent transition-all duration-200 hover:scale-105 active:scale-95"
+                className="w-9 h-9 rounded-gal-xl border border-gal-border hover:border-gal-accent flex items-center justify-center text-gal-muted hover:text-gal-accent-ink transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d={social.path} />

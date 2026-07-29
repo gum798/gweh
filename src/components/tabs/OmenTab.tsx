@@ -382,7 +382,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
     return (
       <div className="px-4 py-8">
         {/* Card 에 상태 변형이 없어 오류 표면은 div 로 남긴다 — 색만 status 토큰으로. */}
-        <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-status-danger/30 p-8 text-center shadow-gal-card">
+        <div className="max-w-md mx-auto bg-gal-light rounded-gal-xl border border-status-danger/30 p-8 text-center shadow-gal-card">
           <div className="h-16 w-16 rounded-full border border-status-danger/40 flex items-center justify-center mx-auto mb-6">
             <span className="text-3xl">⚠️</span>
           </div>
@@ -430,7 +430,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
           <div className="flex justify-between items-center mb-6">
             <span className="text-gal-muted text-xs uppercase tracking-widest">{t('omenCard.energyFlow')}</span>
             <div className="flex items-center gap-2">
-              <div className="w-24 h-2 bg-gal-light rounded-full overflow-hidden">
+              <div className="w-24 h-2 bg-gal-bg rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-gal-accent to-gal-accent-dark transition-all duration-1000"
                   style={{ width: `${energy}%` }}
@@ -468,7 +468,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       {/* 세부 괘 */}
       <section className="px-4">
         <div className="max-w-md mx-auto space-y-6">
-          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent px-1">{t('omenTab.detailedOmens')}</h4>
+          <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink px-1">{t('omenTab.detailedOmens')}</h4>
           {omen?.details?.map((detail, index) => (
             <Card key={index}>
               <div className="flex items-center gap-3 mb-3">
@@ -487,7 +487,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
       {session && (personalOmen || personalLoading || personalError) && (
         <section className="px-4">
           <div className="max-w-md mx-auto">
-            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent px-1 mb-4">
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink px-1 mb-4">
               {t('omenTab.personalSaju')}
             </h4>
             {personalLoading ? (
@@ -501,7 +501,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               </Card>
             ) : personalError ? (
               // Card 에 상태 변형이 없어 오류 표면은 div 로 남긴다 — 색만 status 토큰으로.
-              <div className="bg-white rounded-gal-xl border border-status-danger/30 p-6 text-center shadow-gal-card">
+              <div className="bg-gal-light rounded-gal-xl border border-status-danger/30 p-6 text-center shadow-gal-card">
                 <p className="text-status-danger text-sm">{personalError}</p>
               </div>
             ) : personalOmen ? (
@@ -567,7 +567,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">👔</span>
                 <h4 className="text-gal-black font-bold text-sm">{t('sub.dailyStyleTitle')}</h4>
-                <span className="ml-auto text-label text-gal-accent bg-gal-accent-light px-2 py-0.5 rounded-gal-md font-bold uppercase">
+                <span className="ml-auto text-label text-gal-accent-ink bg-gal-accent-light px-2 py-0.5 rounded-gal-md font-bold uppercase">
                   {t('sub.badge')}
                 </span>
               </div>
@@ -587,7 +587,7 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                   <div className="flex flex-wrap gap-2">
                     <span className="text-gal-muted text-xs">{t('sub.styleColors')}:</span>
                     {dailyStyle.colors?.map((color: string, i: number) => (
-                      <span key={i} className="text-gal-accent text-xs bg-gal-accent-light px-2 py-0.5 rounded-gal-md">
+                      <span key={i} className="text-gal-accent-ink text-xs bg-gal-accent-light px-2 py-0.5 rounded-gal-md">
                         {color}
                       </span>
                     ))}
@@ -616,13 +616,13 @@ export default function OmenTab({ onLoginRequired }: OmenTabProps) {
                 </div>
                 <p className="text-gal-body text-sm mb-3">오늘의 에너지에 맞는 스타일을 추천해드립니다. 보라색 계열의 색상이 오늘의 기운과 잘 어울립니다.</p>
                 <div className="flex gap-2">
-                  <span className="text-xs bg-gal-accent-light px-2 py-1 rounded-gal-md text-gal-accent">Purple</span>
-                  <span className="text-xs bg-gal-light px-2 py-1 rounded-gal-md text-gal-body">Navy</span>
-                  <span className="text-xs bg-gal-light px-2 py-1 rounded-gal-md text-gal-muted">Silver</span>
+                  <span className="text-xs bg-gal-accent-light px-2 py-1 rounded-gal-md text-gal-accent-ink">Purple</span>
+                  <span className="text-xs bg-gal-bg px-2 py-1 rounded-gal-md text-gal-body">Navy</span>
+                  <span className="text-xs bg-gal-bg px-2 py-1 rounded-gal-md text-gal-muted">Silver</span>
                 </div>
               </div>
               {/* Lock overlay */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gal-bg/80">
                 <div className="h-12 w-12 rounded-full border border-gal-accent/30 flex items-center justify-center mb-3 shadow-gal-soft">
                   <span className="text-xl">🔒</span>
                 </div>

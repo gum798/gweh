@@ -12,7 +12,7 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
   const { t } = useTranslation();
 
   return (
-    <nav className="sticky top-14 z-40 bg-white border-b border-gal-border mb-6 shadow-gal-nav">
+    <nav className="sticky top-14 z-40 bg-gal-bg border-b border-gal-border mb-6 shadow-gal-nav">
       {/*
         스크롤 컨테이너는 항상 flex-start 다. 가운데 정렬은 안쪽 래퍼의 mx-auto 가
         맡는다 — flexbox 명세상 남는 공간이 음수면 auto 마진은 0 으로 떨어지므로
@@ -37,9 +37,9 @@ export default memo(function Navigation({ activeTab, onTabChange }: NavigationPr
                 className={`
                   nav-tab-glow relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 min-h-[44px] rounded-gal-md flex-shrink-0 snap-start
                   transition-all duration-200 font-medium
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-1
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent-ink focus-visible:ring-offset-1
                   ${isActive
-                    ? 'bg-gal-accent-light text-gal-accent border-b-2 border-gal-accent'
+                    ? 'bg-gal-accent-light text-gal-accent-ink border-b-2 border-gal-accent'
                     : 'text-gal-muted hover:text-gal-body hover:bg-gal-light border-b-2 border-transparent'
                   }
                 `}

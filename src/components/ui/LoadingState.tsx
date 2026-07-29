@@ -19,7 +19,7 @@ export function LoadingState({ label }: LoadingStateProps) {
     >
       <div className="h-14 w-14 rounded-gal-xl border border-gal-border flex items-center justify-center">
         <span
-          className="h-6 w-6 rounded-full border-2 border-gal-accent border-t-transparent animate-spin"
+          className="h-6 w-6 rounded-full border-2 border-gal-accent-ink border-t-transparent animate-spin"
           aria-hidden="true"
         />
       </div>

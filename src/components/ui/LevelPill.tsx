@@ -18,7 +18,7 @@ export type Level = '대길' | '길' | '평' | '소흉' | '흉';
 const STYLES: Record<Level, string> = {
   '대길': 'bg-status-success-light text-status-success border-status-success/30',
   '길':   'bg-status-info-light    text-status-info    border-status-info/30',
-  '평':   'bg-gal-light            text-gal-body       border-gal-border',
+  '평':   'bg-gal-bg               text-gal-body       border-gal-border',
   '소흉': 'bg-status-warning-light text-status-warning border-status-warning/30',
   '흉':   'bg-status-danger-light  text-status-danger  border-status-danger/30',
 };

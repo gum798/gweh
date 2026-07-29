@@ -21,7 +21,7 @@ export function PageHeader({ eyebrow, title, subtitle, icon }: PageHeaderProps) 
     <header className="max-w-md mx-auto px-4 pt-6 pb-4 text-center">
       {icon && <div className="flex justify-center mb-3" aria-hidden="true">{icon}</div>}
       {eyebrow && (
-        <p className="text-label font-bold uppercase text-gal-accent mb-1.5">{eyebrow}</p>
+        <p className="text-label font-bold uppercase text-gal-accent-ink mb-1.5">{eyebrow}</p>
       )}
       <h2 className="text-2xl font-bold tracking-tight text-gal-black">{title}</h2>
       {subtitle && <p className="text-sm text-gal-body mt-2">{subtitle}</p>}

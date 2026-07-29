@@ -4,7 +4,7 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-center p-4">
-      <div className="bg-white border border-gal-border rounded-gal-xl shadow-gal-card p-8 max-w-md text-center animate-fade-in">
+      <div className="bg-gal-light border border-gal-border rounded-gal-xl shadow-gal-card p-8 max-w-md text-center animate-fade-in">
         {/* 아이콘 */}
         <div className="text-5xl mb-6">&#x1F4CD;</div>
 
@@ -21,7 +21,7 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-gal-md p-3 mb-6 text-red-600 text-sm">
+          <div className="bg-status-danger-light border border-status-danger/40 rounded-gal-md p-3 mb-6 text-status-danger text-sm">
             {error}
           </div>
         )}
@@ -40,9 +40,9 @@ export default function LocationPrompt({ onRequestLocation, onSkip, error }) {
 
           <button
             onClick={onSkip}
-            className="w-full px-8 py-3 bg-white border border-gal-border
+            className="w-full px-8 py-3 bg-gal-light border border-gal-border
                        text-gal-body font-medium rounded-gal-md
-                       hover:border-gal-accent hover:text-gal-accent
+                       hover:border-gal-accent hover:text-gal-accent-ink
                        transition-all duration-200"
           >
             {t('location.skipButton')}

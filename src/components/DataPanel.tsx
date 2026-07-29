@@ -13,7 +13,7 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }: Data
   const { t } = useTranslation();
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-gal-xl border border-gal-border p-6 shadow-gal-soft">
+    <div className="max-w-md mx-auto bg-gal-light rounded-gal-xl border border-gal-border p-6 shadow-gal-soft">
       <div className="flex items-center gap-3 mb-6">
         <h2 className="text-gal-black font-bold text-lg">{t('data.source')}</h2>
       </div>
@@ -73,7 +73,7 @@ export default memo(function DataPanel({ weather, moon, earthquake, nasa }: Data
 const DataSection = memo(function DataSection({ title, icon, children }: { title: string; icon: string; children: ReactNode }) {
   return (
     <div className="border-t border-gal-border pt-4 first:border-t-0 first:pt-0">
-      <h3 className="text-gal-accent text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
+      <h3 className="text-gal-accent-ink text-xs uppercase tracking-widest flex items-center gap-2 mb-3">
         {icon && <span>{icon}</span>}
         <span>{title}</span>
       </h3>

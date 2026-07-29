@@ -227,8 +227,8 @@ export default function CameraCapture({
           onClick={() => setMode('camera')}
           className={`px-4 py-2 rounded-gal-lg text-sm transition-colors ${
             mode === 'camera'
-              ? 'bg-gal-accent-light text-gal-accent'
-              : 'text-gal-muted hover:text-gal-accent'
+              ? 'bg-gal-accent-light text-gal-accent-ink'
+              : 'text-gal-muted hover:text-gal-accent-ink'
           }`}
         >
           📷 {t('camera.cameraMode')}
@@ -237,8 +237,8 @@ export default function CameraCapture({
           onClick={() => setMode('upload')}
           className={`px-4 py-2 rounded-gal-lg text-sm transition-colors ${
             mode === 'upload'
-              ? 'bg-gal-accent-light text-gal-accent'
-              : 'text-gal-muted hover:text-gal-accent'
+              ? 'bg-gal-accent-light text-gal-accent-ink'
+              : 'text-gal-muted hover:text-gal-accent-ink'
           }`}
         >
           📁 {t('camera.uploadMode')}
@@ -279,7 +279,7 @@ export default function CameraCapture({
               style={{ transform: 'scaleX(-1)' }}
             />
             {(!isReady || isModelLoading) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+              <div className="absolute inset-0 flex items-center justify-center bg-gal-bg/80">
                 <p className="text-gal-muted">
                   {isModelLoading ? t('camera.modelLoading') : t('camera.connecting')}
                 </p>
@@ -288,8 +288,8 @@ export default function CameraCapture({
             {isReady && !isModelLoading && detectType !== 'none' && (
               <div className={`absolute top-3 left-3 px-3 py-1 rounded-gal-md text-xs transition-all ${
                 isDetected
-                  ? 'bg-gal-accent-light text-gal-accent'
-                  : 'bg-gal-light text-gal-muted'
+                  ? 'bg-gal-accent-light text-gal-accent-ink'
+                  : 'bg-gal-bg text-gal-muted'
               }`}>
                 {isDetected
                   ? (detectType === 'face' ? t('camera.faceDetected') : t('camera.handDetected'))
@@ -314,7 +314,7 @@ export default function CameraCapture({
       ) : (
         <div className="flex flex-col items-center gap-4">
           {hasError && (
-            <p className="text-orange-500 text-sm mb-2">
+            <p className="text-status-warning text-sm mb-2">
               {t('camera.noAccess')}
             </p>
           )}

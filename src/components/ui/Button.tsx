@@ -20,9 +20,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // 토큰 값을 바꿔 고친다. 여기서 다른 색을 쓰면 그 수정이 이 파일만 비껴간다.
 const VARIANTS: Record<Variant, string> = {
   primary:   'bg-gal-accent text-white hover:bg-gal-accent-dark shadow-gal-button',
-  secondary: 'bg-white text-gal-black border border-gal-border hover:border-gal-accent',
+  secondary: 'bg-gal-light text-gal-black border border-gal-border hover:border-gal-accent',
   ghost:     'bg-transparent text-gal-body hover:text-gal-black hover:bg-gal-light',
-  danger:    'bg-status-danger text-white hover:opacity-90',
+  danger:    'bg-status-danger text-gal-bg hover:opacity-90',
 };
 
 // min-h 는 간격이 아니라 크기다 — "임의값 금지" 규칙(간격)의 대상이 아니다.
@@ -72,7 +72,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         'inline-flex items-center justify-center gap-2 font-medium',
         defaultRadius(className),
         'transition-all duration-200 active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent focus-visible:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gal-accent-ink focus-visible:ring-offset-2',
         'disabled:opacity-50 disabled:pointer-events-none',
         VARIANTS[variant],
         SIZES[size],

@@ -411,7 +411,7 @@ export default function FashionTab() {
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
-                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-white"
+                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-gal-light"
                 placeholder={t('placeholder.height')}
               />
             </label>
@@ -421,7 +421,7 @@ export default function FashionTab() {
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-white"
+                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-gal-light"
                 placeholder={t('placeholder.weight')}
               />
             </label>
@@ -469,7 +469,7 @@ export default function FashionTab() {
             <button
               type="button"
               onClick={triggerFileInput}
-              className="w-full h-full bg-white rounded-gal-xl flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-gal-accent/20 hover:border-gal-accent/50 transition-all group shadow-gal-card"
+              className="w-full h-full bg-gal-light rounded-gal-xl flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-gal-accent/20 hover:border-gal-accent/50 transition-all group shadow-gal-card"
             >
               {capturedImage ? (
                 <img
@@ -480,7 +480,7 @@ export default function FashionTab() {
               ) : (
                 <>
                   <div className="mb-6 bg-gal-accent-light p-6 rounded-full group-hover:bg-gal-accent/15 transition-colors">
-                    <span className="text-5xl text-gal-accent">☁️</span>
+                    <span className="text-5xl text-gal-accent-ink">☁️</span>
                   </div>
                   <h4 className="text-gal-black text-lg font-bold mb-2">{t('upload.title')}</h4>
                   <p className="text-gal-muted text-sm leading-relaxed">
@@ -575,7 +575,7 @@ export default function FashionTab() {
         <p className="text-gal-muted text-sm text-center max-w-xs mb-2">
           {t('analyzing.description')}
         </p>
-        <p className="text-gal-accent text-sm font-medium">
+        <p className="text-gal-accent-ink text-sm font-medium">
           {getStatusText()}
         </p>
       </div>
@@ -607,11 +607,11 @@ export default function FashionTab() {
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-gal-accent text-label font-bold uppercase">{t('result.complete')}</span>
+                <span className="text-gal-accent-ink text-label font-bold uppercase">{t('result.complete')}</span>
                 <h3 className="text-gal-black text-2xl font-bold tracking-tight">{result.bodyAnalysis?.bodyType || ''}</h3>
               </div>
               <div className="h-12 w-12 rounded-full border border-gal-accent/30 flex items-center justify-center shadow-gal-soft">
-                <span className="text-gal-accent text-xl">✨</span>
+                <span className="text-gal-accent-ink text-xl">✨</span>
               </div>
             </div>
 
@@ -620,12 +620,12 @@ export default function FashionTab() {
               흘릴 수 없다. 여기만 div 로 남기고 Card 와 같은 표면 값을 쓴다.
             */}
             {capturedImage && (
-              <div className="relative rounded-gal-xl overflow-hidden bg-white border border-gal-border shadow-gal-card">
+              <div className="relative rounded-gal-xl overflow-hidden bg-gal-light border border-gal-border shadow-gal-card">
                 <div className="aspect-[4/5] bg-cover bg-center" style={{ backgroundImage: `url(${capturedImage})` }}></div>
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-gal-black text-lg font-bold">{t('result.styleProfile')}</h4>
-                    <span className="text-gal-accent font-bold">{t('result.aiMatch')}</span>
+                    <span className="text-gal-accent-ink font-bold">{t('result.aiMatch')}</span>
                   </div>
                   <p className="text-gal-body text-sm italic leading-relaxed">
                     "{result.mainMessage || ''}"
@@ -639,7 +639,7 @@ export default function FashionTab() {
         {/* Body Analysis */}
         <section className="px-4">
           <Card className="max-w-md mx-auto space-y-4">
-            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent">{t('result.bodyAnalysis')}</h4>
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink">{t('result.bodyAnalysis')}</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm border-b border-gal-border/50 pb-3">
                 <span className="text-gal-dark font-medium">{t('result.bodyFeatures')}</span>
@@ -656,7 +656,7 @@ export default function FashionTab() {
         {/* Style Recommendations */}
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
-            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent px-1">{t('result.styleRecommendations')}</h4>
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink px-1">{t('result.styleRecommendations')}</h4>
             {(result.styles || []).map((style, i) => (
               <Card key={i}>
                 <div className="flex items-center gap-3 mb-3">
@@ -667,7 +667,7 @@ export default function FashionTab() {
                   {(style.items || []).map((item, j) => (
                     <span
                       key={j}
-                      className="px-3 py-1.5 bg-gal-accent-light rounded-gal-md text-gal-accent text-xs font-medium"
+                      className="px-3 py-1.5 bg-gal-accent-light rounded-gal-md text-gal-accent-ink text-xs font-medium"
                     >
                       {item}
                     </span>
@@ -682,7 +682,7 @@ export default function FashionTab() {
         {/* Color Palette */}
         <section className="px-4">
           <Card className="max-w-md mx-auto">
-            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.colorPalette')}</h4>
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('result.colorPalette')}</h4>
             <div className="flex flex-wrap gap-2 mb-4">
               {(result.colors?.recommended || []).map((color, i) => (
                 <span
@@ -712,11 +712,11 @@ export default function FashionTab() {
         {/* Styling Tips */}
         <section className="px-4">
           <Card className="max-w-md mx-auto">
-            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.stylingTips')}</h4>
+            <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('result.stylingTips')}</h4>
             <ul className="space-y-3">
               {(result.tips || []).map((tip, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
-                  <span className="text-gal-accent">✓</span>
+                  <span className="text-gal-accent-ink">✓</span>
                   <span className="text-gal-body">{tip}</span>
                 </li>
               ))}
@@ -745,12 +745,12 @@ export default function FashionTab() {
         {result.accessories && result.accessories.length > 0 && (
           <section className="px-4">
             <Card className="max-w-md mx-auto">
-              <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.accessories')}</h4>
+              <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('result.accessories')}</h4>
               <div className="flex flex-wrap gap-2">
                 {result.accessories.map((item, i) => (
                   <span
                     key={i}
-                    className="px-4 py-2 bg-gal-accent-light rounded-gal-md text-gal-accent text-sm border border-gal-accent/15"
+                    className="px-4 py-2 bg-gal-accent-light rounded-gal-md text-gal-accent-ink text-sm border border-gal-accent/15"
                   >
                     {item}
                   </span>
@@ -764,7 +764,7 @@ export default function FashionTab() {
         {result.seasonalAdvice && (
           <section className="px-4">
             <Card className="max-w-md mx-auto">
-              <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent mb-4">{t('result.seasonalGuide')}</h4>
+              <h4 className="font-bold uppercase tracking-widest text-xs text-gal-accent-ink mb-4">{t('result.seasonalGuide')}</h4>
               <p className="text-gal-body text-sm leading-relaxed">{result.seasonalAdvice}</p>
             </Card>
           </section>

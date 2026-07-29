@@ -122,7 +122,7 @@ export default function PalmTab() {
           <section className="px-4">
             <Card variant="accent" className="max-w-md mx-auto">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-gal-accent text-label font-bold uppercase">{tc('palm.previousPhoto')}</span>
+                <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('palm.previousPhoto')}</span>
               </div>
               <div className="flex items-center gap-4 mb-4">
                 <img
@@ -142,7 +142,7 @@ export default function PalmTab() {
         {/* Instructions */}
         <section className="px-4">
           <Card className="max-w-md mx-auto">
-            <h3 className="text-gal-accent font-bold uppercase tracking-widest text-xs mb-4">{tc('palm.beforeReading')}</h3>
+            <h3 className="text-gal-accent-ink font-bold uppercase tracking-widest text-xs mb-4">{tc('palm.beforeReading')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-4">
                 <div className="bg-gal-accent-light p-2 rounded-gal-md">
@@ -238,7 +238,7 @@ export default function PalmTab() {
           <Card className="max-w-md mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-gal-accent text-label font-bold uppercase">{tc('palm.palmReading')}</span>
+                <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('palm.palmReading')}</span>
                 <h3 className="text-gal-black text-xl font-bold tracking-tight">
                   {result.handedness === 'Left' ? t('result.leftHand') : t('result.rightHand')}
                 </h3>
@@ -257,14 +257,14 @@ export default function PalmTab() {
         {/* 세부 해석 */}
         <section className="px-4">
           <div className="max-w-md mx-auto space-y-4">
-            <h4 className="text-gal-accent font-bold uppercase tracking-widest text-xs px-1">{tc('palm.lineDetails')}</h4>
+            <h4 className="text-gal-accent-ink font-bold uppercase tracking-widest text-xs px-1">{tc('palm.lineDetails')}</h4>
             {result.details.map((detail, i) => (
               <Card key={i}>
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{detail.icon}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-gal-black font-bold">{detail.category}</span>
-                    <span className="px-2 py-0.5 bg-gal-accent-light rounded-gal-md text-gal-accent text-xs">{detail.type}</span>
+                    <span className="px-2 py-0.5 bg-gal-accent-light rounded-gal-md text-gal-accent-ink text-xs">{detail.type}</span>
                   </div>
                 </div>
                 <p className="text-gal-body text-sm leading-relaxed">
@@ -278,7 +278,7 @@ export default function PalmTab() {
         {/* 조언 */}
         <section className="px-4">
           <Card variant="accent" className="max-w-md mx-auto">
-            <h4 className="text-gal-accent font-bold uppercase tracking-widest text-xs mb-4">{tc('palm.mysticAdvice')}</h4>
+            <h4 className="text-gal-accent-ink font-bold uppercase tracking-widest text-xs mb-4">{tc('palm.mysticAdvice')}</h4>
             <p className="text-gal-body text-sm leading-relaxed text-center">
               💫 {result.advice}
             </p>

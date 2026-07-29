@@ -103,7 +103,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="profile-modal-title"
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-gal-light border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
         onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} aria-label={t('close')} className="absolute top-4 right-4 text-gal-muted hover:text-gal-black text-xl">
@@ -115,7 +115,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         {/* Account Info */}
         <div className="space-y-3 mb-6">
           <h3 className="text-sm text-gal-muted uppercase tracking-wider">{t('accountInfo')}</h3>
-          <div className="bg-gal-light border border-gal-border rounded-gal-lg p-4 space-y-2">
+          <div className="bg-gal-bg border border-gal-border rounded-gal-lg p-4 space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-gal-muted text-sm">{t('email')}</span>
               <span className="text-gal-black text-sm truncate max-w-[200px]">{user.email}</span>
@@ -159,7 +159,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <span className="text-gal-muted text-sm">{tc('sub.subscriptionStatus')}</span>
               {isSubscribed ? (
                 <div className="text-right">
-                  <span className="text-gal-accent text-sm font-medium">
+                  <span className="text-gal-accent-ink text-sm font-medium">
                     {isTrialing ? tc('sub.trialActive') : tc('sub.active')}
                   </span>
                   {isTrialing && trialEndsAt && (
@@ -187,7 +187,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         <button
                           onClick={handleCancelSubscription}
                           disabled={submitting}
-                          className="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs rounded-gal-sm transition-colors disabled:opacity-50"
+                          className="px-2 py-1 bg-status-danger-light hover:bg-status-danger/25 text-status-danger text-xs rounded-gal-sm transition-colors disabled:opacity-50"
                         >
                           {tc('sub.confirmYes')}
                         </button>
@@ -198,7 +198,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               ) : (
                 <button
                   onClick={() => subscribe()}
-                  className="text-gal-accent text-sm font-medium hover:underline"
+                  className="text-gal-accent-ink text-sm font-medium hover:underline"
                 >
                   {tc('sub.inactive')} · {tc('sub.subscribeNow')}
                 </button>
@@ -207,8 +207,8 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           </div>
         </div>
 
-        {error && <p className="text-red-600 text-sm text-center mb-4">{error}</p>}
-        {message && <p className="text-green-600 text-sm text-center mb-4">{message}</p>}
+        {error && <p className="text-status-danger text-sm text-center mb-4">{error}</p>}
+        {message && <p className="text-status-success text-sm text-center mb-4">{message}</p>}
 
         {/* Actions */}
         <div className="space-y-3">
@@ -217,7 +217,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <button
               onClick={handleResetPassword}
               disabled={submitting}
-              className="w-full py-3 bg-gal-light hover:bg-gal-bg border border-gal-border rounded-gal-md text-gal-black font-medium transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-gal-bg hover:bg-gal-light border border-gal-border rounded-gal-md text-gal-black font-medium transition-colors disabled:opacity-50"
             >
               {t('resetPasswordButton')}
             </button>
@@ -226,7 +226,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           {/* Logout */}
           <button
             onClick={() => { signOut(); onClose(); }}
-            className="w-full py-3 bg-gal-light hover:bg-gal-bg border border-gal-border rounded-gal-md text-gal-black font-medium transition-colors"
+            className="w-full py-3 bg-gal-bg hover:bg-gal-light border border-gal-border rounded-gal-md text-gal-black font-medium transition-colors"
           >
             {t('logout')}
           </button>
@@ -235,24 +235,24 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="w-full py-3 text-red-400 hover:text-red-600 text-sm transition-colors"
+              className="w-full py-3 text-status-danger/80 hover:text-status-danger text-sm transition-colors"
             >
               {t('deleteAccount')}
             </button>
           ) : (
-            <div className="bg-red-50 border border-red-200 rounded-gal-lg p-4 space-y-3">
-              <p className="text-red-600 text-sm text-center">{t('deleteAccountConfirm')}</p>
+            <div className="bg-status-danger-light border border-status-danger/40 rounded-gal-lg p-4 space-y-3">
+              <p className="text-status-danger text-sm text-center">{t('deleteAccountConfirm')}</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-2 bg-gal-light hover:bg-gal-bg border border-gal-border rounded-gal-md text-gal-black text-sm transition-colors"
+                  className="flex-1 py-2 bg-gal-bg hover:bg-gal-light border border-gal-border rounded-gal-md text-gal-black text-sm transition-colors"
                 >
                   {t('close')}
                 </button>
                 <button
                   onClick={handleDeleteAccount}
                   disabled={submitting}
-                  className="flex-1 py-2 bg-red-100 hover:bg-red-200 border border-red-300 rounded-gal-md text-red-600 text-sm font-semibold transition-colors disabled:opacity-50"
+                  className="flex-1 py-2 bg-status-danger text-gal-bg hover:bg-status-danger/90 border border-status-danger rounded-gal-md text-sm font-semibold transition-colors disabled:opacity-50"
                 >
                   {t('deleteAccount')}
                 </button>

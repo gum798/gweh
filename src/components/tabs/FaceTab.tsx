@@ -144,7 +144,7 @@ export default function FaceTab() {
           <section className="px-4">
             <Card className="max-w-md mx-auto">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-gal-accent text-label font-bold uppercase">{tc('face.previousPhoto')}</span>
+                <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('face.previousPhoto')}</span>
               </div>
               <div className="flex items-center gap-4 mb-4">
                 <img
@@ -297,7 +297,7 @@ export default function FaceTab() {
             <Card className="max-w-md mx-auto">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-gal-accent text-label font-bold uppercase">{tc('face.personalColor')}</span>
+                  <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('face.personalColor')}</span>
                   <h3 className="text-gal-black text-2xl font-bold tracking-tight">{result.personalColor.seasonKorean}</h3>
                 </div>
                 <div className="h-12 w-12 rounded-full border border-gal-accent flex items-center justify-center shadow-gal-soft">
@@ -329,7 +329,7 @@ export default function FaceTab() {
 
               <div className="pt-4 border-t border-gal-border grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gal-accent text-xs uppercase tracking-widest">{tc('face.bestColors')}</span>
+                  <span className="text-gal-accent-ink text-xs uppercase tracking-widest">{tc('face.bestColors')}</span>
                   <p className="text-gal-body mt-1">{result.personalColor.tips.best}</p>
                 </div>
                 <div>
@@ -348,7 +348,7 @@ export default function FaceTab() {
               <Card>
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <span className="text-gal-accent text-label font-bold uppercase">{tc('face.physiognomy')}</span>
+                    <span className="text-gal-accent-ink text-label font-bold uppercase">{tc('face.physiognomy')}</span>
                     <h3 className="text-gal-black text-xl font-bold tracking-tight">{t('result.physiognomyReading')}</h3>
                   </div>
                   <div className="h-12 w-12 rounded-full border border-gal-accent flex items-center justify-center shadow-gal-soft">
@@ -365,7 +365,7 @@ export default function FaceTab() {
               {result.physiognomy.details.map((detail, i) => (
                 <Card key={i}>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-3 py-1 bg-gal-accent-light rounded-gal-md text-gal-accent text-xs font-medium">
+                    <span className="px-3 py-1 bg-gal-accent-light rounded-gal-md text-gal-accent-ink text-xs font-medium">
                       {detail.typeKorean} {detail.partKorean}
                     </span>
                   </div>

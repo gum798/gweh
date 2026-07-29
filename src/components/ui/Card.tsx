@@ -19,8 +19,8 @@ interface CardProps {
 // 감사 시점 패널 54개에 카드 변형 25가지, 패딩 5종(p-4/5/6/8/10)이 있었다.
 // base 는 SajuTab.tsx:426 의 레시피다.
 const VARIANTS: Record<Variant, string> = {
-  base:   'bg-white border border-gal-border shadow-gal-card',
-  accent: 'bg-white border border-gal-accent/40 shadow-gal-card',
+  base:   'bg-gal-light border border-gal-border shadow-gal-card',
+  accent: 'bg-gal-light border border-gal-accent/40 shadow-gal-card',
   muted:  'bg-gal-bg border border-gal-border',
 };
 

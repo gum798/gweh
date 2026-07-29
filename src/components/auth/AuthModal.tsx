@@ -96,7 +96,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
-        className="relative w-full max-w-md bg-white border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
+        className="relative w-full max-w-md bg-gal-light border border-gal-border rounded-gal-xl p-6 shadow-gal-card"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -115,7 +115,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="space-y-3">
               <button
                 onClick={() => handleOAuth('google')}
-                className="w-full py-3 bg-gal-light hover:bg-gal-bg border border-gal-border rounded-gal-md text-gal-black flex items-center justify-center gap-3 transition-colors"
+                className="w-full py-3 bg-gal-bg hover:bg-gal-light border border-gal-border rounded-gal-md text-gal-black flex items-center justify-center gap-3 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -144,7 +144,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
+            className="w-full px-4 py-3 bg-gal-bg border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
           />
           {mode !== 'forgot' && (
             <input
@@ -154,7 +154,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
+              className="w-full px-4 py-3 bg-gal-bg border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
             />
           )}
           {mode === 'signup' && (
@@ -165,12 +165,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-white border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
+              className="w-full px-4 py-3 bg-gal-bg border border-gal-border rounded-gal-md text-gal-black placeholder-gal-muted focus:outline-none focus:border-gal-accent transition-colors"
             />
           )}
 
-          {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-          {message && <p className="text-green-600 text-sm text-center">{message}</p>}
+          {error && <p className="text-status-danger text-sm text-center">{error}</p>}
+          {message && <p className="text-status-success text-sm text-center">{message}</p>}
 
           <button
             type="submit"
@@ -187,7 +187,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <p className="text-gal-muted">
               <button
                 onClick={() => { setMode('login'); setError(''); setMessage(''); }}
-                className="text-gal-accent hover:underline font-semibold"
+                className="text-gal-accent-ink hover:underline font-semibold"
               >
                 {t('backToLogin')}
               </button>
@@ -198,7 +198,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {mode === 'login' ? t('switchToSignup') : t('switchToLogin')}{' '}
                 <button
                   onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-                  className="text-gal-accent hover:underline font-semibold"
+                  className="text-gal-accent-ink hover:underline font-semibold"
                 >
                   {mode === 'login' ? t('signup') : t('login')}
                 </button>
