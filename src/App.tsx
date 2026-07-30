@@ -40,6 +40,9 @@ type TabRenderer = (ctx: TabRenderContext) => ReactNode;
  * 표를 균일하게 만들려고 나머지 6개까지 흘리지 않는다.
  */
 const TAB_RENDERERS: Record<TabId, TabRenderer> = {
+  // 홈은 콘텐츠 영역이 아니라 히어로가 그린다. 표에서 빼면 컴파일이 실패하므로
+  // (그게 이 표의 요점이다) 항목은 두되 아무것도 반환하지 않는다.
+  home: () => null,
   omen: ({ onLoginRequired }) => <OmenTab onLoginRequired={onLoginRequired} />,
   fortune: () => <FortuneTab />,
   fashion: () => <FashionTab />,

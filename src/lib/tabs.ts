@@ -28,6 +28,7 @@ export interface TabDef {
 }
 
 export const TABS = [
+  { id: 'home', labelKey: 'nav.home', icon: '🏠' },
   { id: 'omen', labelKey: 'nav.omen', icon: '☯️' },
   { id: 'fortune', labelKey: 'nav.fortune', icon: '🔮' },
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
@@ -51,7 +52,13 @@ export type TabId = (typeof TABS)[number]['id'];
 
 export const TAB_IDS: readonly TabId[] = TABS.map((tab) => tab.id);
 
-export const DEFAULT_TAB: TabId = 'omen';
+/**
+ * 해시가 탭을 지목하지 않을 때의 착지점. `'omen'` 에서 `'home'` 으로 옮겼다.
+ *
+ * 기존 `#omen`·`#saju` 등의 북마크는 그대로 동작한다 — 바뀌는 것은 해시가
+ * 없거나 알 수 없을 때 어디로 떨어지는지 뿐이다.
+ */
+export const DEFAULT_TAB: TabId = 'home';
 
 /** 임의 문자열을 TabId 로 좁힌다. 유효 판정은 언제나 TAB_IDS 하나만 본다. */
 export function isTabId(value: string): value is TabId {
