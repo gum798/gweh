@@ -1,21 +1,25 @@
 /**
- * 탭 정의의 유일한 출처.
+ * 화면 식별자의 유일한 출처.
  *
  * 이전에는 같은 목록이 3곳에 흩어져 있었다 —
  *   1) App.tsx  useState 초기화의 validTabs 리터럴
  *   2) App.tsx  hashchange 리스너의 validTabs 리터럴
- *   3) Navigation.tsx 의 tabs 배열
+ *   3) Navigation.tsx 의 tabs 배열 (탭바. 지금은 삭제됐다)
  * 세 곳이 어긋나면 "탭이 URL 에는 있는데 렌더되지 않는다" 류의 버그가
- * 조용히 들어온다. 순서(=네비 표시 순서)와 멤버십(=해시 유효성)을 한곳에서 관리한다.
+ * 조용히 들어온다. 멤버십(=해시 유효성)을 한곳에서 관리한다.
  *
  * 이 주장은 **타입으로 강제된다**, 규율로가 아니라:
- *   - Navigation.tsx  는 TABS 를 직접 map 한다 (런타임 파생)
  *   - App.tsx 의 해시 처리는 TAB_IDS 만 본다 (런타임 파생)
  *   - App.tsx 의 TAB_RENDERERS 는 `Record<TabId, ...>` 다 — 여기 id 를
  *     추가하고 렌더러를 안 넣으면 **컴파일이 실패한다** (TS2741)
  * 마지막 항목이 없던 동안에는 이 주석이 코드가 지키지 않는 약속이었다:
- * renderTab 이 switch + `default: return null` 이라 새 탭은 네비 버튼도 뜨고
- * 해시 검증도 통과하는데 콘텐츠만 조용히 비었다.
+ * renderTab 이 switch + `default: return null` 이라 새 화면은 해시 검증도
+ * 통과하는데 콘텐츠만 조용히 비었다.
+ *
+ * 탭바가 사라진 뒤로 이 배열의 **순서와 icon 은 아무것도 그리지 않는다.**
+ * 홈 화면이 그리는 카드 목록은 HeroSection.tsx 가 따로 갖는다(홈은 자기
+ * 자신을 카드로 그리지 않으므로 두 목록은 원래 같을 수 없다). 여기 남은
+ * 두 필드는 TabDef 가 요구하는 형식일 뿐이다.
  *
  * 주의: 이 강제는 `npm run build` 로는 안 잡힌다. vite/esbuild 는 타입을
  * 검사하지 않고 트랜스파일만 한다. tsc 게이트가 실제 방어선이다.
@@ -28,6 +32,7 @@ export interface TabDef {
 }
 
 export const TABS = [
+  { id: 'home', labelKey: 'nav.home', icon: '🏠' },
   { id: 'omen', labelKey: 'nav.omen', icon: '☯️' },
   { id: 'fortune', labelKey: 'nav.fortune', icon: '🔮' },
   { id: 'fashion', labelKey: 'nav.fashion', icon: '👔' },
@@ -43,15 +48,21 @@ export const TABS = [
  *
  * 이 타입이 있어야 App.tsx 의 `Record<TabId, TabRenderer>` 가 성립한다.
  * 예전 renderTab 은 switch + `default: return null` 이라, tabs.ts 에 id 를
- * 추가하면 네비에는 버튼이 뜨고 해시 검증도 통과하는데 **콘텐츠만 조용히
- * 비었다.** 이 파일 맨 위 주석이 "드리프트는 없다" 고 주장하는데 코드가
- * 강제하지 않는 상태였다. 이제는 컴파일이 막는다.
+ * 추가하면 해시 검증은 통과하는데 **콘텐츠만 조용히 비었다.** 이 파일 맨 위
+ * 주석이 "드리프트는 없다" 고 주장하는데 코드가 강제하지 않는 상태였다.
+ * 이제는 컴파일이 막는다.
  */
 export type TabId = (typeof TABS)[number]['id'];
 
 export const TAB_IDS: readonly TabId[] = TABS.map((tab) => tab.id);
 
-export const DEFAULT_TAB: TabId = 'omen';
+/**
+ * 해시가 탭을 지목하지 않을 때의 착지점. `'omen'` 에서 `'home'` 으로 옮겼다.
+ *
+ * 기존 `#omen`·`#saju` 등의 북마크는 그대로 동작한다 — 바뀌는 것은 해시가
+ * 없거나 알 수 없을 때 어디로 떨어지는지 뿐이다.
+ */
+export const DEFAULT_TAB: TabId = 'home';
 
 /** 임의 문자열을 TabId 로 좁힌다. 유효 판정은 언제나 TAB_IDS 하나만 본다. */
 export function isTabId(value: string): value is TabId {
