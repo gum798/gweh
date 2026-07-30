@@ -90,6 +90,7 @@
   "energy.caution": "소흉",
   "energy.careful": "흉",
 
+  "a11y.backToHome": "홈으로 돌아가기",
   "a11y.skipToContent": "본문으로 건너뛰기",
   "a11y.closeToast": "알림 닫기",
 

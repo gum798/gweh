@@ -83,6 +83,7 @@
   "energy.neutral": "Neutral",
   "energy.caution": "Caution",
   "energy.careful": "Be Careful",
+  "a11y.backToHome": "Back to home",
   "a11y.skipToContent": "Skip to content",
   "a11y.closeToast": "Close notification",
   "error.weather": "Unable to fetch weather data",

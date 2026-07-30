@@ -171,7 +171,12 @@ function App() {
       >
         {tc('a11y.skipToContent')}
       </a>
-      <AppHeader onLogin={() => setAuthModalOpen(true)} onProfile={() => setProfileModalOpen(true)} />
+      <AppHeader
+        isHome={isHome}
+        onBack={() => handleTabChange('home')}
+        onLogin={() => setAuthModalOpen(true)}
+        onProfile={() => setProfileModalOpen(true)}
+      />
 
       {/* Subscription banner (floating badge) */}
       <SubscriptionBanner onLoginRequired={openAuthModal} />
