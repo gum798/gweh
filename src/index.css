@@ -26,6 +26,24 @@
   html[lang="en"] {
     font-size: 17px;
   }
+
+  /* iOS Safari 의 날짜 입력 정렬.
+     WebKit 은 input[type="date"] 의 값을 입력 자신이 아니라 내부 pseudo
+     요소(::-webkit-date-and-time-value)로 그리고, 그 요소가 자기 폭 안에서
+     값을 가운데로 놓는다. 그래서 입력에 좌측 정렬을 걸어도 iOS 에서는
+     날짜만 가운데로 보였고, 바로 아래 시간 선택과 텍스트 시작점이 어긋났다.
+     min-width 0 은 같은 맥락의 두 번째 절반이다 — 이 pseudo 요소도 고유
+     너비를 주장해 입력이 카드 밖으로 나가는 데 한몫한다.
+
+     Chrome 은 이 pseudo 요소를 다르게 다뤄 두 증상 모두 재현되지 않는다.
+     그래서 이 결함이 헤드리스 측정을 통과했고, 실기기 스크린샷이 유일한
+     검증 수단이다. (규칙은 유틸리티가 아니라 여기 있어야 한다. Tailwind
+     3.4 의 임의 변형으로 pseudo 요소를 겨냥하면 클래스 문자열이 읽을 수
+     없게 되고, 왜 필요한지는 어디에도 남지 않는다.) */
+  input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+    min-width: 0;
+  }
 }
 
 /* ───────────────────────────────────────────

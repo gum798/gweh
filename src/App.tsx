@@ -177,9 +177,6 @@ function App() {
         onProfile={() => setProfileModalOpen(true)}
       />
 
-      {/* Subscription banner (floating badge) */}
-      <SubscriptionBanner onLoginRequired={openAuthModal} />
-
       {/* Toast — 라이브 리전은 **항상 렌더**한다. 예전처럼 `{toast && <div …>}` 로
           컨테이너째 껐다 켜면 스크린리더가 리전이 DOM 에 삽입되는 순간과 내용이
           채워지는 순간을 구분하지 못해 첫 알림을 통째로 놓친다. 리전은 미리 있고
@@ -215,6 +212,12 @@ function App() {
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
+
+        {/* Subscription banner — 부유 배지가 아니라 콘텐츠 흐름의 첫 항목이다.
+            컨테이너 안에 있어야 좌우 여백과 최대 폭을 본문과 공유하고, 본문
+            **위**여야 긴 화면(패션 1299px)에서 한 번도 안 보이는 일이 없다.
+            겹침이 구조적으로 불가능한 것이 요점이다 — 근거는 컴포넌트 주석. */}
+        <SubscriptionBanner onLoginRequired={openAuthModal} />
 
         {/* Tab content */}
         <main>

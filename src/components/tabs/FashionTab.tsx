@@ -404,24 +404,27 @@ export default function FashionTab() {
             <h3 className="text-gal-black text-xl font-bold tracking-tight pb-1">{t('section.physicalEssence')}</h3>
             <div className="h-1 w-12 bg-gal-accent mx-auto rounded-full"></div>
           </div>
+          {/* min-w-0 은 두 label 에 붙는다. 여기서 자동 최소 크기 규칙의 대상은
+              그리드 자식인 label 이지 그 안의 입력이 아니다 — 숫자 입력의 고유
+              너비가 열 폭보다 크면 열이 밀리고, 막는 것은 이 자리다. */}
           <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-2 min-w-0">
               <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1">{t('label.height')}</p>
               <input
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
-                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-gal-light"
+                className="w-full min-w-0 rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-gal-light"
                 placeholder={t('placeholder.height')}
               />
             </label>
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-2 min-w-0">
               <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1">{t('label.weight')}</p>
               <input
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
-                className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-gal-light"
+                className="w-full min-w-0 rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted p-4 text-lg font-medium transition-all focus:bg-gal-light"
                 placeholder={t('placeholder.weight')}
               />
             </label>

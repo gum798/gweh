@@ -294,12 +294,27 @@ export default function SajuTab() {
                   <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-2">{tc('saju.birthDate')}</p>
 
                   {calendarType === 'solar' ? (
+                    /* 입력이 카드 오른쪽 경계를 넘어가던 문제.
+                       계획서는 "플렉스/그리드 자식의 기본 min-width:auto" 를
+                       원인으로 지목했지만, 여기서는 그 기전이 성립하지 않는다 —
+                       이 입력을 감싼 label 이 block 이라 자동 최소 크기 규칙의
+                       대상이 아니고, 실제로 계산된 min-width 는 이 변경 전에도
+                       0px 이었다(측정으로 확인). 넘치게 만드는 것은 WebKit 이
+                       값을 그리는 내부 pseudo 요소이며, 그쪽이 고유 너비를
+                       주장한다. 실제 처방은 index.css 에 있다.
+
+                       min-w-0 은 그래서 처방이 아니라 잠금장치다: 이 label 이
+                       나중에 플렉스나 그리드 자식이 되면 그때는 진짜로 필요해진다.
+
+                       text-left 도 같은 짝이다. 두 컨트롤의 안쪽 여백이 같은데도
+                       iOS 에서는 날짜만 가운데로 보이는데, 값을 그리는 주체가
+                       입력 자신이 아니라서 바깥 정렬만으로는 닿지 않는다. */
                     <input
                       type="date"
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-gal-light"
+                      className="w-full min-w-0 rounded-gal-lg text-gal-black text-left focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 placeholder:text-gal-muted px-4 text-lg font-medium transition-all focus:bg-gal-light"
                       required
                     />
                   ) : (
@@ -386,10 +401,13 @@ export default function SajuTab() {
 
                 <label className="block">
                   <p className="text-gal-body text-xs font-bold uppercase tracking-widest pl-1 mb-2">{tc('saju.birthHour')}</p>
+                  {/* 위 날짜 입력과 짝이다 — 시작점(px-4)과 정렬(text-left)을
+                      명시적으로 같게 둔다. 값 길이가 서로 많이 달라서, 둘 중
+                      하나라도 가운데로 그려지면 세로로 어긋나 보인다. */}
                   <select
                     value={birthHour}
                     onChange={(e) => setBirthHour(e.target.value)}
-                    className="w-full rounded-gal-lg text-gal-black focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-4 text-base font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
+                    className="w-full min-w-0 rounded-gal-lg text-gal-black text-left focus:outline-none focus:ring-1 focus:ring-gal-accent-ink border border-gal-border bg-gal-bg h-14 px-4 text-base font-medium transition-all focus:bg-gal-light appearance-none cursor-pointer"
                   >
                     {hourOptions.map((opt) => (
                       <option key={opt.value} value={opt.value} className="bg-gal-light">
