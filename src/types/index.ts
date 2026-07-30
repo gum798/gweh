@@ -214,11 +214,6 @@ export interface DataPanelProps {
   nasa: NasaData | null;
 }
 
-export interface NavigationProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
-
 export interface LoadingScreenProps {
   message?: string;
 }

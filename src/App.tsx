@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, lazy, Suspense, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
 import AppHeader from './components/layout/AppHeader';
 import AuthModal from './components/auth/AuthModal';
@@ -79,7 +78,7 @@ function scrollToScreen(tab: string) {
 function App() {
   const { t: tc } = useTranslation();
   const { isSubscribed } = useSubscription();
-  // 상태는 string 이다 — Navigation/HeroSection 의 onTabChange 가 string 을 넘긴다.
+  // 상태는 string 이다 — HeroSection 의 onTabChange 가 string 을 넘긴다.
   // TabId 로 좁히는 일은 renderTab 에서 isTabId 로 한 번만 한다.
   const [activeTab, setActiveTab] = useState<string>(() => resolveTabOnLoad(window.location.hash));
   // 홈이냐 서비스냐가 이 셸의 유일한 분기다 — 히어로를 그릴지, 콘텐츠 컨테이너에
@@ -202,18 +201,17 @@ function App() {
           것이 이 구조다: 홈은 위에 겹쳐 있는 층이 아니라 돌아가는 곳이다. */}
       {isHome && <HeroSection onTabChange={handleTabChange} />}
 
-      {/* Navigation — 컨테이너 밖. 안에 있으면 1280px 에서 864px 섬이 된다. */}
-      <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
-
       {/* Content */}
-      {/* scroll-mt-28: 헤더(57px) + 스티키 네비(57~61px) 아래에 착지시킨다.
-          scrollIntoView 는 sticky 요소를 보정하지 않아, 없으면 콘텐츠 상단이
-          네비 뒤로 숨는다. 렌더 레이아웃에는 영향이 없다(스크롤 앵커 전용).
+      {/* 스크롤 마진은 스티키 헤더(56px) 하나만 보정하면 된다. 예전 값은 그
+          위에 스티키 탭바가 하나 더 있던 시절의 합계였고, 탭바가 사라진 지금
+          그대로 두면 화면 전환 때 콘텐츠 위에 탭바 높이만큼의 빈 띠가 남는다.
+          scrollIntoView 는 sticky 요소를 보정하지 않으므로 값 자체는 필요하다.
+          렌더 레이아웃에는 영향이 없다(스크롤 앵커 전용).
 
           위 패딩은 홈에서 뺀다. 홈의 콘텐츠는 비어 있어서(home 렌더러가 null)
           그 패딩이 히어로와 푸터 사이의 정체불명 여백으로만 남는다. 요소
           자체는 홈에서도 유지한다 — 스킵 링크의 목적지가 사라지면 안 된다. */}
-      <div id="app-content" className={`relative container mx-auto px-4 max-w-4xl scroll-mt-28 ${isHome ? '' : 'pt-8'}`}>
+      <div id="app-content" className={`relative container mx-auto px-4 max-w-4xl scroll-mt-14 ${isHome ? '' : 'pt-8'}`}>
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
