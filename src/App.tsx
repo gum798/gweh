@@ -53,12 +53,38 @@ const TAB_RENDERERS: Record<TabId, TabRenderer> = {
   summary: ({ onLoginRequired }) => <SummaryTab onLoginRequired={onLoginRequired} />,
 };
 
+/**
+ * 화면 전환 뒤의 스크롤 착지점.
+ *
+ * 홈과 서비스는 문서 안에서 서로 다른 곳에 있으므로 착지점도 다르다. 홈은
+ * 히어로가 문서 최상단이라 맨 위로 보내야 하고, 서비스는 히어로가 언마운트된
+ * 자리에 콘텐츠 컨테이너가 오므로 그 컨테이너 시작점으로 보낸다. 홈에서
+ * 콘텐츠 컨테이너로 스크롤하면 (홈의 콘텐츠가 비어 있으므로) 푸터로 내려간다 —
+ * 뒤로 가기가 아래로 움직이는 그림이 된다.
+ *
+ * rAF 를 한 번 거치는 이유: 호출 시점에는 setActiveTab 이 아직 커밋되지 않아
+ * 히어로가 살아 있고, 그 상태로 측정하면 콘텐츠 컨테이너의 y 좌표가 히어로
+ * 높이만큼 어긋난다.
+ */
+function scrollToScreen(tab: string) {
+  requestAnimationFrame(() => {
+    if (tab === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    document.getElementById('app-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 function App() {
   const { t: tc } = useTranslation();
   const { isSubscribed } = useSubscription();
   // 상태는 string 이다 — Navigation/HeroSection 의 onTabChange 가 string 을 넘긴다.
   // TabId 로 좁히는 일은 renderTab 에서 isTabId 로 한 번만 한다.
   const [activeTab, setActiveTab] = useState<string>(() => resolveTabOnLoad(window.location.hash));
+  // 홈이냐 서비스냐가 이 셸의 유일한 분기다 — 히어로를 그릴지, 콘텐츠 컨테이너에
+  // 위 패딩을 줄지, 헤더에 뒤로 가기를 띄울지가 모두 여기서 갈린다.
+  const isHome = activeTab === 'home';
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -87,9 +113,7 @@ function App() {
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     window.location.hash = tab;
-    // 이전에는 window.scrollTo({top:0}) 이었다. 히어로가 생기기 전에 쓰인 코드라
-    // 탭을 누를 때마다 865px 위 히어로 안으로 되돌아갔다. 콘텐츠 상단으로 보낸다.
-    document.getElementById('app-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToScreen(tab);
   }, []);
 
   // 뒤로/앞으로 가기 대응. 이 리스너가 없어 브라우저 히스토리가 죽어 있었다.
@@ -101,7 +125,13 @@ function App() {
   useEffect(() => {
     const onHashChange = () => {
       const next = resolveTabOnHashChange(window.location.hash);
-      if (next !== null) setActiveTab(next);
+      // null 은 인페이지 앵커다 — 탭도 스크롤도 건드리지 않는다. 여기서
+      // 스크롤을 건드리면 스킵 링크가 목적지에 닿는 순간 되밀린다.
+      if (next === null) return;
+      setActiveTab(next);
+      // 브라우저 뒤로가기로 홈에 돌아왔을 때 화면이 푸터에 머물러 있으면
+      // "상태는 홈인데 눈에는 서비스 화면의 바닥" 이 된다. 착지점을 맞춘다.
+      scrollToScreen(next);
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -160,8 +190,12 @@ function App() {
         )}
       </div>
 
-      {/* Full-screen Hero */}
-      <HeroSection onTabChange={handleTabChange} />
+      {/* 홈 화면 = 히어로. 서비스 화면에서는 렌더하지 않는다 — 히어로를 위에
+          남겨 두면 헤더의 뒤로 가기가 "화면 전환" 이 아니라 "스크롤 위치"가
+          되고, 서비스 콘텐츠를 보려면 매번 한 화면 높이를 지나야 한다.
+          설계 문서의 리스크 표가 "홈이 한 번의 뒤로가기 거리에 있다" 고 말하는
+          것이 이 구조다: 홈은 위에 겹쳐 있는 층이 아니라 돌아가는 곳이다. */}
+      {isHome && <HeroSection onTabChange={handleTabChange} />}
 
       {/* Navigation — 컨테이너 밖. 안에 있으면 1280px 에서 864px 섬이 된다. */}
       <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
@@ -169,8 +203,12 @@ function App() {
       {/* Content */}
       {/* scroll-mt-28: 헤더(57px) + 스티키 네비(57~61px) 아래에 착지시킨다.
           scrollIntoView 는 sticky 요소를 보정하지 않아, 없으면 콘텐츠 상단이
-          네비 뒤로 숨는다. 렌더 레이아웃에는 영향이 없다(스크롤 앵커 전용). */}
-      <div id="app-content" className="relative container mx-auto px-4 pt-8 max-w-4xl scroll-mt-28">
+          네비 뒤로 숨는다. 렌더 레이아웃에는 영향이 없다(스크롤 앵커 전용).
+
+          위 패딩은 홈에서 뺀다. 홈의 콘텐츠는 비어 있어서(home 렌더러가 null)
+          그 패딩이 히어로와 푸터 사이의 정체불명 여백으로만 남는다. 요소
+          자체는 홈에서도 유지한다 — 스킵 링크의 목적지가 사라지면 안 된다. */}
+      <div id="app-content" className={`relative container mx-auto px-4 max-w-4xl scroll-mt-28 ${isHome ? '' : 'pt-8'}`}>
         {/* Auth Modal */}
         <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <ProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
